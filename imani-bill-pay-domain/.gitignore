@@ -1,5 +1,5 @@
 #  IntelliJ Idea files to ignore
-.idea
+/.idea
 *.iml
 
 # Build and target directory ignore
