@@ -1,19 +1,14 @@
 package com.imani.bill.pay.domain.payment;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.property.PropertyOwner;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
-import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author manyce400
@@ -86,11 +81,6 @@ public class ACHPaymentInfo extends AuditableRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PropertyOwnerID", nullable = true)
     private PropertyOwner propertyOwner;
-
-
-    @JsonIgnore
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "achPaymentInfo")
-    private Set<ACHPaymentInfoPlaidProduct> achPaymentInfoPlaidProducts = new HashSet<>();
 
 
 
@@ -202,18 +192,6 @@ public class ACHPaymentInfo extends AuditableRecord {
         this.propertyOwner = propertyOwner;
     }
 
-    public Set<ACHPaymentInfoPlaidProduct> getAchPaymentInfoPlaidProducts() {
-        return ImmutableSet.copyOf(achPaymentInfoPlaidProducts);
-    }
-
-    public void addPlaidProductE(PlaidProductE plaidProductE) {
-        Assert.notNull(plaidProductE, "PlaidProductE cannot be null");
-        ACHPaymentInfoPlaidProduct achPaymentInfoPlaidProduct = ACHPaymentInfoPlaidProduct.builder()
-                .plaidProductE(plaidProductE)
-                .achPaymentInfo(this)
-                .build();
-        achPaymentInfoPlaidProducts.add(achPaymentInfoPlaidProduct);
-    }
 
     @Override
     public String toString() {
@@ -231,7 +209,6 @@ public class ACHPaymentInfo extends AuditableRecord {
                 .append("userRecord", userRecord)
                 .append("propertyManager", propertyManager)
                 .append("propertyOwner", propertyOwner)
-                .append("achPaymentInfoPlaidProducts", achPaymentInfoPlaidProducts)
                 .toString();
     }
 
@@ -300,11 +277,6 @@ public class ACHPaymentInfo extends AuditableRecord {
 
         public Builder propertyManager(PropertyManager propertyManager) {
             achPaymentInfo.propertyManager = propertyManager;
-            return this;
-        }
-
-        public Builder plaidProductE(PlaidProductE plaidProductE) {
-            achPaymentInfo.addPlaidProductE(plaidProductE);
             return this;
         }
 

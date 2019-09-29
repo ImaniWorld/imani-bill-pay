@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import com.imani.bill.pay.domain.property.PropertyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -97,6 +96,12 @@ public class UserRecord extends AuditableRecord {
     @Column(name = "LastLogoutDate", nullable = true)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime lastLogoutDate;
+
+
+    // Populated Only IF this user is a PropertyManager user.  This will identify the PropertyManager that the user can execute transactions on behalf of.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PropertyManagerID", nullable = true)
+    private PropertyManager propertyManager;
 
 
     public UserRecord() {
@@ -226,50 +231,6 @@ public class UserRecord extends AuditableRecord {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UserRecord that = (UserRecord) o;
-
-        return new EqualsBuilder()
-                .append(loggedIn, that.loggedIn)
-                .append(resetPassword, that.resetPassword)
-                .append(accountLocked, that.accountLocked)
-                .append(acceptedTermsAndConditions, that.acceptedTermsAndConditions)
-                .append(id, that.id)
-                .append(firstName, that.firstName)
-                .append(lastName, that.lastName)
-                .append(embeddedContactInfo, that.embeddedContactInfo)
-                .append(password, that.password)
-                .append(userRecordTypeE, that.userRecordTypeE)
-                .append(unsuccessfulLoginAttempts, that.unsuccessfulLoginAttempts)
-                .append(lastLoginDate, that.lastLoginDate)
-                .append(lastLogoutDate, that.lastLogoutDate)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(firstName)
-                .append(lastName)
-                .append(embeddedContactInfo)
-                .append(password)
-                .append(userRecordTypeE)
-                .append(unsuccessfulLoginAttempts)
-                .append(loggedIn)
-                .append(resetPassword)
-                .append(accountLocked)
-                .append(acceptedTermsAndConditions)
-                .append(lastLoginDate)
-                .append(lastLogoutDate)
-                .toHashCode();
-    }
-
-    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
@@ -285,6 +246,7 @@ public class UserRecord extends AuditableRecord {
                 .append("acceptedTermsAndConditions", acceptedTermsAndConditions)
                 .append("lastLoginDate", lastLoginDate)
                 .append("lastLogoutDate", lastLogoutDate)
+                .append("propertyManager", propertyManager)
                 .toString();
     }
 
@@ -353,6 +315,11 @@ public class UserRecord extends AuditableRecord {
 
         public Builder lastLogoutDate(DateTime lastLogoutDate) {
             userRecord.lastLogoutDate = lastLogoutDate;
+            return this;
+        }
+
+        public Builder propertyManager(PropertyManager propertyManager) {
+            userRecord.propertyManager = propertyManager;
             return this;
         }
 
