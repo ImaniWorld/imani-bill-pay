@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.property;
+package com.imani.bill.pay.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.payment.*;
@@ -36,7 +36,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
     private IACHPaymentInfoRepository iachPaymentInfoRepository;
 
     @Autowired
-    private IPlaidAPIExecMetricBuilderService iPlaidAPIExecMetricBuilderService;
+    private IPlaidAPIStatisticBuilderService iPlaidAPIStatisticBuilderService;
 
 
     public static final String SPRING_BEAN = "com.imani.cash.domain.service.payment.ach.plaid.PlaidAccountBalanceService";
@@ -82,7 +82,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
             apiInvocationEndDate = DateTime.now();
 
             // Capture and record metrics for succesful API call.
-            iPlaidAPIExecMetricBuilderService.buildBalancePlaidAPIExecMetricOnSuccess(achPaymentInfo.getUserRecord(), apiInvocationStartDate, apiInvocationEndDate);
+            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnSuccess(achPaymentInfo, apiInvocationStartDate, apiInvocationEndDate);
 
             // We expect only 1 bank account back in the list returned always return first in the list
             BankAccount bankAccount = bankAccountList.getAccounts().get(0);
@@ -90,7 +90,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
         } catch (Exception e) {
             // Capture and record metrics for succesful API call.
             LOGGER.error("Failed to execute Plaid API balance call", e);
-            iPlaidAPIExecMetricBuilderService.buildBalancePlaidAPIExecMetricOnFailure(achPaymentInfo.getUserRecord(), e.getMessage(), apiInvocationStartDate, apiInvocationEndDate);
+            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnFailure(achPaymentInfo, e.getMessage(), apiInvocationStartDate, apiInvocationEndDate);
         }
         
         return Optional.empty();

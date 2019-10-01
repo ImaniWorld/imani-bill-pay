@@ -1,7 +1,6 @@
 package com.imani.bill.pay.domain.payment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -15,9 +14,9 @@ import javax.persistence.*;
  * @author manyce400
  */
 @Entity
-@Table(name="PlaidAPIExecMetric")
+@Table(name="PlaidAPIStatistic")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PlaidAPIExecMetric {
+public class PlaidAPIStatistic {
 
 
     @Id
@@ -41,10 +40,10 @@ public class PlaidAPIExecMetric {
     private String apiExecError;
 
 
-    // Tracks the UserRecord that PlaidMetric was invoked on behalf of
+    // Tracks the ACHPaymentInfo that Plaid API call was made against
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserRecordID", nullable = true)
-    private UserRecord userRecord;
+    @JoinColumn(name = "ACHPaymentInfoID", nullable = true)
+    private ACHPaymentInfo achPaymentInfo;
 
 
     // DateTime that the Plaid API invocation was made.
@@ -61,7 +60,7 @@ public class PlaidAPIExecMetric {
     private DateTime apiInvocationEndDate;
 
 
-    public PlaidAPIExecMetric() {
+    public PlaidAPIStatistic() {
 
     }
 
@@ -97,12 +96,12 @@ public class PlaidAPIExecMetric {
         this.apiExecError = apiExecError;
     }
 
-    public UserRecord getUserRecord() {
-        return userRecord;
+    public ACHPaymentInfo getAchPaymentInfo() {
+        return achPaymentInfo;
     }
 
-    public void setUserRecord(UserRecord userRecord) {
-        this.userRecord = userRecord;
+    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+        this.achPaymentInfo = achPaymentInfo;
     }
 
     public DateTime getApiInvocationStartDate() {
@@ -128,7 +127,7 @@ public class PlaidAPIExecMetric {
                 .append("plaidProductE", plaidProductE)
                 .append("paymentAPIExecResultE", paymentAPIExecResultE)
                 .append("apiExecError", apiExecError)
-                .append("userRecord", userRecord)
+                .append("achPaymentInfo", achPaymentInfo)
                 .append("apiInvocationStartDate", apiInvocationStartDate)
                 .append("apiInvocationEndDate", apiInvocationEndDate)
                 .toString();
@@ -140,40 +139,40 @@ public class PlaidAPIExecMetric {
 
     public static class Builder {
 
-        private PlaidAPIExecMetric plaidAPIExecMetric = new PlaidAPIExecMetric();
+        private PlaidAPIStatistic plaidAPIStatistic = new PlaidAPIStatistic();
 
         public Builder plaidProductE(PlaidProductE plaidProductE) {
-            plaidAPIExecMetric.plaidProductE = plaidProductE;
+            plaidAPIStatistic.plaidProductE = plaidProductE;
             return this;
         }
 
         public Builder paymentAPIExecResultE(PaymentAPIExecResultE paymentAPIExecResultE) {
-            plaidAPIExecMetric.paymentAPIExecResultE = paymentAPIExecResultE;
+            plaidAPIStatistic.paymentAPIExecResultE = paymentAPIExecResultE;
             return this;
         }
 
         public Builder apiExecError(String apiExecError) {
-            plaidAPIExecMetric.apiExecError = apiExecError;
+            plaidAPIStatistic.apiExecError = apiExecError;
             return this;
         }
 
-        public Builder userRecord(UserRecord userRecord) {
-            plaidAPIExecMetric.userRecord = userRecord;
+        public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+            plaidAPIStatistic.achPaymentInfo = achPaymentInfo;
             return this;
         }
 
         public Builder apiInvocationStartDate(DateTime apiInvocationStartDate) {
-            plaidAPIExecMetric.apiInvocationStartDate = apiInvocationStartDate;
+            plaidAPIStatistic.apiInvocationStartDate = apiInvocationStartDate;
             return this;
         }
 
         public Builder apiInvocationEndDate(DateTime apiInvocationEndDate) {
-            plaidAPIExecMetric.apiInvocationEndDate = apiInvocationEndDate;
+            plaidAPIStatistic.apiInvocationEndDate = apiInvocationEndDate;
             return this;
         }
 
-        public PlaidAPIExecMetric build() {
-            return plaidAPIExecMetric;
+        public PlaidAPIStatistic build() {
+            return plaidAPIStatistic;
         }
     }
 }

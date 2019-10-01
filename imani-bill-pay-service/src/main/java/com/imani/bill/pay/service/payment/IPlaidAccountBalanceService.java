@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.property;
+package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.Balance;

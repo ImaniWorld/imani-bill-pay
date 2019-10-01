@@ -1,9 +1,9 @@
-package com.imani.bill.pay.service.property;
+package com.imani.bill.pay.service.payment;
 
 
-import com.imani.bill.pay.domain.payment.PlaidAPIExecMetric;
+import com.imani.bill.pay.domain.payment.PlaidAPIStatistic;
 import com.imani.bill.pay.domain.payment.PlaidProductE;
-import com.imani.bill.pay.domain.payment.repository.IPlaidAPIExecMetricRepository;
+import com.imani.bill.pay.domain.payment.repository.IPlaidAPIStatisticRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -18,25 +18,25 @@ import java.util.List;
 /**
  * @author manyce400
  */
-@Service(PlaidAPIExecMetricFinderService.SPRING_BEAN)
-public class PlaidAPIExecMetricFinderService implements IPlaidAPIExecMetricFinderService {
+@Service(PlaidAPIStatisticFinderService.SPRING_BEAN)
+public class PlaidAPIStatisticFinderService implements IPlaidAPIStatisticFinderService {
 
 
     @Autowired
-    private IPlaidAPIExecMetricRepository iPlaidAPIExecMetricRepository;
+    private IPlaidAPIStatisticRepository iPlaidAPIStatisticRepository;
 
     @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PlaidAPIExecMetricFinderService.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PlaidAPIStatisticFinderService.class);
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.property.PlaidAPIExecMetricFinderService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.PlaidAPIStatisticFinderService";
 
 
 
     @Override
-    public List<PlaidAPIExecMetric> findUserPlaidAPIExecMetricCurrentMonth(UserRecord userRecord, PlaidProductE plaidProductE) {
+    public List<PlaidAPIStatistic> findUserPlaidAPIExecMetricCurrentMonth(UserRecord userRecord, PlaidProductE plaidProductE) {
         Assert.notNull(userRecord, "userRecord cannot be null");
         Assert.notNull(plaidProductE, "plaidProductE cannot be null");
 
@@ -45,6 +45,6 @@ public class PlaidAPIExecMetricFinderService implements IPlaidAPIExecMetricFinde
         DateTime dateTimeAtEndOfMonth = iDateTimeUtil.getDateTimeAtEndOfMonth(now);
 
         LOGGER.info("Finding all Plaid API Metrics for User:=> {} PlaidProduct:=> {} dateTimeAtStartOfMonth:=> {}  dateTimeAtEndOfMonth:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), plaidProductE, dateTimeAtStartOfMonth, dateTimeAtEndOfMonth);
-        return iPlaidAPIExecMetricRepository.findUserPlaidAPIExecMetricByProductBetweenDates(userRecord, plaidProductE, dateTimeAtStartOfMonth, dateTimeAtEndOfMonth);
+        return iPlaidAPIStatisticRepository.findUserPlaidAPIExecMetricByProductBetweenDates(userRecord, plaidProductE, dateTimeAtStartOfMonth, dateTimeAtEndOfMonth);
     }
 }
