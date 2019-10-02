@@ -40,7 +40,7 @@ public class UserRecord extends AuditableRecord {
 
 
     // For security reasons, this field will not be returned in JSON of this object.
-    // @JsonIgnore
+    @JsonIgnore
     @Column(name="Password", nullable=false, length = 200)
     private String password;
 
@@ -52,7 +52,7 @@ public class UserRecord extends AuditableRecord {
 
     // Track the number of unsuccessful login attempts. This should be tracked by security protocols and appropriate actions taken
     // For security reasons, this field will not be returned in JSON of this object.
-    @JsonIgnore
+    //@JsonIgnore
     @Column(name="UnsuccessfulLoginAttempts", nullable=true)
     private Integer unsuccessfulLoginAttempts;
 
@@ -64,7 +64,7 @@ public class UserRecord extends AuditableRecord {
 
 
     // For security reasons, this field will not be returned in JSON of this object.
-    @JsonIgnore
+    //@JsonIgnore
     @Column(name="ResetPassword", nullable = true, columnDefinition = "TINYINT", length = 1)
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean resetPassword;
