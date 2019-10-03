@@ -15,6 +15,7 @@
   <modules>
     <module>imani-bill-pay-domain</module>
     <module>imani-bill-pay-service</module>
+      <module>imani-bill-pay-zgateway</module>
   </modules>
 
 </project>
