@@ -1,4 +1,4 @@
-package com.imani.bill.pay.security.jwt;
+package com.imani.bill.pay.zgateway.security.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +32,7 @@ public class AppWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/auth/signin").permitAll()
+                .antMatchers("/auth/api/jwt/validate").permitAll() // EndPoint to validate and request application JWT token
                 .antMatchers("/auth/user/login").permitAll()
                 .antMatchers("/auth/user/logout").permitAll()
                 .anyRequest().authenticated()

@@ -1,4 +1,4 @@
-package com.imani.bill.pay.security.jwt;
+package com.imani.bill.pay.zgateway.security.jwt;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

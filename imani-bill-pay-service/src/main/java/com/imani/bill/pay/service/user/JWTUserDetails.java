@@ -1,6 +1,7 @@
 package com.imani.bill.pay.service.user;
 
 import com.imani.bill.pay.domain.user.UserRecord;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,5 +50,12 @@ public class JWTUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("userRecord", userRecord)
+                .toString();
     }
 }

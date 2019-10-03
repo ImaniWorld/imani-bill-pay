@@ -1,4 +1,4 @@
-package com.imani.bill.pay.security.jwt;
+package com.imani.bill.pay.zgateway.security.jwt;
 
 import com.google.common.collect.ImmutableList;
 import com.imani.bill.pay.service.user.JWTUserDetailsService;

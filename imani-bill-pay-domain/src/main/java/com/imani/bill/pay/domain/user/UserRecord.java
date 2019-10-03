@@ -40,7 +40,7 @@ public class UserRecord extends AuditableRecord {
 
 
     // For security reasons, this field will not be returned in JSON of this object.
-    @JsonIgnore
+    //@JsonIgnore
     @Column(name="Password", nullable=false, length = 200)
     private String password;
 
