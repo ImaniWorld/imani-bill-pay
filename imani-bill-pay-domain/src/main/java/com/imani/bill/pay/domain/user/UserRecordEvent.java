@@ -12,7 +12,7 @@ import java.util.Optional;
  * @author manyce400
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserRecordAuth extends APIGatewayEvent {
+public class UserRecordEvent extends APIGatewayEvent {
 
 
 
@@ -22,7 +22,7 @@ public class UserRecordAuth extends APIGatewayEvent {
     private Optional<UserLoginStatistic> userLoginStatistic;
 
 
-    public UserRecordAuth() {
+    public UserRecordEvent() {
 
     }
 
@@ -50,26 +50,26 @@ public class UserRecordAuth extends APIGatewayEvent {
 
     public static final class Builder {
 
-        private UserRecordAuth userRecordAuth = new UserRecordAuth();
+        private UserRecordEvent userRecordEvent = new UserRecordEvent();
 
         public Builder apiGatewayEventStatusE(APIGatewayEventStatusE apiGatewayEventStatusE) {
-            userRecordAuth.apiGatewayEventStatusE = apiGatewayEventStatusE;
+            userRecordEvent.apiGatewayEventStatusE = apiGatewayEventStatusE;
             return this;
         }
 
         public Builder userRecord(UserRecord userRecord) {
-            userRecordAuth.userRecord = userRecord;
+            userRecordEvent.userRecord = userRecord;
             return this;
         }
 
         public Builder userLoginStatistic(UserLoginStatistic userLoginStatistic) {
-            userRecordAuth.userLoginStatistic = Optional.of(userLoginStatistic);
+            userRecordEvent.userLoginStatistic = Optional.of(userLoginStatistic);
             return this;
         }
 
-        public UserRecordAuth build() {
-            userRecordAuth.addEventTime();
-            return userRecordAuth;
+        public UserRecordEvent build() {
+            userRecordEvent.addEventTime();
+            return userRecordEvent;
         }
     }
 }

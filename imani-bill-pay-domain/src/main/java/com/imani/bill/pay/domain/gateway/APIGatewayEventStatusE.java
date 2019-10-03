@@ -9,6 +9,8 @@ public enum APIGatewayEventStatusE {
 
     Fail,
 
+    InvalidRequest,
+
     Processing
     ;
 }

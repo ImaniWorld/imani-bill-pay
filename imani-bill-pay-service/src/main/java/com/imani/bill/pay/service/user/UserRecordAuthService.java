@@ -2,7 +2,7 @@ package com.imani.bill.pay.service.user;
 
 
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordAuth;
+import com.imani.bill.pay.domain.user.UserRecordEvent;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ public class UserRecordAuthService implements IUserRecordAuthService {
 
     @Transactional
     @Override
-    public UserRecordAuth authenticateAndLogInUserRecord(UserRecordAuth userRecordAuth) {
+    public UserRecordEvent authenticateAndLogInUserRecord(UserRecordEvent userRecordAuth) {
         Assert.notNull(userRecordAuth, "UserTransactionGatewayMessage cannot be null");
         Assert.notNull(userRecordAuth.getUserRecord(), "UserRecord cannot be null");
         Assert.notNull(userRecordAuth.getUserRecord().getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
@@ -82,7 +82,7 @@ public class UserRecordAuthService implements IUserRecordAuthService {
 
     @Transactional
     @Override
-    public UserRecordAuth authenticateAndLogOutUserRecord(UserRecordAuth userRecordAuth) {
+    public UserRecordEvent authenticateAndLogOutUserRecord(UserRecordEvent userRecordAuth) {
         Assert.notNull(userRecordAuth, "UserTransactionGatewayMessage cannot be null");
         Assert.notNull(userRecordAuth.getUserRecord(), "UserRecord cannot be null");
         Assert.notNull(userRecordAuth.getUserRecord().getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
@@ -108,7 +108,7 @@ public class UserRecordAuthService implements IUserRecordAuthService {
         return null;
     }
 
-    UserRecordAuth executeUserRecordLogin(UserRecord userRecord) {
+    UserRecordEvent executeUserRecordLogin(UserRecord userRecord) {
         LOGGER.info("UserRecord has been authenticated successfully completing login steps...");
 
         // Fetch the actual UserRecord so we can update statistics on number of times this user has tried to login unsuccessfully to lock their account
@@ -121,30 +121,30 @@ public class UserRecordAuthService implements IUserRecordAuthService {
         return getSuccesfulUserRecordAuthentication(userRecord);
     }
 
-    UserRecordAuth getSuccesfulUserRecordAuthentication(UserRecord userRecord) {
-        UserRecordAuth userRecordAuth = UserRecordAuth.builder()
+    UserRecordEvent getSuccesfulUserRecordAuthentication(UserRecord userRecord) {
+        UserRecordEvent userRecordAuth = UserRecordEvent.builder()
                 .userRecord(userRecord)
                 .build();
         return userRecordAuth;
     }
 
-    UserRecordAuth getSuccesfulLogOutUserRecordAuthentication(UserRecord userRecord) {
-        UserRecordAuth userRecordAuth = UserRecordAuth.builder()
+    UserRecordEvent getSuccesfulLogOutUserRecordAuthentication(UserRecord userRecord) {
+        UserRecordEvent userRecordAuth = UserRecordEvent.builder()
                 .userRecord(userRecord)
                 .build();
         return userRecordAuth;
     }
 
 
-    UserRecordAuth getBadCredentialsUserRecordAuthentication(UserRecord userRecord, Integer unsucessfulLoginAttempts) {
-        UserRecordAuth userRecordAuth = UserRecordAuth.builder()
+    UserRecordEvent getBadCredentialsUserRecordAuthentication(UserRecord userRecord, Integer unsucessfulLoginAttempts) {
+        UserRecordEvent userRecordAuth = UserRecordEvent.builder()
                 .userRecord(userRecord)
                 .build();
         return userRecordAuth;
     }
 
-    UserRecordAuth getLockedUserRecordAuthentication(UserRecord userRecord, Integer unsucessfulLoginAttempts) {
-        UserRecordAuth userRecordAuth = UserRecordAuth.builder()
+    UserRecordEvent getLockedUserRecordAuthentication(UserRecord userRecord, Integer unsucessfulLoginAttempts) {
+        UserRecordEvent userRecordAuth = UserRecordEvent.builder()
                 .userRecord(userRecord)
                 .build();
         return userRecordAuth;

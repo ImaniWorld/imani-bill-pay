@@ -2,7 +2,7 @@ package com.imani.bill.pay.service.user;
 
 
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordAuth;
+import com.imani.bill.pay.domain.user.UserRecordEvent;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
 public interface IUserRecordAuthService {
 
 
-    public UserRecordAuth authenticateAndLogInUserRecord(UserRecordAuth userRecordAuth);
+    public UserRecordEvent authenticateAndLogInUserRecord(UserRecordEvent userRecordAuth);
 
-    public UserRecordAuth authenticateAndLogOutUserRecord(UserRecordAuth userRecordAuth);
+    public UserRecordEvent authenticateAndLogOutUserRecord(UserRecordEvent userRecordAuth);
 
     public List<UserRecord> findAllUserRecord();
 
