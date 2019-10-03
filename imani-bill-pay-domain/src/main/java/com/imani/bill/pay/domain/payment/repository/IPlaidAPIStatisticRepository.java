@@ -17,9 +17,9 @@ import java.util.List;
 public interface IPlaidAPIStatisticRepository extends JpaRepository<PlaidAPIStatistic, Long> {
 
 
-    @Query("Select  plaidAPIExecMetric From PlaidAPIStatistic plaidAPIExecMetric Where plaidAPIExecMetric.userRecord =?1 and plaidAPIExecMetric.apiInvocationStartDate >= ?2 and plaidAPIExecMetric.apiInvocationStartDate <= ?3")
+    @Query("Select  plaidAPIStatistic From PlaidAPIStatistic plaidAPIStatistic Where plaidAPIStatistic.achPaymentInfo.userRecord =?1 and plaidAPIStatistic.apiInvocationStartDate >= ?2 and plaidAPIStatistic.apiInvocationStartDate <= ?3")
     public List<PlaidAPIStatistic> findUserPlaidAPIExecMetricBetweenDates(UserRecord userRecord, DateTime startDate, DateTime endDate);
 
-    @Query("Select  plaidAPIExecMetric From PlaidAPIStatistic plaidAPIExecMetric Where plaidAPIExecMetric.userRecord =?1 and plaidAPIExecMetric.plaidProductE =?2 and plaidAPIExecMetric.apiInvocationStartDate >= ?3 and plaidAPIExecMetric.apiInvocationStartDate <= ?4")
+    @Query("Select  plaidAPIStatistic From PlaidAPIStatistic plaidAPIStatistic Where plaidAPIStatistic.achPaymentInfo.userRecord =?1 and plaidAPIStatistic.plaidProductE =?2 and plaidAPIStatistic.apiInvocationStartDate >= ?3 and plaidAPIStatistic.apiInvocationStartDate <= ?4")
     public List<PlaidAPIStatistic> findUserPlaidAPIExecMetricByProductBetweenDates(UserRecord userRecord, PlaidProductE plaidProductE, DateTime startDate, DateTime endDate);
 }
