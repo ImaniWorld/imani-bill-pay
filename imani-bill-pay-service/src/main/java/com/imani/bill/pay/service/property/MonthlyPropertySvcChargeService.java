@@ -24,7 +24,7 @@ public class MonthlyPropertySvcChargeService implements IMonthlyPropertySvcCharg
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MonthlyPropertySvcChargeService.class);
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.property.billing.MonthlyPropertySvcChargeService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.property.MonthlyPropertySvcChargeService";
 
 
     @Override

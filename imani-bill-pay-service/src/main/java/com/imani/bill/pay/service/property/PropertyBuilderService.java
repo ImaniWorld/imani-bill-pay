@@ -29,7 +29,7 @@ public class PropertyBuilderService implements IPropertyBuilderService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PropertyBuilderService.class);
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.property.rental.PropertyBuilderService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.property.PropertyBuilderService";
 
 
     @Transactional

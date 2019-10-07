@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestTemplateConfigurator {
 
-    public static final String SERVICE_REST_TEMPLATE = "com.imani.cash.domain.service.rest.RestTemplateConfigurator";
+    public static final String SERVICE_REST_TEMPLATE = "com.imani.bill.pay.service.rest.RestTemplateConfigurator";
 
     @Bean(RestTemplateConfigurator.SERVICE_REST_TEMPLATE)
     public RestTemplate configureServiceRestTemplate() {

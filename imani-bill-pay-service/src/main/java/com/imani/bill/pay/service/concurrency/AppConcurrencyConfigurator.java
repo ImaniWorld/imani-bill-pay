@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 public class AppConcurrencyConfigurator {
 
 
-    public static final String SERVICE_THREAD_POOL = "com.imani.cash.domain.service.concurrent.AppConcurrencyConfigurator";
+    public static final String SERVICE_THREAD_POOL = "com.imani.bill.pay.service.concurrency.AppConcurrencyConfigurator";
 
     // TODO customize the number of threads used in this pool
     @Bean(AppConcurrencyConfigurator.SERVICE_THREAD_POOL)

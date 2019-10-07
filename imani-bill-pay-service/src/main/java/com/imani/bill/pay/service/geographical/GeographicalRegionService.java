@@ -21,7 +21,7 @@ public class GeographicalRegionService implements IGeographicalRegionService {
 
 
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.geographical.GeographicalRegionService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.geographical.GeographicalRegionService";
 
 
     @Override

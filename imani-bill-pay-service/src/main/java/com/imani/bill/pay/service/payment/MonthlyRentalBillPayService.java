@@ -53,7 +53,7 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MonthlyRentalBillPayService.class);
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.property.billing.MonthlyRentalBillPayService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.MonthlyRentalBillPayService";
 
     @Transactional
     @Override

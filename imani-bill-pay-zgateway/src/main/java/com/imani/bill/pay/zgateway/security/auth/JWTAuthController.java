@@ -59,7 +59,6 @@ public class JWTAuthController {
 
             List<String> roles = ImmutableList.of("APIUser");
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRecord.getEmbeddedContactInfo().getEmail(), userRecord.getPassword()));
-            System.out.println("auth = " + auth);
             String token = jwtTokenProvider.createToken(username, roles);
 
             Map<Object, Object> model = new HashMap<>();

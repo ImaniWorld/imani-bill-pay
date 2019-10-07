@@ -24,7 +24,7 @@ public class JWTUserDetailsService implements UserDetailsService {
     private IUserRecordRepository iUserRecordRepository;
 
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.user.JWTUserDetailsService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.JWTUserDetailsService";
 
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JWTUserDetailsService.class);

@@ -25,7 +25,7 @@ public class UserResidenceService implements IUserResidenceService {
     private IUserResidenceRepository iUserResidenceRepository;
 
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.user.UserResidenceService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.UserResidenceService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserResidenceService.class);
 

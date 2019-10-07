@@ -25,7 +25,7 @@ public class UserLoginStatisticService implements IUserLoginStatisticService {
     private IUserLoginStatisticRepository iUserLoginStatisticRepository;
 
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.user.UserLoginStatisticService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.UserLoginStatisticService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserLoginStatisticService.class);
 

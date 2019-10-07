@@ -35,7 +35,7 @@ public class PlaidAPIStatisticBuilderService implements IPlaidAPIStatisticBuilde
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PlaidAPIStatisticBuilderService.class);
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.payment.ach.plaid.PlaidAPIStatisticBuilderService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.PlaidAPIStatisticBuilderService";
 
 
 

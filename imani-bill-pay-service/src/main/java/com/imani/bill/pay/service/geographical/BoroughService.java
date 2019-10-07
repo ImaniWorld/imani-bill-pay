@@ -22,7 +22,7 @@ public class BoroughService implements IBoroughService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BoroughService.class);
 
-    public static final String SPRING_BEAN = "com.imani.cash.domain.service.geographical.BoroughService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.geographical.BoroughService";
 
     @Override
     public Optional<Borough> findByID(Long id) {
