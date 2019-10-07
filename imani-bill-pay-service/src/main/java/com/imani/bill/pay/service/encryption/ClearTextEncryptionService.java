@@ -30,7 +30,7 @@ public class ClearTextEncryptionService implements IClearTextEncryptionService {
 
     public static void main(String[] args) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("BillPayNodeClient8909!#");
+        String result = encoder.encode("MagicKingdom2018");
         System.out.println("result = " + result);
     }
 

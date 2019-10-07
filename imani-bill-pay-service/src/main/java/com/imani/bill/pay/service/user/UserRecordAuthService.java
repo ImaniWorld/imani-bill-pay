@@ -71,6 +71,7 @@ public class UserRecordAuthService implements IUserRecordAuthService {
         } catch (BadCredentialsException e) {
             LOGGER.info("Invalid credentials supplied for UserRecord:=> {} abandoning login process...", userRecord.getEmbeddedContactInfo().getEmail());
             Integer unsucessfulLoginAttempts = trackUnsuccessfulLoginAttempts(userRecord);
+            e.printStackTrace();
             return getBadCredentialsUserRecordAuthentication(userRecord, unsucessfulLoginAttempts);
         } catch (LockedException e) {
             LOGGER.info("Account is currently locked for UserRecord:=> {} abandoning login process...", userRecord.getEmbeddedContactInfo().getEmail());

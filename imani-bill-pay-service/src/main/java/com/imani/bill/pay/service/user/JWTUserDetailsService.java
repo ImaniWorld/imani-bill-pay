@@ -2,7 +2,6 @@ package com.imani.bill.pay.service.user;
 
 
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordTypeE;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +35,7 @@ public class JWTUserDetailsService implements UserDetailsService {
         LOGGER.debug("UserRecord found: {}", userRecord);
 
         // This implementation will only allow APIUser to login
-        if(userRecord != null && userRecord.getUserRecordTypeE() == UserRecordTypeE.APIUser) {
+        if(userRecord != null) {
             JWTUserDetails userDetails = new JWTUserDetails(userRecord);
             return userDetails;
         }
