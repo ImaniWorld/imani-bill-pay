@@ -129,4 +129,43 @@ public class EmbeddedPayment {
                 .append("paymentPostDate", paymentPostDate)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private EmbeddedPayment embeddedPayment = new EmbeddedPayment();
+
+        public Builder paymentAmount(Double paymentAmount) {
+            embeddedPayment.paymentAmount = paymentAmount;
+            return this;
+        }
+
+        public Builder currency(String currency) {
+            embeddedPayment.currency = currency;
+            return this;
+        }
+
+        public Builder paymentStatusE(PaymentStatusE paymentStatusE) {
+            embeddedPayment.paymentStatusE = paymentStatusE;
+            return this;
+        }
+
+        public Builder paymentDate(DateTime paymentDate) {
+            embeddedPayment.paymentDate = paymentDate;
+            return this;
+        }
+
+        public Builder paymentPostDate(DateTime paymentPostDate) {
+            embeddedPayment.paymentPostDate = paymentPostDate;
+            return this;
+        }
+
+        public EmbeddedPayment build() {
+            return embeddedPayment;
+        }
+
+    }
 }

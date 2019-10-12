@@ -1,6 +1,8 @@
 package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.RentalPaymentHistory;
+import com.imani.bill.pay.domain.property.MonthlyRentalBill;
+import com.imani.bill.pay.domain.property.MonthlyRentalBillExplained;
 import com.imani.bill.pay.domain.user.UserRecord;
 
 import java.util.List;
@@ -13,6 +15,8 @@ public interface IRentalPaymentHistoryService {
 
 
     public void save(RentalPaymentHistory rentalPaymentHistory);
+
+    public void createRentalPaymentHistory(MonthlyRentalBill monthlyRentalBill, MonthlyRentalBillExplained monthlyRentalBillExplained);
 
     // Finds entire RentalPaymentHistory in the current month for the UserRecord
     public Optional<List<RentalPaymentHistory>> findUserRentalPaymentForCurrentMonth(UserRecord userRecord);

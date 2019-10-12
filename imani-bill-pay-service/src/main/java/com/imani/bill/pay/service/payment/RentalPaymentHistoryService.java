@@ -1,8 +1,13 @@
 package com.imani.bill.pay.service.payment;
 
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.EmbeddedPayment;
 import com.imani.bill.pay.domain.payment.PaymentStatusE;
 import com.imani.bill.pay.domain.payment.RentalPaymentHistory;
+import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.payment.repository.IRentalPaymentHistoryRepository;
+import com.imani.bill.pay.domain.property.MonthlyRentalBill;
+import com.imani.bill.pay.domain.property.MonthlyRentalBillExplained;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -27,6 +32,9 @@ public class RentalPaymentHistoryService implements IRentalPaymentHistoryService
     private IRentalPaymentHistoryRepository iRentalPaymentHistoryRepository;
 
     @Autowired
+    private IACHPaymentInfoRepository iachPaymentInfoRepository;
+
+    @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
 
@@ -38,9 +46,40 @@ public class RentalPaymentHistoryService implements IRentalPaymentHistoryService
     @Transactional
     @Override
     public void save(RentalPaymentHistory rentalPaymentHistory) {
-        Assert.notNull(rentalPaymentHistory, "rentalPaymentHistory cannot be empty");
+        Assert.notNull(rentalPaymentHistory, "rentalPaymentHistory cannot be null");
         LOGGER.debug("Saving rentalPaymentHistory: {}", rentalPaymentHistory);
         iRentalPaymentHistoryRepository.save(rentalPaymentHistory);
+    }
+
+
+    @Transactional
+    @Override
+    public void createRentalPaymentHistory(MonthlyRentalBill monthlyRentalBill, MonthlyRentalBillExplained monthlyRentalBillExplained) {
+        Assert.notNull(monthlyRentalBillExplained, "monthlyRentalBillExplained cannot be null");
+        Assert.notNull(monthlyRentalBill, "monthlyRentalBill cannot be null");
+
+        LOGGER.debug("Creating RentalPayment history for payment on monthlyRentalBillExplained:=> {}", monthlyRentalBillExplained);
+
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findUserACHPaymentInfo(monthlyRentalBillExplained.getUserResidence().getUserRecord());
+
+        // Create embedded payment information
+        EmbeddedPayment embeddedPayment = EmbeddedPayment.builder()
+                .paymentAmount(monthlyRentalBillExplained.getAmtBeingPaid())
+                .paymentDate(DateTime.now())
+                .paymentStatusE(PaymentStatusE.Pending)
+                .currency("USD")
+                .build();
+
+        // Create RentalPaymentHistory
+        RentalPaymentHistory rentalPaymentHistory = RentalPaymentHistory.builder()
+                .achPaymentInfo(achPaymentInfo)
+                .embeddedPayment(embeddedPayment)
+                .monthlyRentalBill(monthlyRentalBill)
+                .userRecord(monthlyRentalBillExplained.getUserResidence().getUserRecord())
+                .build();
+
+        // Save the RentalPaymentHistory
+        save(rentalPaymentHistory);
     }
 
     @Override
