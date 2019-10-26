@@ -2,7 +2,6 @@ package com.imani.bill.pay.service.user;
 
 import com.imani.bill.pay.domain.property.Apartment;
 import com.imani.bill.pay.domain.property.Property;
-import com.imani.bill.pay.domain.property.PropertyTypeE;
 import com.imani.bill.pay.domain.property.RentalAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
@@ -32,10 +31,10 @@ public class UserResidenceService implements IUserResidenceService {
 
     @Transactional
     @Override
-    public void buildUserResidence(UserRecord userRecord, Property property, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Property property, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(property, "Property cannot be null");
-        Assert.isTrue(property.getPropertyTypeE() == PropertyTypeE.SingleFamily, "SingleFamily PropertyType expected");
+        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
 
         LOGGER.debug("Building residence for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
@@ -46,15 +45,16 @@ public class UserResidenceService implements IUserResidenceService {
                 .build();
 
         iUserResidenceRepository.save(userResidence);
+        return userResidence;
     }
 
     @Transactional
     @Override
-    public void buildUserResidence(UserRecord userRecord, Property property, RentalAgreement rentalAgreement, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Property property, RentalAgreement rentalAgreement, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(property, "Property cannot be null");
-        Assert.notNull(property, "RentalAgreement cannot be null");
-        Assert.isTrue(property.getPropertyTypeE() == PropertyTypeE.SingleFamily, "SingleFamily PropertyType expected");
+        Assert.notNull(rentalAgreement, "rentalAgreement cannot be null");
+        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
 
         LOGGER.debug("Building residence for user:=> {} with rental agreement", userRecord.getEmbeddedContactInfo().getEmail());
 
@@ -66,14 +66,16 @@ public class UserResidenceService implements IUserResidenceService {
                 .build();
 
         iUserResidenceRepository.save(userResidence);
+        return userResidence;
     }
 
     @Transactional
     @Override
-    public void buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(property, "Property cannot be null");
-        Assert.isTrue(property.getPropertyTypeE() == PropertyTypeE.MultiFamily, "MultiFamily PropertyType expected");
+        Assert.notNull(apartment, "apartment cannot be null");
+        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
 
         LOGGER.debug("Building residence for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
@@ -85,15 +87,16 @@ public class UserResidenceService implements IUserResidenceService {
                 .build();
 
         iUserResidenceRepository.save(userResidence);
+        return userResidence;
     }
 
     @Transactional
     @Override
-    public void buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, RentalAgreement rentalAgreement, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, RentalAgreement rentalAgreement, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(property, "Property cannot be null");
         Assert.notNull(property, "RentalAgreement cannot be null");
-        Assert.isTrue(property.getPropertyTypeE() == PropertyTypeE.MultiFamily, "MultiFamily PropertyType expected");
+        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
 
         LOGGER.debug("Building residence for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
@@ -106,5 +109,7 @@ public class UserResidenceService implements IUserResidenceService {
                 .build();
 
         iUserResidenceRepository.save(userResidence);
+        return userResidence;
     }
+
 }

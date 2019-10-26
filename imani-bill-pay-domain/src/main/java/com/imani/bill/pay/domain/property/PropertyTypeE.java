@@ -11,6 +11,8 @@ public enum PropertyTypeE {
 
     MultiFamily,
 
+    Condo,
+
     Office,
 
     Commercial
