@@ -29,8 +29,8 @@ public abstract class AbstractMonthlyRentalBillingTest {
 
     @Before
     public void before() {
-        // Create a RentalAgreement for this test session
-        RentalAgreement rentalAgreement = buildRentalAgreement();
+        // Create a LeaseAgreement for this test session
+        LeaseAgreement leaseAgreement = buildRentalAgreement();
 
         // Create Mock user for these tests
         UserRecord userRecord = buildUserRecord();
@@ -44,7 +44,7 @@ public abstract class AbstractMonthlyRentalBillingTest {
         userResidence = UserResidence.builder()
                 .userRecord(userRecord)
                 .property(property)
-                .rentalAgreement(rentalAgreement)
+                .rentalAgreement(leaseAgreement)
                 .primaryResidence(true)
                 .apartment(apartment)
                 .build();
@@ -104,12 +104,12 @@ public abstract class AbstractMonthlyRentalBillingTest {
     }
 
 
-    private RentalAgreement buildRentalAgreement() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+    private LeaseAgreement buildRentalAgreement() {
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .agreementInEffect(true)
                 .monthlyRentalCost(1800.00)
                 .build();
-        return rentalAgreement;
+        return leaseAgreement;
     }
 
     private UserRecord buildUserRecord() {

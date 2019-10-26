@@ -1,8 +1,8 @@
 package com.imani.bill.pay.service.user;
 
 import com.imani.bill.pay.domain.property.Apartment;
+import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
-import com.imani.bill.pay.domain.property.RentalAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.repository.IUserResidenceRepository;
@@ -46,7 +46,7 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
         Assert.assertNotNull(userResidence);
         Assert.assertTrue(userResidence.isPrimaryResidence());
         Assert.assertNull(userResidence.getApartment());
-        Assert.assertNull(userResidence.getRentalAgreement());
+        Assert.assertNull(userResidence.getLeaseAgreement());
         Assert.assertEquals(userRecord, userResidence.getUserRecord());
         Assert.assertEquals(property, userResidence.getProperty());
     }
@@ -55,9 +55,9 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
     public void testBuildUserResidenceRentalAgreement() {
         UserRecord userRecord = buildUserRecord();
         Property property = buildMultiFamilyProperty();
-        RentalAgreement rentalAgreement = buildRentalAgreement();
+        LeaseAgreement leaseAgreement = buildRentalAgreement();
 
-        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, property, rentalAgreement, true);
+        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, property, leaseAgreement, true);
 
         // Verify that save is called at least once
         Mockito.verify(iUserResidenceRepository, Mockito.times(1)).save(Mockito.any());
@@ -66,7 +66,7 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
         Assert.assertNotNull(userResidence);
         Assert.assertTrue(userResidence.isPrimaryResidence());
         Assert.assertEquals(userRecord, userResidence.getUserRecord());
-        Assert.assertEquals(rentalAgreement, userResidence.getRentalAgreement());
+        Assert.assertEquals(leaseAgreement, userResidence.getLeaseAgreement());
         Assert.assertEquals(property, userResidence.getProperty());
     }
 
@@ -74,10 +74,9 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
     @Test
     public void testBuildUserResidencePropertyAndApartment() {
         UserRecord userRecord = buildUserRecord();
-        Property property = buildMultiFamilyProperty();
         Apartment apartment = buildApartment();
 
-        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, property, apartment, true);
+        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, apartment, true);
 
         // Verify that save is called at least once
         Mockito.verify(iUserResidenceRepository, Mockito.times(1)).save(Mockito.any());
@@ -85,20 +84,18 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
         // verify results
         Assert.assertNotNull(userResidence);
         Assert.assertTrue(userResidence.isPrimaryResidence());
-        Assert.assertNull(userResidence.getRentalAgreement());
+        Assert.assertNull(userResidence.getLeaseAgreement());
         Assert.assertEquals(userRecord, userResidence.getUserRecord());
-        Assert.assertEquals(property, userResidence.getProperty());
         Assert.assertEquals(apartment, userResidence.getApartment());
     }
 
     @Test
     public void testBuildUserResidencePropertyApartmentAndAgreement() {
         UserRecord userRecord = buildUserRecord();
-        Property property = buildMultiFamilyProperty();
         Apartment apartment = buildApartment();
-        RentalAgreement rentalAgreement = buildRentalAgreement();
+        LeaseAgreement leaseAgreement = buildRentalAgreement();
 
-        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, property, apartment, rentalAgreement, true);
+        UserResidence userResidence = userResidenceService.buildUserResidence(userRecord, apartment, leaseAgreement, true);
 
         // Verify that save is called at least once
         Mockito.verify(iUserResidenceRepository, Mockito.times(1)).save(Mockito.any());
@@ -107,9 +104,8 @@ public class UserResidenceServiceTest implements IMockUserRecordTestBuilder, IMo
         Assert.assertNotNull(userResidence);
         Assert.assertTrue(userResidence.isPrimaryResidence());
         Assert.assertEquals(userRecord, userResidence.getUserRecord());
-        Assert.assertEquals(property, userResidence.getProperty());
         Assert.assertEquals(apartment, userResidence.getApartment());
-        Assert.assertEquals(rentalAgreement, userResidence.getRentalAgreement());
+        Assert.assertEquals(leaseAgreement, userResidence.getLeaseAgreement());
     }
 
 }

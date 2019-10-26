@@ -75,7 +75,7 @@ public class MonthlyRentalBillDescServiceTest extends AbstractMonthlyRentalBilli
         rentalMonth = DateTime.parse("2019-09-01 00:00:00", DateTimeUtilTest.DEFAULT_FORMATTER);
         monthlyRentalBill = MonthlyRentalBill.builder()
                 .userResidence(userResidence)
-                .rentalAgreement(userResidence.getRentalAgreement())
+                .rentalAgreement(userResidence.getLeaseAgreement())
                 .amountPaid(0.0)
                 .rentalMonth(rentalMonth)
                 .build();
@@ -128,7 +128,9 @@ public class MonthlyRentalBillDescServiceTest extends AbstractMonthlyRentalBilli
             String value = mapper.writeValueAsString(monthlyRentalBillExplained.get());
             System.out.println("value = " + value);
         } catch (JsonProcessingException e) {
+            // Fail test if this fails
             e.printStackTrace();
+            Assert.fail("Failed to write MonthlyRentalBillExplained to JSON.  Check object properties.");
         }
     }
 

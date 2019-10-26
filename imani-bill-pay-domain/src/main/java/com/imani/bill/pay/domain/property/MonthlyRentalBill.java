@@ -57,10 +57,10 @@ public class MonthlyRentalBill extends AuditableRecord {
     private UserResidence userResidence;
 
 
-    // Tracks the RentalAgreement linked to this monthly payment
+    // Tracks the LeaseAgreement linked to this monthly payment
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "RentalAgreementID", nullable = false)
-    private RentalAgreement rentalAgreement;
+    private LeaseAgreement leaseAgreement;
 
 
     // Tracks all additional fees that should be applied to this bill
@@ -112,12 +112,12 @@ public class MonthlyRentalBill extends AuditableRecord {
         this.userResidence = userResidence;
     }
 
-    public RentalAgreement getRentalAgreement() {
-        return rentalAgreement;
+    public LeaseAgreement getLeaseAgreement() {
+        return leaseAgreement;
     }
 
-    public void setRentalAgreement(RentalAgreement rentalAgreement) {
-        this.rentalAgreement = rentalAgreement;
+    public void setLeaseAgreement(LeaseAgreement leaseAgreement) {
+        this.leaseAgreement = leaseAgreement;
     }
 
     public void addMonthlyRentalFee(MonthlyRentalFee monthlyRentalFee) {
@@ -147,7 +147,7 @@ public class MonthlyRentalBill extends AuditableRecord {
                 .append(amountPaid, that.amountPaid)
                 .append(rentalMonth, that.rentalMonth)
                 .append(userResidence, that.userResidence)
-                .append(rentalAgreement, that.rentalAgreement)
+                .append(leaseAgreement, that.leaseAgreement)
                 .isEquals();
     }
 
@@ -159,7 +159,7 @@ public class MonthlyRentalBill extends AuditableRecord {
                 .append(rentalMonth)
                 .append(billClosed)
                 .append(userResidence)
-                .append(rentalAgreement)
+                .append(leaseAgreement)
                 .toHashCode();
     }
 
@@ -171,7 +171,7 @@ public class MonthlyRentalBill extends AuditableRecord {
                 .append("rentalMonth", rentalMonth)
                 .append("billClosed", billClosed)
                 .append("userResidence", userResidence)
-                .append("rentalAgreement", rentalAgreement)
+                .append("leaseAgreement", leaseAgreement)
                 .toString();
     }
 
@@ -203,8 +203,8 @@ public class MonthlyRentalBill extends AuditableRecord {
             return this;
         }
 
-        public Builder rentalAgreement(RentalAgreement rentalAgreement) {
-            monthlyRentalBill.rentalAgreement = rentalAgreement;
+        public Builder rentalAgreement(LeaseAgreement leaseAgreement) {
+            monthlyRentalBill.leaseAgreement = leaseAgreement;
             return this;
         }
 

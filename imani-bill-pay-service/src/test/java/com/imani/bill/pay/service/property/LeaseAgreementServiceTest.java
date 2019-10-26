@@ -1,6 +1,6 @@
 package com.imani.bill.pay.service.property;
 
-import com.imani.bill.pay.domain.property.RentalAgreement;
+import com.imani.bill.pay.domain.property.LeaseAgreement;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,69 +12,69 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author manyce400
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RentalAgreementServiceTest {
+public class LeaseAgreementServiceTest {
 
 
     @InjectMocks
-    private RentalAgreementService rentalAgreementService;
+    private LeaseAgreementService leaseAgreementService;
 
 
     @Test
     public void testAgreementHasDocument() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .agreementDocument("C://///")
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertTrue(rentalAgreementService.agreementHasDocument(rentalAgreement));
+        Assert.assertTrue(leaseAgreementService.agreementHasDocument(leaseAgreement));
 
-        rentalAgreement = RentalAgreement.builder()
+        leaseAgreement = LeaseAgreement.builder()
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertFalse(rentalAgreementService.agreementHasDocument(rentalAgreement));
+        Assert.assertFalse(leaseAgreementService.agreementHasDocument(leaseAgreement));
     }
 
     @Test
     public void testAgreementHasEffectiveDate() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertFalse(rentalAgreementService.agreementHasEffectiveDate(rentalAgreement));
+        Assert.assertFalse(leaseAgreementService.agreementHasEffectiveDate(leaseAgreement));
 
-        rentalAgreement = RentalAgreement.builder()
+        leaseAgreement = LeaseAgreement.builder()
                 .effectiveDate(DateTime.now())
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertTrue(rentalAgreementService.agreementHasEffectiveDate(rentalAgreement));
+        Assert.assertTrue(leaseAgreementService.agreementHasEffectiveDate(leaseAgreement));
     }
 
     @Test
     public void testPartiesAcceptedAgreement() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertTrue(rentalAgreementService.partiesAcceptedAgreement(rentalAgreement));
+        Assert.assertTrue(leaseAgreementService.partiesAcceptedAgreement(leaseAgreement));
 
-        rentalAgreement = RentalAgreement.builder()
+        leaseAgreement = LeaseAgreement.builder()
                 .tenantAcceptedAgreement(false)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertFalse(rentalAgreementService.partiesAcceptedAgreement(rentalAgreement));
+        Assert.assertFalse(leaseAgreementService.partiesAcceptedAgreement(leaseAgreement));
     }
 
     @Test
     public void testIsRentalAgreementInForce() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertFalse(rentalAgreementService.isRentalAgreementInForce(rentalAgreement));
+        Assert.assertFalse(leaseAgreementService.isLeaseAgreementInForce(leaseAgreement));
 
-        rentalAgreement = RentalAgreement.builder()
+        leaseAgreement = LeaseAgreement.builder()
                 .agreementDocument("C://///")
                 .effectiveDate(DateTime.now())
                 .propertyManagerAcceptanceDate(DateTime.now())
@@ -82,9 +82,9 @@ public class RentalAgreementServiceTest {
                 .tenantAcceptedAgreement(true)
                 .propertyManagerAcceptedAgreement(true)
                 .build();
-        Assert.assertTrue(rentalAgreementService.isRentalAgreementInForce(rentalAgreement));
+        Assert.assertTrue(leaseAgreementService.isLeaseAgreementInForce(leaseAgreement));
 
-        rentalAgreement = RentalAgreement.builder()
+        leaseAgreement = LeaseAgreement.builder()
                 .agreementDocument("C://///")
                 .effectiveDate(DateTime.now())
                 .propertyOwnerAcceptedAgreement(true)
@@ -92,7 +92,7 @@ public class RentalAgreementServiceTest {
                 .tenantAcceptanceDate(DateTime.now())
                 .tenantAcceptedAgreement(true)
                 .build();
-        Assert.assertTrue(rentalAgreementService.isRentalAgreementInForce(rentalAgreement));
+        Assert.assertTrue(leaseAgreementService.isLeaseAgreementInForce(leaseAgreement));
     }
 
 

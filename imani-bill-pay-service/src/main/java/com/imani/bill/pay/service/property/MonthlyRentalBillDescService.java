@@ -59,9 +59,9 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
 
         // Find the UserResidence and other relevant info to generate current month bill
         UserResidence userResidence = iUserResidenceRepository.findUserResidence(userRecord);
-        RentalAgreement rentalAgreement = userResidence.getRentalAgreement();
+        LeaseAgreement leaseAgreement = userResidence.getLeaseAgreement();
 
-        if (rentalAgreement != null && rentalAgreement.isAgreementInEffect()) {
+        if (leaseAgreement != null && leaseAgreement.isAgreementInEffect()) {
             // Current Month DateTime should start at the start of the month.  All bills are due 1'st day of month
             DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
 
@@ -73,11 +73,11 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
 
 
                 MonthlyRentalBill monthlyRentalBill = MonthlyRentalBill.builder()
-                        .rentalAgreement(rentalAgreement)
+                        .rentalAgreement(leaseAgreement)
                         .amountPaid(0.0)
                         .rentalMonth(dateTimeAtStartOfMonth)
                         .userResidence(userResidence)
-                        .rentalAgreement(rentalAgreement)
+                        .rentalAgreement(leaseAgreement)
                         .billClosed(false)
                         .build();
 
@@ -93,7 +93,7 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
                 iMonthlyRentalBillRepository.save(monthlyRentalBill);
                 return Optional.of(monthlyRentalBillExplained);
             } else {
-                LOGGER.warn("Cannot generate new monthly bill.  RentalAgreement is currently not in effect for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+                LOGGER.warn("Cannot generate new monthly bill.  LeaseAgreement is currently not in effect for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
             }
         }
 
@@ -106,7 +106,7 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
         Assert.notNull(userResidencePropertyServices, "userResidencePropertyServices cannot be null");
 
         // Get the monthly rental this user is supposed to pay by their rental agreement
-        Double monthlyRentalCost = monthlyRentalBill.getRentalAgreement().getMonthlyRentalCost();
+        Double monthlyRentalCost = monthlyRentalBill.getLeaseAgreement().getMonthlyRentalCost();
         LOGGER.info("Calculating total monthly amount due on bill with monthly rental agreement amount:=> {}", monthlyRentalCost);
 
         Sum sum = new Sum();
@@ -129,9 +129,9 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
 
     MonthlyRentalBillExplained getMonthlyRentalBillExplained(UserResidence userResidence, Optional<List<MonthlyRentalFeeExplained>> monthlyRentalFeeExplainedList, Optional<List<PropertyServiceChargeExplained>> propertyServiceChargeExplainedList) {
         MonthlyRentalBillExplained monthlyRentalBillExplained = MonthlyRentalBillExplained.builder()
-                .monthlyRentalCost(userResidence.getRentalAgreement().getMonthlyRentalCost())
+                .monthlyRentalCost(userResidence.getLeaseAgreement().getMonthlyRentalCost())
                 .amtPaid(0.0)
-                .totalAmtDue(userResidence.getRentalAgreement().getMonthlyRentalCost()) // initialize total amount due to monthly rental cost from RentalAgreement
+                .totalAmtDue(userResidence.getLeaseAgreement().getMonthlyRentalCost()) // initialize total amount due to monthly rental cost from LeaseAgreement
                 .userResidence(userResidence)
                 .build();
 

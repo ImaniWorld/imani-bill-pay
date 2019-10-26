@@ -3,8 +3,6 @@ package com.imani.bill.pay.domain.property;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.user.UserRecord;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -16,9 +14,9 @@ import javax.persistence.*;
  * @author manyce400
  */
 @Entity
-@Table(name="RentalAgreement")
+@Table(name="LeaseAgreement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RentalAgreement extends AuditableRecord {
+public class LeaseAgreement extends AuditableRecord {
 
 
     @Id
@@ -85,7 +83,7 @@ public class RentalAgreement extends AuditableRecord {
     private DateTime terminationDate;
 
 
-    // Tracks this RentalAgreement is in effect, note that a termination date should always be set when this field gets set
+    // Tracks this LeaseAgreement is in effect, note that a termination date should always be set when this field gets set
     @Column(name="AgreementInEffect", nullable = true, columnDefinition = "TINYINT", length = 1)
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean agreementInEffect;
@@ -109,13 +107,24 @@ public class RentalAgreement extends AuditableRecord {
     private PropertyOwner propertyOwner;
 
 
+    @Column(name="LeaseAgreementType", nullable=false, length=20)
+    @Enumerated(EnumType.STRING)
+    private LeaseAgreementTypeE leaseAgreementTypeE;
+
+
     // Tracks  Property that this agreement was made on
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PropertyID", nullable = true)
     private Property property;
 
 
-    public RentalAgreement() {
+    // Tracks  Apartment that this agreement was made on
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ApartmentID", nullable = true)
+    private Apartment apartment;
+
+
+    public LeaseAgreement() {
 
     }
 
@@ -239,6 +248,14 @@ public class RentalAgreement extends AuditableRecord {
         this.propertyOwner = propertyOwner;
     }
 
+    public LeaseAgreementTypeE getLeaseAgreementTypeE() {
+        return leaseAgreementTypeE;
+    }
+
+    public void setLeaseAgreementTypeE(LeaseAgreementTypeE leaseAgreementTypeE) {
+        this.leaseAgreementTypeE = leaseAgreementTypeE;
+    }
+
     public Property getProperty() {
         return property;
     }
@@ -247,54 +264,12 @@ public class RentalAgreement extends AuditableRecord {
         this.property = property;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RentalAgreement that = (RentalAgreement) o;
-
-        return new EqualsBuilder()
-                .append(tenantAcceptedAgreement, that.tenantAcceptedAgreement)
-                .append(propertyManagerAcceptedAgreement, that.propertyManagerAcceptedAgreement)
-                .append(propertyOwnerAcceptedAgreement, that.propertyOwnerAcceptedAgreement)
-                .append(id, that.id)
-                .append(agreementDocument, that.agreementDocument)
-                .append(monthlyRentalCost, that.monthlyRentalCost)
-                .append(tenantAcceptanceDate, that.tenantAcceptanceDate)
-                .append(propertyManagerAcceptanceDate, that.propertyManagerAcceptanceDate)
-                .append(propertyOwnerAcceptanceDate, that.propertyOwnerAcceptanceDate)
-                .append(effectiveDate, that.effectiveDate)
-                .append(terminationDate, that.terminationDate)
-                .append(agreementInEffect, that.agreementInEffect)
-                .append(userRecord, that.userRecord)
-                .append(propertyManager, that.propertyManager)
-                .append(propertyOwner, that.propertyOwner)
-                .append(property, that.property)
-                .isEquals();
+    public Apartment getApartment() {
+        return apartment;
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(agreementDocument)
-                .append(monthlyRentalCost)
-                .append(tenantAcceptedAgreement)
-                .append(tenantAcceptanceDate)
-                .append(propertyManagerAcceptedAgreement)
-                .append(propertyManagerAcceptanceDate)
-                .append(propertyOwnerAcceptedAgreement)
-                .append(propertyOwnerAcceptanceDate)
-                .append(effectiveDate)
-                .append(terminationDate)
-                .append(agreementInEffect)
-                .append(userRecord)
-                .append(propertyManager)
-                .append(propertyOwner)
-                .append(property)
-                .toHashCode();
+    public void setApartment(Apartment apartment) {
+        this.apartment = apartment;
     }
 
     @Override
@@ -315,7 +290,9 @@ public class RentalAgreement extends AuditableRecord {
                 .append("userRecord", userRecord)
                 .append("propertyManager", propertyManager)
                 .append("propertyOwner", propertyOwner)
+                .append("leaseAgreementTypeE", leaseAgreementTypeE)
                 .append("property", property)
+                .append("apartment", apartment)
                 .toString();
     }
 
@@ -326,85 +303,95 @@ public class RentalAgreement extends AuditableRecord {
 
     public static final class Builder {
 
-        private RentalAgreement rentalAgreement = new RentalAgreement();
+        private LeaseAgreement leaseAgreement = new LeaseAgreement();
 
         public Builder agreementDocument(String agreementDocument) {
-            rentalAgreement.agreementDocument = agreementDocument;
+            leaseAgreement.agreementDocument = agreementDocument;
             return this;
         }
 
         public Builder monthlyRentalCost(Double monthlyRentalCost) {
-            rentalAgreement.monthlyRentalCost = monthlyRentalCost;
+            leaseAgreement.monthlyRentalCost = monthlyRentalCost;
             return this;
         }
 
         public Builder tenantAcceptedAgreement(boolean tenantAcceptedAgreement) {
-            rentalAgreement.tenantAcceptedAgreement = tenantAcceptedAgreement;
+            leaseAgreement.tenantAcceptedAgreement = tenantAcceptedAgreement;
             return this;
         }
 
         public Builder tenantAcceptanceDate(DateTime tenantAcceptanceDate) {
-            rentalAgreement.tenantAcceptanceDate = tenantAcceptanceDate;
+            leaseAgreement.tenantAcceptanceDate = tenantAcceptanceDate;
             return this;
         }
 
         public Builder propertyManagerAcceptedAgreement(boolean propertyManagerAcceptedAgreement) {
-            rentalAgreement.propertyManagerAcceptedAgreement = propertyManagerAcceptedAgreement;
+            leaseAgreement.propertyManagerAcceptedAgreement = propertyManagerAcceptedAgreement;
             return this;
         }
 
         public Builder propertyManagerAcceptanceDate(DateTime propertyManagerAcceptanceDate) {
-            rentalAgreement.propertyManagerAcceptanceDate = propertyManagerAcceptanceDate;
+            leaseAgreement.propertyManagerAcceptanceDate = propertyManagerAcceptanceDate;
             return this;
         }
 
         public Builder propertyOwnerAcceptedAgreement(boolean propertyOwnerAcceptedAgreement) {
-            rentalAgreement.propertyOwnerAcceptedAgreement = propertyOwnerAcceptedAgreement;
+            leaseAgreement.propertyOwnerAcceptedAgreement = propertyOwnerAcceptedAgreement;
             return this;
         }
 
         public Builder propertyOwnerAcceptanceDate(DateTime propertyOwnerAcceptanceDate) {
-            rentalAgreement.propertyOwnerAcceptanceDate = propertyOwnerAcceptanceDate;
+            leaseAgreement.propertyOwnerAcceptanceDate = propertyOwnerAcceptanceDate;
             return this;
         }
 
         public Builder effectiveDate(DateTime effectiveDate) {
-            rentalAgreement.effectiveDate = effectiveDate;
+            leaseAgreement.effectiveDate = effectiveDate;
             return this;
         }
 
         public Builder terminationDate(DateTime terminationDate) {
-            rentalAgreement.terminationDate = terminationDate;
+            leaseAgreement.terminationDate = terminationDate;
             return this;
         }
 
         public Builder agreementInEffect(boolean agreementInEffect) {
-            rentalAgreement.agreementInEffect = agreementInEffect;
+            leaseAgreement.agreementInEffect = agreementInEffect;
             return this;
         }
 
         public Builder userRecord(UserRecord userRecord) {
-            rentalAgreement.userRecord = userRecord;
+            leaseAgreement.userRecord = userRecord;
             return this;
         }
 
         public Builder propertyManager(PropertyManager propertyManager) {
-            rentalAgreement.propertyManager = propertyManager;
+            leaseAgreement.propertyManager = propertyManager;
             return this;
         }
 
         public Builder propertyOwner(PropertyOwner propertyOwner) {
-            rentalAgreement.propertyOwner = propertyOwner;
+            leaseAgreement.propertyOwner = propertyOwner;
+            return this;
+        }
+
+        public Builder leaseAgreementTypeE(LeaseAgreementTypeE leaseAgreementTypeE) {
+            leaseAgreement.leaseAgreementTypeE = leaseAgreementTypeE;
             return this;
         }
 
         public Builder property(Property property) {
-            rentalAgreement.property = property;
+            leaseAgreement.property = property;
             return this;
         }
 
-        public RentalAgreement build() {
-            return rentalAgreement;
+        public Builder apartment(Apartment apartment) {
+            leaseAgreement.apartment = apartment;
+            return this;
+        }
+
+        public LeaseAgreement build() {
+            return leaseAgreement;
         }
 
     }

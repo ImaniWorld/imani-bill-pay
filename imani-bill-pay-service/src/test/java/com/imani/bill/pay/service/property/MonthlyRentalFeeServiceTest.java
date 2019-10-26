@@ -47,7 +47,7 @@ public class MonthlyRentalFeeServiceTest extends AbstractMonthlyRentalBillingTes
         // Build mock bill
         MonthlyRentalBill monthlyRentalBill = MonthlyRentalBill.builder()
                 .userResidence(userResidence)
-                .rentalAgreement(userResidence.getRentalAgreement())
+                .rentalAgreement(userResidence.getLeaseAgreement())
                 .rentalMonth(rentalMonth)
                 .build();
 
@@ -64,7 +64,7 @@ public class MonthlyRentalFeeServiceTest extends AbstractMonthlyRentalBillingTes
         // Build mock bill
         MonthlyRentalBill monthlyRentalBill = MonthlyRentalBill.builder()
                 .userResidence(userResidence)
-                .rentalAgreement(userResidence.getRentalAgreement())
+                .rentalAgreement(userResidence.getLeaseAgreement())
                 .rentalMonth(rentalMonth)
                 .build();
 

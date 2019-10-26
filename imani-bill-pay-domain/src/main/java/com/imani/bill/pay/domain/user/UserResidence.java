@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.property.Apartment;
+import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.property.PropertyService;
-import com.imani.bill.pay.domain.property.RentalAgreement;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -52,7 +52,7 @@ public class UserResidence extends AuditableRecord {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RentalAgreementID", nullable = true)
-    private RentalAgreement rentalAgreement;
+    private LeaseAgreement leaseAgreement;
 
 
     @Column(name="IsPrimaryResidence", nullable = true, columnDefinition = "TINYINT", length = 1)
@@ -102,12 +102,12 @@ public class UserResidence extends AuditableRecord {
         this.apartment = apartment;
     }
 
-    public RentalAgreement getRentalAgreement() {
-        return rentalAgreement;
+    public LeaseAgreement getLeaseAgreement() {
+        return leaseAgreement;
     }
 
-    public void setRentalAgreement(RentalAgreement rentalAgreement) {
-        this.rentalAgreement = rentalAgreement;
+    public void setLeaseAgreement(LeaseAgreement leaseAgreement) {
+        this.leaseAgreement = leaseAgreement;
     }
 
     public boolean isPrimaryResidence() {
@@ -146,7 +146,7 @@ public class UserResidence extends AuditableRecord {
                 .append(userRecord, that.userRecord)
                 .append(property, that.property)
                 .append(apartment, that.apartment)
-                .append(rentalAgreement, that.rentalAgreement)
+                .append(leaseAgreement, that.leaseAgreement)
                 .append(primaryResidence, that.primaryResidence)
                 .isEquals();
     }
@@ -158,7 +158,7 @@ public class UserResidence extends AuditableRecord {
                 .append(userRecord)
                 .append(property)
                 .append(apartment)
-                .append(rentalAgreement)
+                .append(leaseAgreement)
                 .append(primaryResidence)
                 .toHashCode();
     }
@@ -170,7 +170,7 @@ public class UserResidence extends AuditableRecord {
                 .append("userRecord", userRecord)
                 .append("property", property)
                 .append("apartment", apartment)
-                .append("rentalAgreement", rentalAgreement)
+                .append("leaseAgreement", leaseAgreement)
                 .append("primaryResidence", primaryResidence)
                 .toString();
     }
@@ -203,8 +203,8 @@ public class UserResidence extends AuditableRecord {
             return this;
         }
 
-        public Builder rentalAgreement(RentalAgreement rentalAgreement) {
-            userResidence.rentalAgreement = rentalAgreement;
+        public Builder rentalAgreement(LeaseAgreement leaseAgreement) {
+            userResidence.leaseAgreement = leaseAgreement;
             return this;
         }
 

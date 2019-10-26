@@ -1,8 +1,8 @@
 package com.imani.bill.pay.service.user;
 
 import com.imani.bill.pay.domain.property.Apartment;
+import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
-import com.imani.bill.pay.domain.property.RentalAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.repository.IUserResidenceRepository;
@@ -50,10 +50,10 @@ public class UserResidenceService implements IUserResidenceService {
 
     @Transactional
     @Override
-    public UserResidence buildUserResidence(UserRecord userRecord, Property property, RentalAgreement rentalAgreement, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Property property, LeaseAgreement leaseAgreement, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(property, "Property cannot be null");
-        Assert.notNull(rentalAgreement, "rentalAgreement cannot be null");
+        Assert.notNull(leaseAgreement, "leaseAgreement cannot be null");
         Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
 
         LOGGER.debug("Building residence for user:=> {} with rental agreement", userRecord.getEmbeddedContactInfo().getEmail());
@@ -61,7 +61,7 @@ public class UserResidenceService implements IUserResidenceService {
         UserResidence userResidence =  UserResidence.builder()
                 .userRecord(userRecord)
                 .property(property)
-                .rentalAgreement(rentalAgreement)
+                .rentalAgreement(leaseAgreement)
                 .primaryResidence(primaryResidence)
                 .build();
 
@@ -71,17 +71,16 @@ public class UserResidenceService implements IUserResidenceService {
 
     @Transactional
     @Override
-    public UserResidence buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Apartment apartment, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.notNull(property, "Property cannot be null");
         Assert.notNull(apartment, "apartment cannot be null");
-        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
+        Assert.notNull(apartment.getFloor(), "Apartment Floor cannot be null");
 
         LOGGER.debug("Building residence for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
         UserResidence userResidence =  UserResidence.builder()
                 .userRecord(userRecord)
-                .property(property)
+                .apartment(apartment)
                 .apartment(apartment)
                 .primaryResidence(primaryResidence)
                 .build();
@@ -92,19 +91,18 @@ public class UserResidenceService implements IUserResidenceService {
 
     @Transactional
     @Override
-    public UserResidence buildUserResidence(UserRecord userRecord, Property property, Apartment apartment, RentalAgreement rentalAgreement, boolean primaryResidence) {
+    public UserResidence buildUserResidence(UserRecord userRecord, Apartment apartment, LeaseAgreement leaseAgreement, boolean primaryResidence) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.notNull(property, "Property cannot be null");
-        Assert.notNull(property, "RentalAgreement cannot be null");
-        Assert.notNull(property.getPropertyTypeE(), "Property Type cannot be null");
+        Assert.notNull(apartment, "apartment cannot be null");
+        Assert.notNull(leaseAgreement, "leaseAgreement cannot be null");
+        Assert.notNull(apartment.getFloor(), "Apartment Floor cannot be null");
 
         LOGGER.debug("Building residence for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
         UserResidence userResidence =  UserResidence.builder()
                 .userRecord(userRecord)
-                .property(property)
                 .apartment(apartment)
-                .rentalAgreement(rentalAgreement)
+                .rentalAgreement(leaseAgreement)
                 .primaryResidence(primaryResidence)
                 .build();
 

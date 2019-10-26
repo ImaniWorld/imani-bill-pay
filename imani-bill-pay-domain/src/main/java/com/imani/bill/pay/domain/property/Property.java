@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.property;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
@@ -223,6 +224,18 @@ public class Property extends AuditableRecord {
     public void addToFloors(Floor floor) {
         Assert.notNull(floor, "floor cannot be null");
         floors.add(floor);
+    }
+
+    @JsonIgnore
+    public String getPrintableAddress() {
+        StringBuilder sb = new StringBuilder()
+                .append(propertyNumber).append(" ")
+                .append(streetName).append(" ")
+                .append(borough.getName()).append(" ")
+                .append(borough.getCity().getName()).append(" ")
+                .append(borough.getCity().getState().getName()).append("")
+                .append(zipCode);
+        return sb.toString();
     }
 
     public PropertyIndex toPropertyIndex() {

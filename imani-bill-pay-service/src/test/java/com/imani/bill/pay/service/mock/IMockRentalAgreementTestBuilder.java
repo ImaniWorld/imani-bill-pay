@@ -1,6 +1,6 @@
 package com.imani.bill.pay.service.mock;
 
-import com.imani.bill.pay.domain.property.RentalAgreement;
+import com.imani.bill.pay.domain.property.LeaseAgreement;
 import org.joda.time.DateTime;
 
 /**
@@ -9,8 +9,8 @@ import org.joda.time.DateTime;
 public interface IMockRentalAgreementTestBuilder {
 
 
-    public default RentalAgreement buildRentalAgreement() {
-        RentalAgreement rentalAgreement = RentalAgreement.builder()
+    public default LeaseAgreement buildRentalAgreement() {
+        LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .propertyManagerAcceptedAgreement(true)
                 .propertyOwnerAcceptedAgreement(true)
                 .tenantAcceptedAgreement(true)
@@ -18,7 +18,7 @@ public interface IMockRentalAgreementTestBuilder {
                 .monthlyRentalCost(1800.00)
                 .effectiveDate(DateTime.now())
                 .build();
-        return rentalAgreement;
+        return leaseAgreement;
     }
 
 }

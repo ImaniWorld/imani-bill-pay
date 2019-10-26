@@ -37,7 +37,7 @@ public class MonthlyPropertySvcChargeServiceTest extends AbstractMonthlyRentalBi
         // Build mock bill
         MonthlyRentalBill monthlyRentalBill = MonthlyRentalBill.builder()
                 .userResidence(userResidence)
-                .rentalAgreement(userResidence.getRentalAgreement())
+                .rentalAgreement(userResidence.getLeaseAgreement())
                 .rentalMonth(rentalMonth)
                 .build();
 

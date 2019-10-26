@@ -57,7 +57,7 @@ public class MonthlyRentalFeeService implements IMonthlyRentalFeeService {
                 monthlyRentalBill.addMonthlyRentalFee(lateRentalFee);
 
                 // Build fee explanation object
-                Double feeCharge = lateRentalFee.calculatFeeCharge(monthlyRentalBill.getRentalAgreement().getMonthlyRentalCost());
+                Double feeCharge = lateRentalFee.calculatFeeCharge(monthlyRentalBill.getLeaseAgreement().getMonthlyRentalCost());
                 MonthlyRentalFeeExplained lateMonthlyRentalFeeExplained = MonthlyRentalFeeExplained.builder()
                         .feeName(lateRentalFee.getFeeName())
                         .feeCharge(feeCharge)
