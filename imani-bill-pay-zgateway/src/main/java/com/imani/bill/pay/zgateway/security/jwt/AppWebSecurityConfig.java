@@ -33,6 +33,7 @@ public class AppWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/auth/api/jwt/validate").permitAll() // EndPoint to validate and request application JWT token
+                .antMatchers("/billpay/inquiry/new").permitAll() // EndPoint for potential customers to inquire about BillPay
                 .antMatchers("/auth/user/login").permitAll()
                 .antMatchers("/auth/user/logout").permitAll()
                 .anyRequest().authenticated()

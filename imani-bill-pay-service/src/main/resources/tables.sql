@@ -72,3 +72,17 @@ create table PropertyService (
             ModifyDate datetime,
             primary key (ID)
         );
+
+
+  create table BillPayInquiry (
+         ID bigint not null auto_increment,
+         BusinessType varchar(100) not null,
+          ContactName varchar(100) not null,
+          ContactEmail varchar(50) not null,
+          ContactPhone bigint,
+          ContactQuestion varchar(300) not null,
+          NumberOfUsers integer not null,
+          CreateDate datetime not null,
+          ModifyDate datetime,
+          primary key (ID)
+      );
