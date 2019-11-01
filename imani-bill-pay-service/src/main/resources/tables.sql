@@ -1,3 +1,12 @@
+create table GeographicalRegion (
+       ID bigint not null auto_increment,
+        RegionCode varchar(4) not null,
+        RegionName varchar(100) not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    );
+
 create table MonthlyRentalBill (
        ID bigint not null auto_increment,
        RentalMonth datetime not null,
