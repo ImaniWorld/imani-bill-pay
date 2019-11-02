@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.property.repository;
 
+import com.imani.bill.pay.domain.property.Apartment;
 import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,9 @@ public interface ILeaseAgreementRepository extends JpaRepository<LeaseAgreement,
 
     @Query("Select leaseAgreement From LeaseAgreement leaseAgreement Where leaseAgreement.userRecord = ?1")
     public LeaseAgreement findUserLeaseAgreement(UserRecord userRecord);
+
+    @Query("Select leaseAgreement From LeaseAgreement leaseAgreement Where leaseAgreement.apartment = ?1")
+    public LeaseAgreement findUApartmentLeaseAgreement(Apartment apartment);
 
     @Query("Select leaseAgreement From LeaseAgreement leaseAgreement Where leaseAgreement.userRecord = ?1 and leaseAgreement.agreementInEffect = true")
     public LeaseAgreement findActiveUserLeaseAgreement(UserRecord userRecord);

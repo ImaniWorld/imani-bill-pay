@@ -44,7 +44,7 @@ public abstract class AbstractMonthlyRentalBillingTest {
         userResidence = UserResidence.builder()
                 .userRecord(userRecord)
                 .property(property)
-                .rentalAgreement(leaseAgreement)
+                .leaseAgreement(leaseAgreement)
                 .primaryResidence(true)
                 .apartment(apartment)
                 .build();

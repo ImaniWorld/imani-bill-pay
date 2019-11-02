@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 /**
  * @author manyce400
  */
@@ -28,9 +30,9 @@ public class ApartmentLeaseController {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ApartmentLeaseController.class);
 
     @PostMapping("/propertymanager/with/agreement")
-    public LeaseAgreement leaseApartmentWithAgreement(@RequestBody UserRecord userRecord, @RequestBody Apartment apartment, @RequestBody PropertyManager propertyManager, @RequestBody LeaseAgreement leaseAgreement) {
+    public Optional<LeaseAgreement> leaseApartmentWithAgreement(@RequestBody UserRecord userRecord, @RequestBody Apartment apartment, @RequestBody PropertyManager propertyManager, @RequestBody LeaseAgreement leaseAgreement) {
         LOGGER.info("Attempting to lease apartment to user for Property Manager:=> {}", propertyManager.getName());
-        LeaseAgreement finalLeaseAgreement = iApartmentLeaseService.leaseApartment(userRecord, apartment, propertyManager, leaseAgreement.getMonthlyRentalCost(), leaseAgreement.getLeaseAgreementTypeE());
+        Optional<LeaseAgreement> finalLeaseAgreement = iApartmentLeaseService.leaseApartment(userRecord, apartment, propertyManager, leaseAgreement.getMonthlyRentalCost(), leaseAgreement.getLeaseAgreementTypeE());
         return finalLeaseAgreement;
     }
 

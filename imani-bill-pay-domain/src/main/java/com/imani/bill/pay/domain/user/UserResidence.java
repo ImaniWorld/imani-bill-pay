@@ -203,7 +203,7 @@ public class UserResidence extends AuditableRecord {
             return this;
         }
 
-        public Builder rentalAgreement(LeaseAgreement leaseAgreement) {
+        public Builder leaseAgreement(LeaseAgreement leaseAgreement) {
             userResidence.leaseAgreement = leaseAgreement;
             return this;
         }

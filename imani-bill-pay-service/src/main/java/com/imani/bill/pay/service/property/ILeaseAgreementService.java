@@ -11,6 +11,9 @@ import com.imani.bill.pay.domain.user.UserRecord;
  */
 public interface ILeaseAgreementService {
 
+
+    public LeaseAgreement findApartmentLeaseAgreement(Apartment apartment);
+
     public LeaseAgreement buildLeaseAgreement(UserRecord userRecord, Apartment apartment, PropertyManager propertyManager, Double monthlyRentalCost, LeaseAgreementTypeE leaseAgreementTypeE);
 
     public boolean isLeaseAgreementInForce(LeaseAgreement leaseAgreement);

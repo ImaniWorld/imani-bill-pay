@@ -29,6 +29,13 @@ public class LeaseAgreementService implements ILeaseAgreementService {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(LeaseAgreementService.class);
 
 
+    @Override
+    public LeaseAgreement findApartmentLeaseAgreement(Apartment apartment) {
+        Assert.notNull(apartment, "Apartment cannot be null");
+        LOGGER.info("Finding lease agrement for apartment:=> {}", apartment);
+        return iLeaseAgreementRepository.findUApartmentLeaseAgreement(apartment);
+    }
+
     @Transactional
     @Override
     public LeaseAgreement buildLeaseAgreement(UserRecord userRecord, Apartment apartment, PropertyManager propertyManager, Double monthlyRentalCost, LeaseAgreementTypeE leaseAgreementTypeE) {
