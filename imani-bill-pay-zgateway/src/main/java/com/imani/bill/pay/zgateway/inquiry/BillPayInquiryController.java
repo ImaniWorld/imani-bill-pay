@@ -8,12 +8,11 @@ import com.imani.bill.pay.service.contact.IBillPayInquiryService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
+ * Inquiry endpoints should allow Cross Origin Resource Sharing
+ *
  * @author manyce400
  */
 @RestController
@@ -29,6 +28,7 @@ public class BillPayInquiryController {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillPayInquiryController.class);
 
 
+    @CrossOrigin
     @PostMapping("/new")
     public APIGatewayEvent processBillPayInquiry(@RequestBody BillPayInquiry billPayInquiry) {
         LOGGER.info("Processing new Imani BillPay inquiry request for.....");
