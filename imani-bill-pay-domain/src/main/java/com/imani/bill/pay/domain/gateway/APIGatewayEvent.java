@@ -17,6 +17,9 @@ public class APIGatewayEvent {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected DateTime eventTime;
 
+    // Optional communication message for this gateway event
+    protected String gatewayEventCommunication;
+
     protected APIGatewayEventStatusE apiGatewayEventStatusE;
 
 
@@ -30,6 +33,14 @@ public class APIGatewayEvent {
 
     public void setEventTime(DateTime eventTime) {
         this.eventTime = eventTime;
+    }
+
+    public String getGatewayEventCommunication() {
+        return gatewayEventCommunication;
+    }
+
+    public void setGatewayEventCommunication(String gatewayEventCommunication) {
+        this.gatewayEventCommunication = gatewayEventCommunication;
     }
 
     public void addEventTime() {
@@ -48,11 +59,12 @@ public class APIGatewayEvent {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("eventTime", eventTime)
+                .append("gatewayEventCommunication", gatewayEventCommunication)
                 .append("apiGatewayEventStatusE", apiGatewayEventStatusE)
                 .toString();
     }
 
-//    public static Builder builder() {
+    //    public static Builder builder() {
 //        return new Builder();
 //    }
 //

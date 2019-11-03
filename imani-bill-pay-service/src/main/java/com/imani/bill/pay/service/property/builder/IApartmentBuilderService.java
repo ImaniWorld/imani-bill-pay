@@ -1,7 +1,7 @@
 package com.imani.bill.pay.service.property.builder;
 
 import com.imani.bill.pay.domain.property.Apartment;
-import com.imani.bill.pay.domain.property.ApartmentBuilderEvent;
+import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderEvent;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
  */
 public interface IApartmentBuilderService {
 
-    public Optional<Apartment> buildApartment(ApartmentBuilderEvent apartmentBuilderEvent);
+    public ApartmentBuilderEvent buildApartment(ApartmentBuilderEvent apartmentBuilderEvent);
 
     public Optional<Apartment> buildApartment(Floor floor);
 
