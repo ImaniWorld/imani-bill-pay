@@ -54,8 +54,9 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
             }
 
             ApartmentBuilderEvent apartmentBuilderEventResult = ApartmentBuilderEvent.builder()
-                    .builtApartment(apartment.get())
+                    .apartmentNumber(apartment.get().getApartmentNumber())
                     .eventTimeNow()
+                    .apiGatewayEventStatusE(APIGatewayEventStatusE.Success)
                     .build();
             return apartmentBuilderEventResult;
         }

@@ -3,15 +3,12 @@ package com.imani.bill.pay.domain.property.gateway;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
 import com.imani.bill.pay.domain.gateway.APIGatewayEventStatusE;
-import com.imani.bill.pay.domain.property.Apartment;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author manyce400
@@ -23,8 +20,6 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
     private String apartmentNumber;
 
     private Floor floor;
-
-    private Optional<Apartment> builtApartment;
 
     private List<Bedroom> bedrooms = new ArrayList<>();
 
@@ -49,14 +44,6 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
         this.floor = floor;
     }
 
-    public Optional<Apartment> getBuiltApartment() {
-        return builtApartment;
-    }
-
-    public void setBuiltApartment(Optional<Apartment> builtApartment) {
-        this.builtApartment = builtApartment;
-    }
-
     public List<Bedroom> getBedrooms() {
         return bedrooms;
     }
@@ -70,7 +57,6 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
         return new ToStringBuilder(this)
                 .append("apartmentNumber", apartmentNumber)
                 .append("floor", floor)
-                .append("builtApartment", builtApartment)
                 .append("bedrooms", bedrooms)
                 .toString();
     }
@@ -90,12 +76,6 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
 
         public Builder floor(Floor floor) {
             apartmentBuilderEvent.floor = floor;
-            return this;
-        }
-
-        public Builder builtApartment(Apartment apartment) {
-            Assert.notNull(apartment, "Apartment cannot be null");
-            apartmentBuilderEvent.builtApartment = Optional.of(apartment);
             return this;
         }
 
