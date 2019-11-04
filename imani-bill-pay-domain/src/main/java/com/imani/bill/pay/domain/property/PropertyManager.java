@@ -3,6 +3,7 @@ package com.imani.bill.pay.domain.property;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -34,8 +35,10 @@ public class PropertyManager extends AuditableRecord {
     private EmbeddedContactInfo embeddedContactInfo;
 
 
-    @Column(name="PaymentGatewayAcctID", nullable=true, length = 100)
-    private String paymentGatewayAcctID;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ACHPaymentInfoID", nullable = true)
+    private ACHPaymentInfo achPaymentInfo;
+
 
     // Tracks the Business Property Address.
     @ManyToOne(fetch = FetchType.LAZY)
@@ -76,12 +79,12 @@ public class PropertyManager extends AuditableRecord {
         this.embeddedContactInfo = embeddedContactInfo;
     }
 
-    public String getPaymentGatewayAcctID() {
-        return paymentGatewayAcctID;
+    public ACHPaymentInfo getAchPaymentInfo() {
+        return achPaymentInfo;
     }
 
-    public void setPaymentGatewayAcctID(String paymentGatewayAcctID) {
-        this.paymentGatewayAcctID = paymentGatewayAcctID;
+    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+        this.achPaymentInfo = achPaymentInfo;
     }
 
     public Property getBusinessAddressInfo() {
@@ -113,7 +116,7 @@ public class PropertyManager extends AuditableRecord {
                 .append(id, that.id)
                 .append(name, that.name)
                 .append(embeddedContactInfo, that.embeddedContactInfo)
-                .append(paymentGatewayAcctID, that.paymentGatewayAcctID)
+                .append(achPaymentInfo, that.achPaymentInfo)
                 .append(businessAddressInfo, that.businessAddressInfo)
                 .isEquals();
     }
@@ -124,7 +127,7 @@ public class PropertyManager extends AuditableRecord {
                 .append(id)
                 .append(name)
                 .append(embeddedContactInfo)
-                .append(paymentGatewayAcctID)
+                .append(achPaymentInfo)
                 .append(businessAddressInfo)
                 .toHashCode();
     }
@@ -135,7 +138,7 @@ public class PropertyManager extends AuditableRecord {
                 .append("id", id)
                 .append("name", name)
                 .append("embeddedContactInfo", embeddedContactInfo)
-                .append("paymentGatewayAcctID", paymentGatewayAcctID)
+                .append("achPaymentInfo", achPaymentInfo)
                 .append("businessAddressInfo", businessAddressInfo)
                 .toString();
     }

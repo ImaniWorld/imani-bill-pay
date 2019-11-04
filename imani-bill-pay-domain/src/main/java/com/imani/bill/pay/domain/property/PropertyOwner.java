@@ -2,6 +2,7 @@ package com.imani.bill.pay.domain.property;
 
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -31,8 +32,9 @@ public class PropertyOwner extends AuditableRecord {
     private String businessName;
 
 
-    @Column(name="PaymentGatewayAcctID", nullable=true, length = 100)
-    private String paymentGatewayAcctID;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ACHPaymentInfoID", nullable = true)
+    private ACHPaymentInfo achPaymentInfo;
 
 
     // Tracks the UserRecord for this PropertyOwner allowing owner to login and access the Imani application.
@@ -72,12 +74,12 @@ public class PropertyOwner extends AuditableRecord {
         this.businessName = businessName;
     }
 
-    public String getPaymentGatewayAcctID() {
-        return paymentGatewayAcctID;
+    public ACHPaymentInfo getAchPaymentInfo() {
+        return achPaymentInfo;
     }
 
-    public void setPaymentGatewayAcctID(String paymentGatewayAcctID) {
-        this.paymentGatewayAcctID = paymentGatewayAcctID;
+    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+        this.achPaymentInfo = achPaymentInfo;
     }
 
     public UserRecord getUserRecord() {
@@ -116,7 +118,7 @@ public class PropertyOwner extends AuditableRecord {
         return new EqualsBuilder()
                 .append(id, that.id)
                 .append(businessName, that.businessName)
-                .append(paymentGatewayAcctID, that.paymentGatewayAcctID)
+                .append(achPaymentInfo, that.achPaymentInfo)
                 .append(userRecord, that.userRecord)
                 .append(addressInfo, that.addressInfo)
                 .isEquals();
@@ -127,7 +129,7 @@ public class PropertyOwner extends AuditableRecord {
         return new HashCodeBuilder(17, 37)
                 .append(id)
                 .append(businessName)
-                .append(paymentGatewayAcctID)
+                .append(achPaymentInfo)
                 .append(userRecord)
                 .append(addressInfo)
                 .toHashCode();
@@ -138,7 +140,7 @@ public class PropertyOwner extends AuditableRecord {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("businessName", businessName)
-                .append("paymentGatewayAcctID", paymentGatewayAcctID)
+                .append("achPaymentInfo", achPaymentInfo)
                 .append("userRecord", userRecord)
                 .append("addressInfo", addressInfo)
                 .toString();

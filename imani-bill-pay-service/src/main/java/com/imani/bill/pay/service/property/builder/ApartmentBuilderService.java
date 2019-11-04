@@ -43,13 +43,14 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
         Optional<Floor> floor = iFloorRepository.findById(apartmentBuilderEvent.getFloor().getId());
 
         if(floor.isPresent()
-                && floor.get().getFloorNumber().equals(apartmentBuilderEvent.getFloor().getFloorNumber())) {
+                && floor.get().getProperty().getId().equals(apartmentBuilderEvent.getFloor().getProperty().getId()) // make sure that this floor belongs to expected property
+                && floor.get().getFloorNumber().equals(apartmentBuilderEvent.getFloor().getFloorNumber())) { // validate that this is the correct floor number
             Optional<Apartment> apartment = null;
 
             if(apartmentBuilderEvent.getBedrooms().size() > 0) {
-                apartment = buildApartment(floor.get(), apartmentBuilderEvent.getBedrooms());
+                apartment = buildApartment(floor.get(), apartmentBuilderEvent.getApartmentNumber(), apartmentBuilderEvent.getBedrooms());
             } else {
-                apartment = buildApartment(floor.get());
+                apartment = buildApartment(floor.get(), apartmentBuilderEvent.getApartmentNumber());
             }
 
             ApartmentBuilderEvent apartmentBuilderEventResult = ApartmentBuilderEvent.builder()
@@ -70,12 +71,13 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
 
     @Transactional
     @Override
-    public Optional<Apartment> buildApartment(Floor floor) {
+    public Optional<Apartment> buildApartment(Floor floor, String apartmentNumber) {
         Assert.notNull(floor, "Floor cannot be null");
         LOGGER.debug("Building apartment on Property floor:=> {}", floor);
 
         Apartment apartment = Apartment.builder()
                 .floor(floor)
+                .apartmentNumber(apartmentNumber)
                 .build();
         iApartmentRepository.save(apartment);
         floor.addToApartments(apartment);
@@ -85,7 +87,7 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
 
     @Transactional
     @Override
-    public Optional<Apartment> buildApartment(Floor floor, List<Bedroom> bedrooms) {
+    public Optional<Apartment> buildApartment(Floor floor, String apartmentNumber, List<Bedroom> bedrooms) {
         Assert.notNull(floor, "Floor cannot be null");
         Assert.notNull(bedrooms, "Bedrooms cannot be null");
         Assert.isTrue(bedrooms.size() > 0, "Bedrooms list cannot be empty");
@@ -93,8 +95,13 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
         LOGGER.debug("Building apartment with bedrooms on Property floor:=> {}", floor);
 
         // Build empty apartment
-        Apartment apartment = new Apartment();
+        Apartment apartment = Apartment.builder()
+                .floor(floor)
+                .apartmentNumber(apartmentNumber)
+                .build();
+
         bedrooms.forEach(bedroom -> {
+            bedroom.setApartment(apartment);
             apartment.addToBedrooms(bedroom);
         });
 

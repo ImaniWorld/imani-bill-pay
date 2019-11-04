@@ -7,6 +7,53 @@ create table GeographicalRegion (
         primary key (ID)
     );
 
+
+create table ACHPaymentInfo (
+       ID bigint not null auto_increment,
+       acctName varchar(100),
+       OfficialAcctName varchar(250),
+       AcctType varchar(50),
+       AcctSubType varchar(50),
+        FinancialInstitution varchar(100),
+        IsPrimary TINYINT,
+        PlaidAccessToken varchar(300) not null,
+        PlaidAcctID varchar(100) not null,
+        StripeBankAcctToken varchar(100) not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        PropertyManagerID bigint,
+        PropertyOwnerID bigint,
+        UserRecordID bigint,
+        primary key (ID)
+    )
+
+
+create table PropertyOwner (
+       ID bigint not null auto_increment,
+       UserRecordID bigint,
+        BusinessName varchar(50),
+        ACHPaymentInfoID bigint,
+        PropertyID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+create table PropertyManager (
+       ID bigint not null auto_increment,
+       name varchar(50) not null,
+        Email varchar(100),
+        MobilePhone bigint not null,
+        Phone bigint,
+        PreferredContactType varchar(10),
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        ACHPaymentInfoID bigint,
+        PropertyInfoID bigint,
+        primary key (ID)
+    );
+
+
 create table MonthlyRentalBill (
        ID bigint not null auto_increment,
        RentalMonth datetime not null,

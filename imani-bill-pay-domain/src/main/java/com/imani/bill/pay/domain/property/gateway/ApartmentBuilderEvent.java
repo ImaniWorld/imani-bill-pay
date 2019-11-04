@@ -20,6 +20,8 @@ import java.util.Optional;
 public class ApartmentBuilderEvent extends APIGatewayEvent {
 
 
+    private String apartmentNumber;
+
     private Floor floor;
 
     private Optional<Apartment> builtApartment;
@@ -29,6 +31,14 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
 
     public ApartmentBuilderEvent() {
 
+    }
+
+    public String getApartmentNumber() {
+        return apartmentNumber;
+    }
+
+    public void setApartmentNumber(String apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
     }
 
     public Floor getFloor() {
@@ -58,6 +68,7 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("apartmentNumber", apartmentNumber)
                 .append("floor", floor)
                 .append("builtApartment", builtApartment)
                 .append("bedrooms", bedrooms)
@@ -71,6 +82,11 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
     public static class Builder {
 
         private ApartmentBuilderEvent apartmentBuilderEvent = new ApartmentBuilderEvent();
+
+        public Builder apartmentNumber(String apartmentNumber) {
+            apartmentBuilderEvent.apartmentNumber = apartmentNumber;
+            return this;
+        }
 
         public Builder floor(Floor floor) {
             apartmentBuilderEvent.floor = floor;

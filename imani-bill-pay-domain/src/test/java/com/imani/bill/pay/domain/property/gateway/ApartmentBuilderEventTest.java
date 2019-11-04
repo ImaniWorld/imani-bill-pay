@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.mock.MockObjectMapper;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
-import org.junit.Assert;
+import com.imani.bill.pay.domain.property.Property;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,15 +24,22 @@ public class ApartmentBuilderEventTest {
 
     private Bedroom bedroom2;
 
+    private Property property;
+
     private ObjectMapper mapper = new MockObjectMapper();
 
 
     @Before
     public void before() {
+        property = Property.builder()
+                .propertyNumber("14509")
+                .build();
+        property.setId(1L);
         floor = Floor.builder()
                 .floorNumber(1)
-                .codeName("Master Mind")
                 .build();
+        floor.setId(1L);
+        floor.setProperty(property);
 
         // Build bedrooms
         bedroom1 = Bedroom.builder()
@@ -58,7 +65,9 @@ public class ApartmentBuilderEventTest {
             String json = mapper.writeValueAsString(apartmentBuilderEvent);
             System.out.println("json = " + json);
         } catch (JsonProcessingException e) {
-            Assert.fail("Writing ApartmentBuilderEvent to JSON should not fail");
+
+            e.printStackTrace();
+
         }
     }
 }

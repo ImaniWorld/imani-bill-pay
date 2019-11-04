@@ -15,7 +15,7 @@ public interface IApartmentBuilderService {
 
     public ApartmentBuilderEvent buildApartment(ApartmentBuilderEvent apartmentBuilderEvent);
 
-    public Optional<Apartment> buildApartment(Floor floor);
+    public Optional<Apartment> buildApartment(Floor floor, String apartmentNumber);
 
-    public Optional<Apartment> buildApartment(Floor floor, List<Bedroom> bedrooms);
+    public Optional<Apartment> buildApartment(Floor floor, String apartmentNumber, List<Bedroom> bedrooms);
 }
