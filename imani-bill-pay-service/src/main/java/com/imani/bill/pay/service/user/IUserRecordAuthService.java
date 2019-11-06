@@ -1,10 +1,9 @@
 package com.imani.bill.pay.service.user;
 
 
-import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordEvent;
-
-import java.util.List;
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
+import com.imani.bill.pay.domain.user.gateway.UserRecordRequest;
 
 /**
  * @author manyce400
@@ -12,10 +11,8 @@ import java.util.List;
 public interface IUserRecordAuthService {
 
 
-    public UserRecordEvent authenticateAndLogInUserRecord(UserRecordEvent userRecordAuth);
+    public APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> authenticateAndLogInUserRecord(UserRecordRequest userRecordRequest);
 
-    public UserRecordEvent authenticateAndLogOutUserRecord(UserRecordEvent userRecordAuth);
-
-    public List<UserRecord> findAllUserRecord();
+    public APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> authenticateAndLogOutUserRecord(UserRecordRequest userRecordRequest);
 
 }

@@ -1,20 +1,21 @@
 package com.imani.bill.pay.domain.property.gateway;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
-import com.imani.bill.pay.domain.gateway.APIGatewayEventStatusE;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayRequest;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author manyce400
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApartmentBuilderEvent extends APIGatewayEvent {
+public class ApartmentBuilderRequest extends GenericAPIGatewayRequest {
 
 
     private String apartmentNumber;
@@ -24,7 +25,7 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
     private List<Bedroom> bedrooms = new ArrayList<>();
 
 
-    public ApartmentBuilderEvent() {
+    public ApartmentBuilderRequest() {
 
     }
 
@@ -67,40 +68,30 @@ public class ApartmentBuilderEvent extends APIGatewayEvent {
 
     public static class Builder {
 
-        private ApartmentBuilderEvent apartmentBuilderEvent = new ApartmentBuilderEvent();
+        private ApartmentBuilderRequest apartmentBuilderRequest = new ApartmentBuilderRequest();
 
         public Builder apartmentNumber(String apartmentNumber) {
-            apartmentBuilderEvent.apartmentNumber = apartmentNumber;
+            apartmentBuilderRequest.apartmentNumber = apartmentNumber;
             return this;
         }
 
         public Builder floor(Floor floor) {
-            apartmentBuilderEvent.floor = floor;
-            return this;
-        }
-
-        public Builder eventTimeNow() {
-            apartmentBuilderEvent.addEventTime();
-            return this;
-        }
-
-        public Builder gatewayEventCommunication(String gatewayEventCommunication) {
-            apartmentBuilderEvent.gatewayEventCommunication = gatewayEventCommunication;
-            return this;
-        }
-
-        public Builder apiGatewayEventStatusE(APIGatewayEventStatusE apiGatewayEventStatusE) {
-            apartmentBuilderEvent.apiGatewayEventStatusE = apiGatewayEventStatusE;
+            apartmentBuilderRequest.floor = floor;
             return this;
         }
 
         public Builder bedroom(Bedroom bedroom) {
-            apartmentBuilderEvent.bedrooms.add(bedroom);
+            apartmentBuilderRequest.bedrooms.add(bedroom);
             return this;
         }
 
-        public ApartmentBuilderEvent build() {
-            return apartmentBuilderEvent;
+        public Builder execUserRecord(UserRecord execUserRecord) {
+            apartmentBuilderRequest.execUserRecord = Optional.of(execUserRecord);
+            return this;
+        }
+
+        public ApartmentBuilderRequest build() {
+            return apartmentBuilderRequest;
         }
     }
 }

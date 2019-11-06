@@ -1,8 +1,9 @@
 package com.imani.bill.pay.service.user;
 
-import com.imani.bill.pay.domain.gateway.APIGatewayEventStatusE;
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordEvent;
+import com.imani.bill.pay.domain.user.gateway.UserRecordRequest;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.encryption.ClearTextEncryptionService;
 import com.imani.bill.pay.service.encryption.IClearTextEncryptionService;
@@ -37,32 +38,33 @@ public class UserRecordManagerService implements IUserRecordManagerService {
 
 
     @Override
-    public UserRecordEvent getUserRecord(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
+    public APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> fetchUserRecord(UserRecordRequest userRecordRequest) {
+        Assert.notNull(userRecordRequest, "UserRecordRequest cannot be null");
+        Assert.notNull(userRecordRequest.getExecUserRecord().get().getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
 
+        UserRecord userRecord = userRecordRequest.getExecUserRecord().get();
+        LOGGER.info("Fetching update UserRecord for => {}", userRecord.getEmbeddedContactInfo().getEmail());
 
         // Execute validations, find matching user
-        UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmailAndMobilePhone(userRecord.getEmbeddedContactInfo().getEmail(), userRecord.getEmbeddedContactInfo().getMobilePhone());
+        UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
 
         if (jpaUserRecord != null) {
             LOGGER.info("Found UserRecord details for user with email:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-            UserRecordEvent userRecordEvent = getUserRecordEventOnSucess(jpaUserRecord);
-            return userRecordEvent;
+            return getUserRecordEventOnSucess(jpaUserRecord);
         }
 
         LOGGER.info("No existing user found with email:=> {} cannot return UserRecord", userRecord.getEmbeddedContactInfo().getEmail());
-        UserRecordEvent userRecordEvent = getUserRecordEventOnInvalidUser(userRecord);
-        return userRecordEvent;
+        return getUserRecordEventOnInvalidUser(userRecord);
     }
 
     @Transactional
     @Override
-    public UserRecordEvent registerUserRecord(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
+    public APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> registerUserRecord(UserRecordRequest userRecordRequest) {
+        Assert.notNull(userRecordRequest, "UserRecordRequest cannot be null");
+        Assert.notNull(userRecordRequest.getExecUserRecord().get().getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
 
         // Execute validations, make sure no existing user with the same email and mobile phone number
+        UserRecord userRecord = userRecordRequest.getExecUserRecord().get();
         UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmailAndMobilePhone(userRecord.getEmbeddedContactInfo().getEmail(), userRecord.getEmbeddedContactInfo().getMobilePhone());
 
         if (jpaUserRecord == null) {
@@ -70,55 +72,53 @@ public class UserRecordManagerService implements IUserRecordManagerService {
             String encoded = clearTextEncryptionService.encryptClearText(userRecord.getPassword());
             userRecord.setPassword(encoded);
             iUserRecordRepository.save(userRecord);
-            UserRecordEvent userRecordEvent = getUserRecordEventOnSucess(userRecord);
-            return userRecordEvent;
+            return getUserRecordEventOnSucess(userRecord);
         }
 
         LOGGER.info("Existing user found with same credentials. Cannot register new user with email:=> {} and mobilePhone: {}", userRecord.getEmbeddedContactInfo().getEmail(), userRecord.getEmbeddedContactInfo().getMobilePhone());
-        UserRecordEvent userRecordEvent = getUserRecordEventOnInvalidUser(userRecord);
-        return userRecordEvent;
+        return getUserRecordEventOnInvalidUser(userRecord);
     }
 
 
     @Transactional
     @Override
-    public UserRecordEvent updateUserRecord(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
+    public APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> updateUserRecord(UserRecordRequest userRecordRequest) {
+        Assert.notNull(userRecordRequest, "UserRecordRequest cannot be null");
+        Assert.notNull(userRecordRequest.getExecUserRecord().get().getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
 
 
         // Execute validations, find matching user
+        UserRecord userRecord = userRecordRequest.getExecUserRecord().get();
         UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmailAndMobilePhone(userRecord.getEmbeddedContactInfo().getEmail(), userRecord.getEmbeddedContactInfo().getMobilePhone());
 
         if (jpaUserRecord != null) {
             // This API will not allow user to override their Email, Mobile Number or Password
             jpaUserRecord.updateSafeFieldsWherePresent(userRecord);
             iUserRecordRepository.save(userRecord);
-            UserRecordEvent userRecordEvent = getUserRecordEventOnSucess(userRecord);
-            return userRecordEvent;
+            return getUserRecordEventOnSucess(userRecord);
         }
 
         LOGGER.info("No existing user found with email:=> {} cannot update UserRecord....", userRecord.getEmbeddedContactInfo().getEmail());
-        UserRecordEvent userRecordEvent = getUserRecordEventOnInvalidUser(userRecord);
-        return userRecordEvent;
+        return getUserRecordEventOnInvalidUser(userRecord);
     }
 
 
-    UserRecordEvent getUserRecordEventOnSucess(UserRecord userRecord) {
-        UserRecordEvent userRecordEvent = UserRecordEvent.builder()
-                .userRecord(userRecord)
-                .apiGatewayEventStatusE(APIGatewayEventStatusE.Success)
+    APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> getUserRecordEventOnSucess(UserRecord userRecord) {
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getSuccessGenericAPIGatewayResponse();
+        return APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .eventUserRecord(userRecord)
                 .build();
-        return userRecordEvent;
     }
 
 
-    UserRecordEvent getUserRecordEventOnInvalidUser(UserRecord userRecord) {
-        UserRecordEvent userRecordEvent = UserRecordEvent.builder()
-                .userRecord(userRecord)
-                .apiGatewayEventStatusE(APIGatewayEventStatusE.InvalidRequest)
+    APIGatewayEvent<UserRecordRequest, GenericAPIGatewayResponse> getUserRecordEventOnInvalidUser(UserRecord userRecord) {
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getInvalidRequestGenericAPIGatewayResponse("Invalid user credentials supplied.");
+        return APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .eventUserRecord(userRecord)
                 .build();
-        return userRecordEvent;
+
     }
 
 }

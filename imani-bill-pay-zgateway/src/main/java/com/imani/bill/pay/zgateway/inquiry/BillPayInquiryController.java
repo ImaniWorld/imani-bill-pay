@@ -2,10 +2,8 @@ package com.imani.bill.pay.zgateway.inquiry;
 
 import com.imani.bill.pay.domain.contact.BillPayInquiry;
 import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
-import com.imani.bill.pay.domain.gateway.APIGatewayEventStatusE;
 import com.imani.bill.pay.service.contact.BillPayInquiryService;
 import com.imani.bill.pay.service.contact.IBillPayInquiryService;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +32,7 @@ public class BillPayInquiryController {
         LOGGER.info("Processing new Imani BillPay inquiry request for.....");
         iBillPayInquiryService.save(billPayInquiry);
         APIGatewayEvent apiGatewayEvent = new APIGatewayEvent();
-        apiGatewayEvent.setApiGatewayEventStatusE(APIGatewayEventStatusE.Success);
-        apiGatewayEvent.setEventTime(DateTime.now());
+        //apiGatewayEvent.setApiGatewayEventStatusE(APIGatewayEventStatusE.Success);
         return apiGatewayEvent;
     }
 }

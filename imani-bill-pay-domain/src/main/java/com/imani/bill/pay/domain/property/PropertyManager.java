@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.property;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name="PropertyManager")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PropertyManager extends AuditableRecord {
 
 
@@ -141,6 +143,39 @@ public class PropertyManager extends AuditableRecord {
                 .append("achPaymentInfo", achPaymentInfo)
                 .append("businessAddressInfo", businessAddressInfo)
                 .toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private PropertyManager propertyManager = new PropertyManager();
+
+        public Builder name(String name) {
+            propertyManager.name = name;
+            return this;
+        }
+
+        public Builder embeddedContactInfo(EmbeddedContactInfo embeddedContactInfo) {
+            propertyManager.embeddedContactInfo = embeddedContactInfo;
+            return this;
+        }
+
+        public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+            propertyManager.achPaymentInfo = achPaymentInfo;
+            return this;
+        }
+
+        public Builder businessAddressInfo(Property businessAddressInfo) {
+            propertyManager.businessAddressInfo = businessAddressInfo;
+            return this;
+        }
+
+        public PropertyManager build() {
+            return propertyManager;
+        }
     }
     
 }

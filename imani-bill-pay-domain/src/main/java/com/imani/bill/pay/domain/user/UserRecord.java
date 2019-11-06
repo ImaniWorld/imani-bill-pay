@@ -250,6 +250,11 @@ public class UserRecord extends AuditableRecord {
                 .toString();
     }
 
+//    public static void getAPISafeVersion(UserRecord userRecord) {
+//        Assert.notNull(userRecord, "UserRecord cannot be null");
+//        userRecord.setPassword(null);
+//    }
+
     public static Builder builder() {
         return new Builder();
     }

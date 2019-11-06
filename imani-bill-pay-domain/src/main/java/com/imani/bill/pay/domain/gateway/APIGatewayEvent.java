@@ -2,14 +2,20 @@ package com.imani.bill.pay.domain.gateway;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
+import java.util.Optional;
+
 /**
  * @author manyce400
+ * @param <I> Gateway event request and input object.
+ * @param <O> Gateway event response and output object must extend GenericAPIGatewayResponse
+ * @see GenericAPIGatewayResponse
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class APIGatewayEvent {
+public class APIGatewayEvent<I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> {
 
 
 
@@ -17,74 +23,82 @@ public class APIGatewayEvent {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected DateTime eventTime;
 
-    // Optional communication message for this gateway event
-    protected String gatewayEventCommunication;
+    protected Optional<I> requestBody;
 
-    protected APIGatewayEventStatusE apiGatewayEventStatusE;
+    protected Optional<O> responseBody;
+
+    // UserRecord that initiated the gateway event
+    protected Optional<UserRecord> eventUserRecord;
 
 
     public APIGatewayEvent() {
-
+        eventTime = DateTime.now();
     }
 
     public DateTime getEventTime() {
         return eventTime;
     }
 
-    public void setEventTime(DateTime eventTime) {
-        this.eventTime = eventTime;
+    public Optional<I> getRequestBody() {
+        return requestBody;
     }
 
-    public String getGatewayEventCommunication() {
-        return gatewayEventCommunication;
+    public void setRequestBody(Optional<I> requestBody) {
+        this.requestBody = requestBody;
     }
 
-    public void setGatewayEventCommunication(String gatewayEventCommunication) {
-        this.gatewayEventCommunication = gatewayEventCommunication;
+    public Optional<O> getResponseBody() {
+        return responseBody;
     }
 
-    public void addEventTime() {
-        this.eventTime = DateTime.now();
+    public void setResponseBody(Optional<O> responseBody) {
+        this.responseBody = responseBody;
     }
 
-    public APIGatewayEventStatusE getApiGatewayEventStatusE() {
-        return apiGatewayEventStatusE;
+    public Optional<UserRecord> getEventUserRecord() {
+        return eventUserRecord;
     }
 
-    public void setApiGatewayEventStatusE(APIGatewayEventStatusE apiGatewayEventStatusE) {
-        this.apiGatewayEventStatusE = apiGatewayEventStatusE;
+    public void setEventUserRecord(Optional<UserRecord> eventUserRecord) {
+        this.eventUserRecord = eventUserRecord;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("eventTime", eventTime)
-                .append("gatewayEventCommunication", gatewayEventCommunication)
-                .append("apiGatewayEventStatusE", apiGatewayEventStatusE)
+                .append("requestBody", requestBody)
+                .append("responseBody", responseBody)
+                .append("eventUserRecord", eventUserRecord)
                 .toString();
     }
 
-    //    public static Builder builder() {
-//        return new Builder();
-//    }
-//
-//    public static class Builder {
-//
-//        private APIGatewayEvent apiGatewayEvent = new APIGatewayEvent();
-//
-//        public Builder eventTime(DateTime eventTime) {
-//            apiGatewayEvent.eventTime = eventTime;
-//            return this;
-//        }
-//
-//        public Builder apiGatewayEventStatusE(APIGatewayEventStatusE apiGatewayEventStatusE) {
-//            apiGatewayEvent.apiGatewayEventStatusE = apiGatewayEventStatusE;
-//            return this;
-//        }
-//
-//        public APIGatewayEvent build() {
-//            return apiGatewayEvent;
-//        }
-//    }
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder<I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> {
+
+        private APIGatewayEvent<I, O> apiGatewayEvent = new APIGatewayEvent();
+
+        public Builder requestBody(I requestBody) {
+            apiGatewayEvent.requestBody = Optional.of(requestBody);
+            return this;
+        }
+
+        public Builder responseBody(O responseBody) {
+            apiGatewayEvent.responseBody = Optional.of(responseBody);
+            return this;
+        }
+
+        public Builder eventUserRecord(UserRecord eventUserRecord) {
+            apiGatewayEvent.eventUserRecord = Optional.of(eventUserRecord);
+            return this;
+        }
+
+        public APIGatewayEvent build() {
+            return apiGatewayEvent;
+        }
+    }
 
 }

@@ -1,10 +1,11 @@
 package com.imani.bill.pay.service.property.builder;
 
-import com.imani.bill.pay.domain.gateway.APIGatewayEventStatusE;
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
 import com.imani.bill.pay.domain.property.Apartment;
-import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderEvent;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
+import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderRequest;
 import com.imani.bill.pay.domain.property.repository.IApartmentRepository;
 import com.imani.bill.pay.domain.property.repository.IFloorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,39 +36,37 @@ public class ApartmentBuilderService implements IApartmentBuilderService {
 
     @Transactional
     @Override
-    public ApartmentBuilderEvent buildApartment(ApartmentBuilderEvent apartmentBuilderEvent) {
-        Assert.notNull(apartmentBuilderEvent, "ApartmentBuilderEvent cannot be null");
-        LOGGER.debug("Building Apartment from apartmentBuilderEvent:=> {}", apartmentBuilderEvent);
+    public APIGatewayEvent<ApartmentBuilderRequest, GenericAPIGatewayResponse> buildApartment(ApartmentBuilderRequest apartmentBuilderRequest) {
+        Assert.notNull(apartmentBuilderRequest, "ApartmentBuilderRequest cannot be null");
+        LOGGER.debug("Building Apartment from apartmentBuilderRequest:=> {}", apartmentBuilderRequest);
 
         // Refresh Floor data
-        Optional<Floor> floor = iFloorRepository.findById(apartmentBuilderEvent.getFloor().getId());
+        Optional<Floor> floor = iFloorRepository.findById(apartmentBuilderRequest.getFloor().getId());
 
         if(floor.isPresent()
-                && floor.get().getProperty().getId().equals(apartmentBuilderEvent.getFloor().getProperty().getId()) // make sure that this floor belongs to expected property
-                && floor.get().getFloorNumber().equals(apartmentBuilderEvent.getFloor().getFloorNumber())) { // validate that this is the correct floor number
+                && floor.get().getProperty().getId().equals(apartmentBuilderRequest.getFloor().getProperty().getId()) // make sure that this floor belongs to expected property
+                && floor.get().getFloorNumber().equals(apartmentBuilderRequest.getFloor().getFloorNumber())) { // validate that this is the correct floor number
             Optional<Apartment> apartment = null;
 
-            if(apartmentBuilderEvent.getBedrooms().size() > 0) {
-                apartment = buildApartment(floor.get(), apartmentBuilderEvent.getApartmentNumber(), apartmentBuilderEvent.getBedrooms());
+            if(apartmentBuilderRequest.getBedrooms().size() > 0) {
+                apartment = buildApartment(floor.get(), apartmentBuilderRequest.getApartmentNumber(), apartmentBuilderRequest.getBedrooms());
             } else {
-                apartment = buildApartment(floor.get(), apartmentBuilderEvent.getApartmentNumber());
+                apartment = buildApartment(floor.get(), apartmentBuilderRequest.getApartmentNumber());
             }
 
-            ApartmentBuilderEvent apartmentBuilderEventResult = ApartmentBuilderEvent.builder()
-                    .apartmentNumber(apartment.get().getApartmentNumber())
-                    .eventTimeNow()
-                    .apiGatewayEventStatusE(APIGatewayEventStatusE.Success)
+            GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getSuccessGenericAPIGatewayResponse();
+            return APIGatewayEvent.builder()
+                    .responseBody(genericAPIGatewayResponse)
+                    //.eventUserRecord(apartmentBuilderRequest.getExecUserRecord().get())
                     .build();
-            return apartmentBuilderEventResult;
         }
 
-        LOGGER.warn("No valid floor found in the system for floor:=> {}", apartmentBuilderEvent.getFloor());
-        ApartmentBuilderEvent apartmentBuilderEventResult = ApartmentBuilderEvent.builder()
-                .eventTimeNow()
-                .gatewayEventCommunication("Floor passed in request not found in property.")
-                .apiGatewayEventStatusE(APIGatewayEventStatusE.InvalidRequest)
+        LOGGER.warn("No valid floor found in the system for floor:=> {}", apartmentBuilderRequest.getFloor());
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getInvalidRequestGenericAPIGatewayResponse("Invalid floor details provided");
+        return APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                //.eventUserRecord(apartmentBuilderRequest.getExecUserRecord().get())
                 .build();
-        return apartmentBuilderEventResult;
     }
 
     @Transactional

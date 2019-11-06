@@ -1,9 +1,11 @@
 package com.imani.bill.pay.service.property.builder;
 
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
 import com.imani.bill.pay.domain.property.Apartment;
-import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderEvent;
 import com.imani.bill.pay.domain.property.Bedroom;
 import com.imani.bill.pay.domain.property.Floor;
+import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +15,7 @@ import java.util.Optional;
  */
 public interface IApartmentBuilderService {
 
-    public ApartmentBuilderEvent buildApartment(ApartmentBuilderEvent apartmentBuilderEvent);
+    public APIGatewayEvent<ApartmentBuilderRequest, GenericAPIGatewayResponse> buildApartment(ApartmentBuilderRequest apartmentBuilderRequest);
 
     public Optional<Apartment> buildApartment(Floor floor, String apartmentNumber);
 

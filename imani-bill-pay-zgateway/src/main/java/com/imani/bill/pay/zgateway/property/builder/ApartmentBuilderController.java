@@ -1,6 +1,8 @@
 package com.imani.bill.pay.zgateway.property.builder;
 
-import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderEvent;
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
+import com.imani.bill.pay.domain.property.gateway.ApartmentBuilderRequest;
 import com.imani.bill.pay.service.property.builder.ApartmentBuilderService;
 import com.imani.bill.pay.service.property.builder.IApartmentBuilderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +28,10 @@ public class ApartmentBuilderController {
 
 
     @PostMapping("/new")
-    public ApartmentBuilderEvent buildApartment(@RequestBody ApartmentBuilderEvent apartmentBuilderEvent) {
-        LOGGER.info("Executing build apartment event with:=> {}", apartmentBuilderEvent);
-        ApartmentBuilderEvent apartmentBuilderEventResult =iApartmentBuilderService.buildApartment(apartmentBuilderEvent);
-        return apartmentBuilderEventResult;
+    public APIGatewayEvent<ApartmentBuilderRequest, GenericAPIGatewayResponse> buildApartment(@RequestBody APIGatewayEvent<ApartmentBuilderRequest, GenericAPIGatewayResponse> apiGatewayEvent) {
+        LOGGER.info("Executing build apartment event with:=> {}", apiGatewayEvent);
+        APIGatewayEvent<ApartmentBuilderRequest, GenericAPIGatewayResponse> apiGatewayEventResult = iApartmentBuilderService.buildApartment(apiGatewayEvent.getRequestBody().get());
+        return apiGatewayEventResult;
     }
 
 }
