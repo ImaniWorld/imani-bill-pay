@@ -13,6 +13,15 @@ public interface IMockApartmentTestBuilder {
                 .apartmentNumber("235 F")
                 .floor(buildFloor())
                 .build();
+        apartment.setId(1L);
+        return apartment;
+    }
+
+    public default Apartment buildApartmentNoFloor() {
+        Apartment apartment = Apartment.builder()
+                .apartmentNumber("235 F")
+                .build();
+        apartment.setId(1L);
         return apartment;
     }
 

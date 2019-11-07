@@ -73,6 +73,32 @@ public class APIGatewayEvent<I extends GenericAPIGatewayRequest, O extends Gener
                 .toString();
     }
 
+    public static <I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> APIGatewayEvent getSuccessGenericAPIGatewayResponse(UserRecord userRecord) {
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getSuccessGenericAPIGatewayResponse();
+        APIGatewayEvent<I, O> apiGatewayEvent = APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .eventUserRecord(userRecord)
+                .build();
+        return apiGatewayEvent;
+    }
+
+    public static <I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> APIGatewayEvent getSuccessGenericAPIGatewayResponse(O genericAPIGatewayResponse, UserRecord userRecord) {
+        APIGatewayEvent<I, O> apiGatewayEvent = APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .eventUserRecord(userRecord)
+                .build();
+        return apiGatewayEvent;
+    }
+
+    public static <I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> APIGatewayEvent getFailedGenericAPIGatewayResponse(String communication, UserRecord userRecord) {
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getFailureGenericAPIGatewayResponse(communication);
+        APIGatewayEvent<I, O> apiGatewayEvent = APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .eventUserRecord(userRecord)
+                .build();
+        return apiGatewayEvent;
+    }
+
     public static Builder builder() {
         return new Builder();
     }

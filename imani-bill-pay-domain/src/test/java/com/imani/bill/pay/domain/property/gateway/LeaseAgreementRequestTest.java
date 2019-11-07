@@ -45,7 +45,7 @@ public class LeaseAgreementRequestTest implements IMockUserRecordTestBuilder, IM
     public void beforeTest() {
         monthlyRentalCost = 1500.00;
         userRecord = buildUserRecord();
-        apartment = buildApartment();
+        apartment = buildApartmentNoFloor();
         propertyManager = buildPropertyManager();
     }
 
