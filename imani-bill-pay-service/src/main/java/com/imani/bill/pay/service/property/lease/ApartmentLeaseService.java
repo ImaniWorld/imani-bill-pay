@@ -88,13 +88,13 @@ public class ApartmentLeaseService implements IApartmentLeaseService {
                 // Record the UserResidence to be this new apartment
                 UserResidence userResidence = iUserResidenceService.buildUserResidence(userRecord, apartment.get(), leaseAgreement, true);
                 return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getSuccessGenericAPIGatewayResponse(userRecord);
+            } else {
+                LOGGER.info("Apartment is currently leased already with existingLeaseAgreement:=> {}", existingLeaseAgreement);
+                return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getFailedGenericAPIGatewayResponse("Apartment is currently already leased.", userRecord);
             }
-        } else {
-            LOGGER.warn("Apartment lease operation cannot be executed, invalid data passed in request");
-            return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getInvalidGenericAPIGatewayResponse("ApiGatewayEvent attributes passed are invalid. UserRecord, Apartment or PropertManager not found.");
         }
 
-        LOGGER.info("Apartment is currently leased already with existingLeaseAgreement:=> {}", existingLeaseAgreement);
-        return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getFailedGenericAPIGatewayResponse("Apartment is currently already leased.", userRecord);
+        LOGGER.warn("Apartment lease operation cannot be executed, invalid data passed in request");
+        return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getInvalidGenericAPIGatewayResponse("ApiGatewayEvent attributes passed are invalid. UserRecord, Apartment or PropertManager not found.");
     }
 }
