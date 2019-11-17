@@ -51,7 +51,7 @@ public class UserResidence extends AuditableRecord {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RentalAgreementID", nullable = true)
+    @JoinColumn(name = "LeaseAgreementID", nullable = true)
     private LeaseAgreement leaseAgreement;
 
 

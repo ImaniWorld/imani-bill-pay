@@ -47,6 +47,9 @@ public class LeaseAgreementService implements ILeaseAgreementService {
 
         LOGGER.info("Building in force rental agreement for User:=> {} with PropertyManager: {}", userRecord.getEmbeddedContactInfo().getEmail(), propertyManager.getName());
 
+        // Update apartment to reflect that it is currently rented.
+        apartment.setRented(true);
+
         LeaseAgreement leaseAgreement = LeaseAgreement.builder()
                 .leaseAgreementTypeE(leaseAgreementTypeE)
                 .effectiveDate(DateTime.now())
