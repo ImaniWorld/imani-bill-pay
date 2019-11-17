@@ -73,6 +73,14 @@ public class APIGatewayEvent<I extends GenericAPIGatewayRequest, O extends Gener
                 .toString();
     }
 
+    public static <I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> APIGatewayEvent getInvalidGenericAPIGatewayResponse(String communication) {
+        GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getInvalidRequestGenericAPIGatewayResponse(communication);
+        APIGatewayEvent<I, O> apiGatewayEvent = APIGatewayEvent.builder()
+                .responseBody(genericAPIGatewayResponse)
+                .build();
+        return apiGatewayEvent;
+    }
+
     public static <I extends GenericAPIGatewayRequest, O extends GenericAPIGatewayResponse> APIGatewayEvent getSuccessGenericAPIGatewayResponse(UserRecord userRecord) {
         GenericAPIGatewayResponse genericAPIGatewayResponse = GenericAPIGatewayResponse.getSuccessGenericAPIGatewayResponse();
         APIGatewayEvent<I, O> apiGatewayEvent = APIGatewayEvent.builder()

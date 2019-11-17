@@ -7,8 +7,11 @@ import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.property.LeaseAgreementTypeE;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.property.gateway.LeaseAgreementRequest;
+import com.imani.bill.pay.domain.property.repository.IApartmentRepository;
+import com.imani.bill.pay.domain.property.repository.IPropertyManagerRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
+import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.property.ILeaseAgreementService;
 import com.imani.bill.pay.service.property.LeaseAgreementService;
 import com.imani.bill.pay.service.user.IUserResidenceService;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 /**
  * @author manyce400
@@ -26,6 +30,15 @@ import javax.transaction.Transactional;
 @Service(ApartmentLeaseService.SPRING_BEAN)
 public class ApartmentLeaseService implements IApartmentLeaseService {
 
+
+    @Autowired
+    private IUserRecordRepository userRecordRepository;
+
+    @Autowired
+    private IApartmentRepository iApartmentRepository;
+
+    @Autowired
+    private IPropertyManagerRepository iPropertyManagerRepository;
 
     @Autowired
     @Qualifier(LeaseAgreementService.SPRING_BEAN)
@@ -51,23 +64,34 @@ public class ApartmentLeaseService implements IApartmentLeaseService {
         Assert.notNull(apiGatewayEvent.getRequestBody().get().getMonthlyRentalCost(), "monthlyRentalCost cannot be null");
         Assert.notNull(apiGatewayEvent.getRequestBody().get().getLeaseAgreementTypeE(), "leaseAgreementTypeE cannot be null");
 
-        UserRecord userRecord = apiGatewayEvent.getRequestBody().get().getUserRecord();
         Double monthlyRentalCost = apiGatewayEvent.getRequestBody().get().getMonthlyRentalCost();
-        Apartment apartment = apiGatewayEvent.getRequestBody().get().getApartment();
-        PropertyManager propertyManager = apiGatewayEvent.getRequestBody().get().getPropertyManager();
         LeaseAgreementTypeE leaseAgreementTypeE = apiGatewayEvent.getRequestBody().get().getLeaseAgreementTypeE();
 
-        LOGGER.info("Leasing apartment => {} to user => {}", apartment, userRecord.getEmbeddedContactInfo().getEmail());
+        // Fetch JPA versions of these objects to get the most recent versions
+        UserRecord userRecord = userRecordRepository.findByUserEmail(apiGatewayEvent.getRequestBody().get().getUserRecord().getEmbeddedContactInfo().getEmail());
+        Optional<Apartment> apartment = iApartmentRepository.findById(apiGatewayEvent.getRequestBody().get().getApartment().getId());
+        Optional<PropertyManager> propertyManager = iPropertyManagerRepository.findById(apiGatewayEvent.getRequestBody().get().getPropertyManager().getId());
 
-        // Verify that this Apartment is not already leased
-        LeaseAgreement existingLeaseAgreement = iLeaseAgreementService.findApartmentLeaseAgreement(apartment);
-        if(existingLeaseAgreement == null) {
-            // Create a LeaseAgreement to reflect this transation.
-            LeaseAgreement leaseAgreement = iLeaseAgreementService.buildLeaseAgreement(userRecord, apartment, propertyManager, monthlyRentalCost, leaseAgreementTypeE);
 
-            // Record the UserResidence to be this new apartment
-            UserResidence userResidence = iUserResidenceService.buildUserResidence(userRecord, apartment, leaseAgreement, true);
-            return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getSuccessGenericAPIGatewayResponse(userRecord);
+        LeaseAgreement existingLeaseAgreement = null;
+        if (userRecord != null &&
+                apartment.isPresent() &&
+                propertyManager.isPresent()) {
+            LOGGER.info("Leasing apartment => {} to user => {}", apartment, userRecord.getEmbeddedContactInfo().getEmail());
+
+            // Verify that this Apartment is not already leased
+            existingLeaseAgreement = iLeaseAgreementService.findApartmentLeaseAgreement(apartment.get());
+            if(existingLeaseAgreement == null) {
+                // Create a LeaseAgreement to reflect this transation.
+                LeaseAgreement leaseAgreement = iLeaseAgreementService.buildLeaseAgreement(userRecord, apartment.get(), propertyManager.get(), monthlyRentalCost, leaseAgreementTypeE);
+
+                // Record the UserResidence to be this new apartment
+                UserResidence userResidence = iUserResidenceService.buildUserResidence(userRecord, apartment.get(), leaseAgreement, true);
+                return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getSuccessGenericAPIGatewayResponse(userRecord);
+            }
+        } else {
+            LOGGER.warn("Apartment lease operation cannot be executed, invalid data passed in request");
+            return APIGatewayEvent.<LeaseAgreementRequest, GenericAPIGatewayResponse>getInvalidGenericAPIGatewayResponse("ApiGatewayEvent attributes passed are invalid. UserRecord, Apartment or PropertManager not found.");
         }
 
         LOGGER.info("Apartment is currently leased already with existingLeaseAgreement:=> {}", existingLeaseAgreement);
