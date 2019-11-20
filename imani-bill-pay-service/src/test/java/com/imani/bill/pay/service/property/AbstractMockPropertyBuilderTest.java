@@ -58,7 +58,7 @@ public abstract class AbstractMockPropertyBuilderTest {
         }
 
         @Override
-        public String getBoro() {
+        public Long getCityID() {
             return null;
         }
 

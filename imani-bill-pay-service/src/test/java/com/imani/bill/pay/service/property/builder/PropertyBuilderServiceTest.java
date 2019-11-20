@@ -1,10 +1,11 @@
-package com.imani.bill.pay.service.property;
+package com.imani.bill.pay.service.property.builder;
 
 import com.imani.bill.pay.domain.geographical.repository.IBoroughRepository;
 import com.imani.bill.pay.domain.property.IHasPropertyData;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.property.PropertyTypeE;
 import com.imani.bill.pay.domain.property.repository.IPropertyRepository;
+import com.imani.bill.pay.service.property.AbstractMockPropertyBuilderTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

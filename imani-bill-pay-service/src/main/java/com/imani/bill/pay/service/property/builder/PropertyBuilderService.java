@@ -1,10 +1,15 @@
-package com.imani.bill.pay.service.property;
+package com.imani.bill.pay.service.property.builder;
 
+import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
+import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
 import com.imani.bill.pay.domain.geographical.Borough;
+import com.imani.bill.pay.domain.geographical.City;
 import com.imani.bill.pay.domain.geographical.repository.IBoroughRepository;
+import com.imani.bill.pay.domain.geographical.repository.ICityRepository;
 import com.imani.bill.pay.domain.property.Floor;
 import com.imani.bill.pay.domain.property.IHasPropertyData;
 import com.imani.bill.pay.domain.property.Property;
+import com.imani.bill.pay.domain.property.gateway.PropertyBuilderRequest;
 import com.imani.bill.pay.domain.property.repository.IPropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,9 @@ public class PropertyBuilderService implements IPropertyBuilderService {
 
 
     @Autowired
+    private ICityRepository iCityRepository;
+
+    @Autowired
     private IBoroughRepository iBoroughRepository;
 
     @Autowired
@@ -29,7 +37,7 @@ public class PropertyBuilderService implements IPropertyBuilderService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PropertyBuilderService.class);
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.property.PropertyBuilderService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.property.builder.PropertyBuilderService";
 
 
     @Transactional
@@ -49,6 +57,7 @@ public class PropertyBuilderService implements IPropertyBuilderService {
 
             // Try to find a matching property that exists with the same information. Theoretically this should always be exactly 1 match if found.
             Optional<Borough> borough = iBoroughRepository.findById(iHasPropertyData.getBoroID());
+            Optional<City> city = iCityRepository.findById(iHasPropertyData.getCityID());
             List<Property> properties = iPropertyRepository.findUniqueProperties(propertyNumber, streetName, zipCode, borough.get());
 
             if(properties == null || properties.size() == 0) {
@@ -64,6 +73,13 @@ public class PropertyBuilderService implements IPropertyBuilderService {
         LOGGER.warn("Property data is not valid, cannot build and record property");
 
         return Optional.empty();
+    }
+
+    @Override
+    public APIGatewayEvent<PropertyBuilderRequest, GenericAPIGatewayResponse> buildProperty(PropertyBuilderRequest propertyBuilderRequest) {
+        Assert.notNull(propertyBuilderRequest, "propertyBuilderRequest cannot be null");
+        Optional<Property> builtProperty = buildAndRecordProperty(propertyBuilderRequest);
+        return null;
     }
 
     Property createProperty(IHasPropertyData iHasPropertyData, Optional<Borough> borough) {

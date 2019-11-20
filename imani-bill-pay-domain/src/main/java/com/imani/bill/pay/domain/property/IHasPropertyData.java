@@ -7,7 +7,7 @@ public interface IHasPropertyData {
 
     public Long getBoroID();
 
-    public String getBoro();
+    public Long getCityID();
 
     public String getPropertyNumber();
 
