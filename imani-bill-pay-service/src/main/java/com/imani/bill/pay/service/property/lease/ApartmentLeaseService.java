@@ -73,14 +73,13 @@ public class ApartmentLeaseService implements IApartmentLeaseService {
         Optional<PropertyManager> propertyManager = iPropertyManagerRepository.findById(apiGatewayEvent.getRequestBody().get().getPropertyManager().getId());
 
 
-        LeaseAgreement existingLeaseAgreement = null;
         if (userRecord != null &&
                 apartment.isPresent() &&
                 propertyManager.isPresent()) {
             LOGGER.info("Leasing apartment => {} to user => {}", apartment, userRecord.getEmbeddedContactInfo().getEmail());
 
             // Verify that this Apartment is not already leased
-            existingLeaseAgreement = iLeaseAgreementService.findApartmentLeaseAgreement(apartment.get());
+            LeaseAgreement existingLeaseAgreement = iLeaseAgreementService.findApartmentLeaseAgreement(apartment.get());
             if(existingLeaseAgreement == null) {
                 // Create a LeaseAgreement to reflect this transation.
                 LeaseAgreement leaseAgreement = iLeaseAgreementService.buildLeaseAgreement(userRecord, apartment.get(), propertyManager.get(), monthlyRentalCost, leaseAgreementTypeE);
