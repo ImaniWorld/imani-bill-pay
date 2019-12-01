@@ -73,6 +73,12 @@
             <artifactId>spring-web</artifactId>
         </dependency>
 
+        <!-- Payment Gateways Dependency -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+        </dependency>
+
         <!--  MySQL DB Java connector for Spring.  Compatible version will be loaded from SpringBoot -->
         <dependency>
             <groupId>mysql</groupId>
@@ -90,6 +96,11 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
         </dependency>
 
         <!--  Caching API's -->

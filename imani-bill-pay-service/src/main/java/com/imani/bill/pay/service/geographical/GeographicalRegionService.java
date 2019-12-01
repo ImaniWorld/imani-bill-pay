@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author manyce400
  */
@@ -15,6 +13,8 @@ import javax.annotation.PostConstruct;
 public class GeographicalRegionService implements IGeographicalRegionService {
 
 
+//    @Autowired
+//    private StripeAPIConfig stripeAPIConfig;
 
     @Autowired
     private IGeographicalRegionRepository iGeographicalRegionRepository;
@@ -32,12 +32,14 @@ public class GeographicalRegionService implements IGeographicalRegionService {
     }
 
 
-    @PostConstruct
-    public void runPostConstruct() {
-        System.out.println("\n\nRunning Post Construct\n\n");
-        GeographicalRegion geographicalRegion = iGeographicalRegionRepository.findGeographicalRegionByCode("NA");
-        System.out.println("geographicalRegion = " + geographicalRegion);
-        System.out.println("\n\nCompleted Post Construct\n\n");
-    }
+//    @PostConstruct
+//    public void runPostConstruct() {
+//        System.out.println("\nRunning Post Construct");
+//        String publicKey = stripeAPIConfig.getPublicKey();
+//        String apiKey = stripeAPIConfig.getApiKey();
+//        System.out.println("publicKey = " + publicKey);
+//        System.out.println("apiKey = " + apiKey);
+//        System.out.println("\n");
+//    }
 
 }
