@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.config;
+package com.imani.bill.pay.domain.payment.config;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Value;

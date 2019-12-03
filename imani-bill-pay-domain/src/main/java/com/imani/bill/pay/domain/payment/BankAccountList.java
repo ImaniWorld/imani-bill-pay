@@ -14,17 +14,17 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BankAccountList {
 
-    private List<BankAccount> accounts = new ArrayList<>();
+    private List<PlaidBankAccount> accounts = new ArrayList<>();
 
     public BankAccountList() {
 
     }
 
-    public List<BankAccount> getAccounts() {
+    public List<PlaidBankAccount> getAccounts() {
         return accounts;
     }
 
-    public void setAccounts(List<BankAccount> accounts) {
+    public void setAccounts(List<PlaidBankAccount> accounts) {
         this.accounts = accounts;
     }
 

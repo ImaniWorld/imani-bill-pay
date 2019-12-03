@@ -15,6 +15,9 @@ public class GeographicalRegionService implements IGeographicalRegionService {
 
 //    @Autowired
 //    private StripeAPIConfig stripeAPIConfig;
+//
+//    @Autowired
+//    private PlaidAPIConfig plaidAPIConfig;
 
     @Autowired
     private IGeographicalRegionRepository iGeographicalRegionRepository;
@@ -39,6 +42,11 @@ public class GeographicalRegionService implements IGeographicalRegionService {
 //        String apiKey = stripeAPIConfig.getApiKey();
 //        System.out.println("publicKey = " + publicKey);
 //        System.out.println("apiKey = " + apiKey);
+//
+//        String plaidClientID = plaidAPIConfig.getClientID();
+//        String plaidPublicKey = plaidAPIConfig.getPublicKey();
+//        System.out.println("plaidClientID = " + plaidClientID);
+//        System.out.println("plaidPublicKey = " + plaidPublicKey);
 //        System.out.println("\n");
 //    }
 

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BankAccount {
+public class PlaidBankAccount {
 
 
     @JsonProperty("account_id")
@@ -30,7 +30,7 @@ public class BankAccount {
     private Balance balances;
 
 
-    public BankAccount() {
+    public PlaidBankAccount() {
 
     }
 
@@ -97,40 +97,40 @@ public class BankAccount {
 
     public static class Builder {
 
-        private BankAccount bankAccount = new BankAccount();
+        private PlaidBankAccount plaidBankAccount = new PlaidBankAccount();
 
         public Builder accountID(String accountID) {
-            bankAccount.accountID = accountID;
+            plaidBankAccount.accountID = accountID;
             return this;
         }
 
         public Builder name(String name) {
-            bankAccount.name = name;
+            plaidBankAccount.name = name;
             return this;
         }
 
         public Builder officialName(String officialName) {
-            bankAccount.officialName = officialName;
+            plaidBankAccount.officialName = officialName;
             return this;
         }
 
         public Builder type(String type) {
-            bankAccount.type = type;
+            plaidBankAccount.type = type;
             return this;
         }
 
         public Builder subType(String subType) {
-            bankAccount.subType = subType;
+            plaidBankAccount.subType = subType;
             return this;
         }
 
         public Builder balances(Balance balances) {
-            bankAccount.balances =  balances;
+            plaidBankAccount.balances =  balances;
             return this;
         }
 
-        public BankAccount build() {
-            return bankAccount;
+        public PlaidBankAccount build() {
+            return plaidBankAccount;
         }
 
     }

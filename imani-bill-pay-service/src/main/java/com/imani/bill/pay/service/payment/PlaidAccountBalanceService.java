@@ -85,8 +85,8 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
             iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnSuccess(achPaymentInfo, apiInvocationStartDate, apiInvocationEndDate);
 
             // We expect only 1 bank account back in the list returned always return first in the list
-            BankAccount bankAccount = bankAccountList.getAccounts().get(0);
-            return Optional.of(bankAccount.getBalances());
+            PlaidBankAccount plaidBankAccount = bankAccountList.getAccounts().get(0);
+            return Optional.of(plaidBankAccount.getBalances());
         } catch (Exception e) {
             // Capture and record metrics for succesful API call.
             LOGGER.error("Failed to execute Plaid API balance call", e);

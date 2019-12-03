@@ -26,6 +26,11 @@ public class ACHPaymentInfo extends AuditableRecord {
     private Long id;
 
 
+    // Represents the actual Stripe Account ID
+    @Column(name="StripeAcctID", nullable=false, length=100)
+    public String stripeAcctID;
+
+
     // Stripe Bank Acct Token that can be used to generate ACH payments
     @Column(name="StripeBankAcctToken", nullable=false, length=100)
     public String stripeBankAcctToken;
@@ -65,6 +70,12 @@ public class ACHPaymentInfo extends AuditableRecord {
     private boolean isPrimary;
 
 
+    // Flag to indicate if this account has been verified.  Payments can only be made to verified accounts
+    @Column(name="IsVerified", nullable = true, columnDefinition = "TINYINT", length = 1)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean isVerified;
+
+
     // UserRecord that this Payment information belongs to
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserRecordID", nullable = true)
@@ -102,6 +113,14 @@ public class ACHPaymentInfo extends AuditableRecord {
 
     public void setStripeBankAcctToken(String stripeBankAcctToken) {
         this.stripeBankAcctToken = stripeBankAcctToken;
+    }
+
+    public String getStripeAcctID() {
+        return stripeAcctID;
+    }
+
+    public void setStripeAcctID(String stripeAcctID) {
+        this.stripeAcctID = stripeAcctID;
     }
 
     public String getPlaidAcctID() {
@@ -168,6 +187,14 @@ public class ACHPaymentInfo extends AuditableRecord {
         isPrimary = primary;
     }
 
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
     public UserRecord getUserRecord() {
         return userRecord;
     }
@@ -192,11 +219,11 @@ public class ACHPaymentInfo extends AuditableRecord {
         this.propertyOwner = propertyOwner;
     }
 
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
+                .append("stripeAcctID", stripeAcctID)
                 .append("stripeBankAcctToken", stripeBankAcctToken)
                 .append("plaidAcctID", plaidAcctID)
                 .append("plaidAccessToken", plaidAccessToken)
@@ -206,6 +233,7 @@ public class ACHPaymentInfo extends AuditableRecord {
                 .append("acctType", acctType)
                 .append("financialInstitution", financialInstitution)
                 .append("isPrimary", isPrimary)
+                .append("isVerified", isVerified)
                 .append("userRecord", userRecord)
                 .append("propertyManager", propertyManager)
                 .append("propertyOwner", propertyOwner)
@@ -219,6 +247,11 @@ public class ACHPaymentInfo extends AuditableRecord {
     public static class Builder {
 
         private ACHPaymentInfo achPaymentInfo = new ACHPaymentInfo();
+
+        public Builder stripeAcctID(String stripeAcctID) {
+            achPaymentInfo.stripeAcctID = stripeAcctID;
+            return this;
+        }
 
         public Builder stripeBankAcctToken(String stripeBankAcctToken) {
             achPaymentInfo.stripeBankAcctToken = stripeBankAcctToken;
@@ -262,6 +295,11 @@ public class ACHPaymentInfo extends AuditableRecord {
 
         public Builder isPrimary(boolean isPrimary) {
             achPaymentInfo.isPrimary = isPrimary;
+            return this;
+        }
+
+        public Builder isVerified(boolean isVerified) {
+            achPaymentInfo.isVerified = isVerified;
             return this;
         }
 
