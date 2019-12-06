@@ -1,0 +1,64 @@
+<button id="linkButton">Open Link - Institution Select</button>
+<button id="bofaButton">Open Link - Bank of America</button>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script>
+var linkHandler = Plaid.create({
+  clientName: 'Client Name',
+  // Change sandbox to development to test with live users;
+  // Change to production when you're ready to go live!
+  env: 'sandbox',
+  // Replace with your public_key from the Dashboard
+  key: '84538b263e6c609a83fa921031a894',
+  product: ['auth'],
+  onLoad: function() {
+    // The Link module finished loading.
+  },
+  onSuccess: function(public_token, metadata) {
+    // The onSuccess function is called when the user has
+    // successfully authenticated and selected an account to use.
+    //
+    // When called, you will send the public_token and the selected
+    // account ID, metadata.account_id, to your backend app server.
+    //
+    // sendDataToBackendServer({
+    //   public_token: public_token,
+    //   account_id: metadata.account_id
+    // });
+
+    sendPlaidDataToBackendServer(public_token, 'Me7MpWB1jvueZ6kMxgVBUGjxoMdBAmi9lRwDy');
+    console.log('Public Token: ' + public_token);
+    //console.log('Metadata: ' + metadata);
+    //Object.keys(metadata).forEach((prop)=> console.log(prop));
+
+    //console.log(JSON.stringify(metadata, null, 4));
+  },
+  onExit: function(err, metadata) {
+    // The user exited the Link flow.
+    if (err != null) {
+      // The user encountered a Plaid API error prior to exiting.
+    }
+    // metadata contains information about the institution
+    // that the user selected and the most recent API request IDs.
+    // Storing this information can be helpful for support.
+  },
+});
+
+function sendPlaidDataToBackendServer(public_token, account_id) {
+    console.log("Sending Plaid Acct Data to Server with Public-Token:> " + public_token + " and Acct-ID:> "+ account_id);
+
+    $.ajax({ type: 'GET',
+                     url: '/register/plaid/account/' + public_token + '/' + account_id,
+                     datatype: 'json',
+                     success : function()
+                     {
+                        console.log("Submitted Server data successfully...");
+                     }
+         });
+}
+
+// Trigger the standard Institution Select view
+document.getElementById('linkButton').onclick = function() {
+  linkHandler.open();
+};
+</script>

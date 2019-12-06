@@ -90,6 +90,7 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
                     return getRentalBillPayResultOnInsufficientFunds(balance, monthlyRentalBillExplained);
                 } else {
                     // TODO in this scenario, if we cant find balance information we process payment.  Evaluate if this is the best step to proceed.
+                    // TODO submit Stripe charge for ACH Bill Payment here
                     // We can now safely post this payment to user's bank account since balance has been verified and return a completed payment result
                     LOGGER.info("Submitting ACH bill payment for User:=> {} and Rental Month:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), monthlyRentalBillExplained.getRentalMonth());
 

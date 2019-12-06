@@ -37,16 +37,19 @@ public class GeographicalRegionService implements IGeographicalRegionService {
 
 //    @PostConstruct
 //    public void runPostConstruct() {
-//        System.out.println("\nRunning Post Construct");
+//        System.out.println("\nStripe Configurations");
 //        String publicKey = stripeAPIConfig.getPublicKey();
 //        String apiKey = stripeAPIConfig.getApiKey();
 //        System.out.println("publicKey = " + publicKey);
 //        System.out.println("apiKey = " + apiKey);
 //
+//        System.out.println("\nPlaid Configurations");
 //        String plaidClientID = plaidAPIConfig.getClientID();
 //        String plaidPublicKey = plaidAPIConfig.getPublicKey();
+//        String secret = plaidAPIConfig.getSecret();
 //        System.out.println("plaidClientID = " + plaidClientID);
 //        System.out.println("plaidPublicKey = " + plaidPublicKey);
+//        System.out.println("secret = " + secret);
 //        System.out.println("\n");
 //    }
 

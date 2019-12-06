@@ -30,8 +30,6 @@ public class JasyptConfiguration {
         config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
         config.setStringOutputType("base64");
         encryptor.setConfig(config);
-//        String encryptedValue = encryptor.encrypt("84538b263e6c609a83fa921031a894");
-//        System.out.println("\n\n\nencryptedValue = " + encryptedValue + "\n\n\n");
         return encryptor;
     }
 

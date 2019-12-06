@@ -26,9 +26,13 @@ public class ACHPaymentInfo extends AuditableRecord {
     private Long id;
 
 
-    // Represents the actual Stripe Account ID
+    // Represents Stripe Account ID for Institutions - PropertyManager, PropertyOwner etc
     @Column(name="StripeAcctID", nullable=false, length=100)
     public String stripeAcctID;
+
+    // Represents a Stripe Customer ID if this entry is for an End-User Customer(UserRecord)
+    @Column(name="StripeCustomerID", nullable=false, length=100)
+    public String stripeCustomerID;
 
 
     // Stripe Bank Acct Token that can be used to generate ACH payments
@@ -121,6 +125,14 @@ public class ACHPaymentInfo extends AuditableRecord {
 
     public void setStripeAcctID(String stripeAcctID) {
         this.stripeAcctID = stripeAcctID;
+    }
+
+    public String getStripeCustomerID() {
+        return stripeCustomerID;
+    }
+
+    public void setStripeCustomerID(String stripeCustomerID) {
+        this.stripeCustomerID = stripeCustomerID;
     }
 
     public String getPlaidAcctID() {
@@ -224,6 +236,7 @@ public class ACHPaymentInfo extends AuditableRecord {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("stripeAcctID", stripeAcctID)
+                .append("stripeCustomerID", stripeCustomerID)
                 .append("stripeBankAcctToken", stripeBankAcctToken)
                 .append("plaidAcctID", plaidAcctID)
                 .append("plaidAccessToken", plaidAccessToken)
@@ -250,6 +263,11 @@ public class ACHPaymentInfo extends AuditableRecord {
 
         public Builder stripeAcctID(String stripeAcctID) {
             achPaymentInfo.stripeAcctID = stripeAcctID;
+            return this;
+        }
+
+        public Builder stripeCustomerID(String stripeCustomerID) {
+            achPaymentInfo.stripeCustomerID = stripeCustomerID;
             return this;
         }
 

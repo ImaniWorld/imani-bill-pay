@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.payment;
+package com.imani.bill.pay.service.payment.stripe;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.PlaidBankAccount;
@@ -36,7 +36,7 @@ public class StripeAccountService implements IStripeAccountService {
     public static final String TRANSFERS_CAPABILITY = "transfers";
 
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.StripeAccountService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.stripe.StripeAccountService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(StripeAccountService.class);
 

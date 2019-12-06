@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.payment;
+package com.imani.bill.pay.service.payment.stripe;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.PlaidBankAccount;

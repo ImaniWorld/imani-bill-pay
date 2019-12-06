@@ -36,6 +36,8 @@ public class AppWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/billpay/inquiry/new").permitAll() // EndPoint for potential customers to inquire about BillPay
                 .antMatchers("/auth/user/login").permitAll()
                 .antMatchers("/auth/user/logout").permitAll()
+                .antMatchers("/stripe/plaid/integration").permitAll() // EndPoint for Plaid and Stripe Integration
+                .antMatchers("/register/plaid/account/**/**").permitAll() // EndPoint for Plaid and Stripe Integration
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JWTConfigurer(jwtTokenProvider));
