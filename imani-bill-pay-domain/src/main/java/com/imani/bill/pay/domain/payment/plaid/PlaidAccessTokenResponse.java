@@ -8,13 +8,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @author manyce400
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AccessTokenResponse extends PlaidAPIResponse {
+public class PlaidAccessTokenResponse extends PlaidAPIResponse {
 
 
     @JsonProperty("access_token")
     private String accessToken;
 
-    public AccessTokenResponse() {
+    public PlaidAccessTokenResponse() {
         super();
     }
 

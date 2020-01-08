@@ -2,7 +2,6 @@ package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.Balance;
 import com.imani.bill.pay.domain.payment.PaymentStatusE;
-import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.property.MonthlyRentalBill;
 import com.imani.bill.pay.domain.property.MonthlyRentalBillExplained;
 import com.imani.bill.pay.domain.property.RentalBillPayResult;
@@ -10,8 +9,11 @@ import com.imani.bill.pay.domain.property.repository.IMonthlyRentalBillRepositor
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
+import com.imani.bill.pay.service.payment.stripe.IStripeChargeService;
+import com.imani.bill.pay.service.payment.stripe.StripeChargeService;
 import com.imani.bill.pay.service.property.IMonthlyRentalBillDescService;
 import com.imani.bill.pay.service.property.MonthlyRentalBillDescService;
+import com.stripe.model.Charge;
 import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +38,8 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
     private IMonthlyRentalBillRepository iMonthlyRentalBillRepository;
 
     @Autowired
-    private IACHPaymentInfoRepository iachPaymentInfoRepository;
+    @Qualifier(StripeChargeService.SPRING_BEAN)
+    private IStripeChargeService iStripeChargeService;
 
     @Autowired
     @Qualifier(MonthlyRentalBillDescService.SPRING_BEAN)
@@ -93,9 +96,12 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
                     // TODO submit Stripe charge for ACH Bill Payment here
                     // We can now safely post this payment to user's bank account since balance has been verified and return a completed payment result
                     LOGGER.info("Submitting ACH bill payment for User:=> {} and Rental Month:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), monthlyRentalBillExplained.getRentalMonth());
+                    Optional<Charge> charge = iStripeChargeService.createCustomerACHCharge(userRecord, monthlyRentalBillExplained.getAmtBeingPaid());
 
-                    // Create a RentalPaymentHistory to capture this payment
-                    iRentalPaymentHistoryService.createRentalPaymentHistory(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+                    if (charge.isPresent()) {
+                        // Create a RentalPaymentHistory to capture this payment
+                        iRentalPaymentHistoryService.createRentalPaymentHistory(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+                    }
                 }
             }
         }

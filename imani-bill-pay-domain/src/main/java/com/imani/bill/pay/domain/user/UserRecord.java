@@ -45,6 +45,16 @@ public class UserRecord extends AuditableRecord {
     private String password;
 
 
+    // Represents Stripe Account ID for Institutions - PropertyManager, PropertyOwner etc
+    @Column(name="StripeAcctID", nullable=false, length=100)
+    public String stripeAcctID;
+
+
+    // Represents a Stripe Customer ID if this entry is for an End-User Customer(UserRecord)
+    @Column(name="StripeCustomerID", nullable=false, length=100)
+    public String stripeCustomerID;
+
+
     @Column(name="UserRecordType", nullable=false, length=20)
     @Enumerated(EnumType.STRING)
     private UserRecordTypeE userRecordTypeE;
@@ -148,6 +158,22 @@ public class UserRecord extends AuditableRecord {
         this.password = password;
     }
 
+    public String getStripeAcctID() {
+        return stripeAcctID;
+    }
+
+    public void setStripeAcctID(String stripeAcctID) {
+        this.stripeAcctID = stripeAcctID;
+    }
+
+    public String getStripeCustomerID() {
+        return stripeCustomerID;
+    }
+
+    public void setStripeCustomerID(String stripeCustomerID) {
+        this.stripeCustomerID = stripeCustomerID;
+    }
+
     public UserRecordTypeE getUserRecordTypeE() {
         return userRecordTypeE;
     }
@@ -238,6 +264,8 @@ public class UserRecord extends AuditableRecord {
                 .append("lastName", lastName)
                 .append("embeddedContactInfo", embeddedContactInfo)
                 .append("password", password)
+                .append("stripeAcctID", stripeAcctID)
+                .append("stripeCustomerID", stripeCustomerID)
                 .append("userRecordTypeE", userRecordTypeE)
                 .append("unsuccessfulLoginAttempts", unsuccessfulLoginAttempts)
                 .append("loggedIn", loggedIn)
@@ -280,6 +308,16 @@ public class UserRecord extends AuditableRecord {
 
         public Builder password(String password) {
             userRecord.password = password;
+            return this;
+        }
+
+        public Builder stripeAcctID(String stripeAcctID) {
+            userRecord.stripeAcctID = stripeAcctID;
+            return this;
+        }
+
+        public Builder stripeCustomerID(String stripeCustomerID) {
+            userRecord.stripeCustomerID = stripeCustomerID;
             return this;
         }
 

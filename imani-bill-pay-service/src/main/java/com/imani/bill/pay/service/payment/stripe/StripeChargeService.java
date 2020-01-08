@@ -10,6 +10,7 @@ import com.stripe.model.Charge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,17 +45,20 @@ public class StripeChargeService implements IStripeChargeService {
 
         Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("amount", amountToCharge);
-        params.put("currency", "usd");
-        params.put("customer", achPaymentInfo.getStripeCustomerID());
+        if (achPaymentInfo != null
+                    && !StringUtils.isEmpty(achPaymentInfo.getStripeCustomerID())) {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("amount", amountToCharge);
+            params.put("currency", "usd");
+            params.put("customer", achPaymentInfo.getStripeCustomerID());
 
-        try {
-            Charge charge = Charge.create(params);
-            //charge.getStatus()
-            return Optional.of(charge);
-        } catch (StripeException e) {
-            LOGGER.warn("Failed to create UserRecord Customer Stripe charge", e);
+            try {
+                Charge charge = Charge.create(params);
+                //charge.getStatus()
+                return Optional.of(charge);
+            } catch (StripeException e) {
+                LOGGER.warn("Failed to create UserRecord Customer Stripe charge", e);
+            }
         }
 
         return Optional.empty();

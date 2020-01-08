@@ -1,7 +1,7 @@
 package com.imani.bill.pay.service.payment.stripe;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import com.imani.bill.pay.domain.payment.PlaidBankAccount;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.property.PropertyOwner;
@@ -42,16 +42,16 @@ public class StripeAccountService implements IStripeAccountService {
 
 
     @Override
-    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyOwner propertyOwner, PlaidBankAccount plaidBankAccount) {
+    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyOwner propertyOwner, PlaidBankAcct plaidBankAcct) {
         Assert.notNull(propertyOwner, "propertyOwner cannot be null");
-        Assert.notNull(plaidBankAccount, "plaidBankAccount cannot be null");
+        Assert.notNull(plaidBankAcct, "plaidBankAcct cannot be null");
         return Optional.empty();
     }
 
     @Override
-    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyManager propertyManager, PlaidBankAccount plaidBankAccount) {
+    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyManager propertyManager, PlaidBankAcct plaidBankAcct) {
         Assert.notNull(propertyManager, "propertyManager cannot be null");
-        Assert.notNull(plaidBankAccount, "plaidBankAccount cannot be null");
+        Assert.notNull(plaidBankAcct, "plaidBankAcct cannot be null");
         LOGGER.info("Creating custom Stripe account for PropertyOwner on Property");
 
         Stripe.apiKey = stripeAPIConfig.getApiKey();
@@ -66,12 +66,11 @@ public class StripeAccountService implements IStripeAccountService {
         try {
             Account stripeAccount = Account.create(params);
             ACHPaymentInfo achPaymentInfo = ACHPaymentInfo.builder()
-                    .stripeAcctID(stripeAccount.getId())
                     .isVerified(false)
                     .build();
 
             // Add bank account details
-            addBankAcctDetails(stripeAccount, plaidBankAccount);
+            addBankAcctDetails(stripeAccount, plaidBankAcct);
 
             return Optional.of(achPaymentInfo);
         } catch (StripeException e) {
@@ -84,33 +83,32 @@ public class StripeAccountService implements IStripeAccountService {
     @Override
     public boolean deleteCustomStripeAccount(ACHPaymentInfo achPaymentInfo) {
         Assert.notNull(achPaymentInfo, "achPaymentInfo cannot be null");
-        Assert.notNull(achPaymentInfo.getStripeAcctID(), "StripeAcctID cannot be null");
-        LOGGER.info("Deleting custom Stripe Account with AcctID: {}", achPaymentInfo.getStripeAcctID());
-
-        Stripe.apiKey = stripeAPIConfig.getApiKey();
-
-        try {
-            Account stripeAccount = Account.retrieve(achPaymentInfo.getStripeAcctID());
-            Account deletedAccount = stripeAccount.delete();
-            return true;
-        } catch (StripeException e) {
-            LOGGER.info("Failed to delete Custom Stripe Acccount", e);
-        }
+//        //LOGGER.info("Deleting custom Stripe Account with AcctID: {}", achPaymentInfo.getStripeAcctID());
+//
+//        Stripe.apiKey = stripeAPIConfig.getApiKey();
+//
+//        try {
+//            Account stripeAccount = Account.retrieve(achPaymentInfo.getStripeAcctID());
+//            Account deletedAccount = stripeAccount.delete();
+//            return true;
+//        } catch (StripeException e) {
+//            LOGGER.info("Failed to delete Custom Stripe Acccount", e);
+//        }
 
         return false;
     }
 
-    boolean addBankAcctDetails(Account stripeAccount, PlaidBankAccount plaidBankAccount) {
-        LOGGER.info("Adding Plaid PlaidBankAccount details to connected account");
+    boolean addBankAcctDetails(Account stripeAccount, PlaidBankAcct plaidBankAcct) {
+        LOGGER.info("Adding Plaid PlaidBankAcct details to connected account");
         Map<String, Object> params = new HashMap<>();
-        params.put("external_account", plaidBankAccount.getAccountID());
+        params.put("external_account", plaidBankAcct.getAccountID());
 
         try {
-            // Add Plaid Account to PlaidBankAccount details
+            // Add Plaid Account to PlaidBankAcct details
             BankAccount bankAccount = (BankAccount) stripeAccount.getExternalAccounts().create(params);
             return true;
         } catch (StripeException e) {
-            LOGGER.warn("Failed to add PlaidBankAccount information to Stripe AcctID => {}", stripeAccount.getId());
+            LOGGER.warn("Failed to add PlaidBankAcct information to Stripe AcctID => {}", stripeAccount.getId());
         }
 
         return false;

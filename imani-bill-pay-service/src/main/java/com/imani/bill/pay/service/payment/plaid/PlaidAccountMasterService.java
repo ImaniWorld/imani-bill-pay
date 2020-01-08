@@ -1,7 +1,7 @@
 package com.imani.bill.pay.service.payment.plaid;
 
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.AccessTokenResponse;
+import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
 import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
 import com.imani.bill.pay.domain.payment.plaid.StripeBankAccountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +36,19 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         Assert.notNull(plaidPublicToken, "plaidPublicToken cannot be null");
         Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
 
-        LOGGER.info("Creating Stripe Account connected to newly created Plaid AccountID:=> {}", plaidAccountID);
+        LOGGER.info("Creating Stripe Connected account for newly created Plaid AccountID:=> {}", plaidAccountID);
 
-        // Step 1: Token Exchange, use public token to fetch Plaid AccessToken.  AccessToken is required to create and access account details
-        PlaidAPIRequest accessTokenAPIRequest = getPlaidAPIRequestForAccessToken(plaidPublicToken);
+        // Step I: Using the Public Token for Plaid Account, we will create a request for an Access Token which can be used to perform actions against Plaid Account
+        PlaidAPIRequest accessTokenAPIRequest = buildPlaidAPIRequestForAccessToken(plaidPublicToken);
+        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(accessTokenAPIRequest);
 
-        Optional<AccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(accessTokenAPIRequest);
         if(accessTokenResponse.isPresent()) {
-            LOGGER.info("Successfully exchanged public linked Plaid token for an access token.");
-            PlaidAPIRequest newStripeAcctAPIRequest = getPlaidAPIRequestForStripeAccountCreate(accessTokenResponse.get().getAccessToken(), plaidAccountID);
+            LOGGER.info("Successfully exchanged Plaid Public Token for an Access Token for account");
+            PlaidAPIRequest newStripeAcctAPIRequest = buildPlaidAPIRequestForStripeAccountCreate(accessTokenResponse.get().getAccessToken(), plaidAccountID);
+
+            // Final Step:  We can now use the Access token to create a connected Stripe account for this Plaid account.
             Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(newStripeAcctAPIRequest);
+            stripeBankAccountResponse.get().setPlaidAccessToken(accessTokenResponse.get().getAccessToken());
             return stripeBankAccountResponse;
         }
 
@@ -53,7 +56,7 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
     }
 
 
-    PlaidAPIRequest getPlaidAPIRequestForAccessToken(String plaidPublicToken) {
+    PlaidAPIRequest buildPlaidAPIRequestForAccessToken(String plaidPublicToken) {
         PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()
                 .secret(plaidAPIConfig.getSecret())
                 .clientID(plaidAPIConfig.getClientID())
@@ -62,7 +65,7 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         return plaidAPIRequest;
     }
 
-    PlaidAPIRequest getPlaidAPIRequestForStripeAccountCreate(String accessToken, String plaidAccountID) {
+    PlaidAPIRequest buildPlaidAPIRequestForStripeAccountCreate(String accessToken, String plaidAccountID) {
         PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()
                 .secret(plaidAPIConfig.getSecret())
                 .clientID(plaidAPIConfig.getClientID())
