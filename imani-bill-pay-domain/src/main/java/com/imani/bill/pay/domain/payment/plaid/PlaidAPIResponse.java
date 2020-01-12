@@ -2,7 +2,6 @@ package com.imani.bill.pay.domain.payment.plaid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.StringUtils;
 
 /**
@@ -13,22 +12,25 @@ public class PlaidAPIResponse {
 
 
     @JsonProperty("request_id")
-    private String requestID;
+    protected String requestID;
 
     @JsonProperty("item_id")
-    private String itemID;
+    protected String itemID;
 
     @JsonProperty("error_type")
-    private String errorType;
+    protected String errorType;
 
     @JsonProperty("error_code")
-    private String errorCode;
+    protected String errorCode;
 
     @JsonProperty("error_message")
-    private String errorMessage;
+    protected String errorMessage;
 
-    @JsonProperty("error_message")
-    private String displayMessage;
+    @JsonProperty("display_message")
+    protected String displayMessage;
+
+    @JsonProperty("suggested_action")
+    protected String suggestedAction;
 
 
     public PlaidAPIResponse() {
@@ -83,6 +85,14 @@ public class PlaidAPIResponse {
         this.displayMessage = displayMessage;
     }
 
+    public String getSuggestedAction() {
+        return suggestedAction;
+    }
+
+    public void setSuggestedAction(String suggestedAction) {
+        this.suggestedAction = suggestedAction;
+    }
+
     public boolean hasError() {
         if(!StringUtils.isEmpty(errorType)
                 || !StringUtils.isEmpty(errorCode)
@@ -94,15 +104,4 @@ public class PlaidAPIResponse {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("requestID", requestID)
-                .append("itemID", itemID)
-                .append("errorType", errorType)
-                .append("errorCode", errorCode)
-                .append("errorMessage", errorMessage)
-                .append("displayMessage", displayMessage)
-                .toString();
-    }
 }

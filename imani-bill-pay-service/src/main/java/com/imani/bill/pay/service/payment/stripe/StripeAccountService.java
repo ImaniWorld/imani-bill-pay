@@ -66,7 +66,6 @@ public class StripeAccountService implements IStripeAccountService {
         try {
             Account stripeAccount = Account.create(params);
             ACHPaymentInfo achPaymentInfo = ACHPaymentInfo.builder()
-                    .isVerified(false)
                     .build();
 
             // Add bank account details

@@ -1,6 +1,5 @@
 package com.imani.bill.pay.service.payment.stripe;
 
-import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
 import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -40,17 +39,13 @@ public class StripeChargeService implements IStripeChargeService {
 
         LOGGER.info("Creating Stripe ACH charge for user :=> {} for amount:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), amountToCharge);
 
-        // Retrieve ACHPaymentInfo for this user
-        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findUserACHPaymentInfo(userRecord);
-
         Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-        if (achPaymentInfo != null
-                    && !StringUtils.isEmpty(achPaymentInfo.getStripeCustomerID())) {
+        if (StringUtils.isEmpty(userRecord.getStripeCustomerID())) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("amount", amountToCharge);
             params.put("currency", "usd");
-            params.put("customer", achPaymentInfo.getStripeCustomerID());
+            params.put("customer", userRecord.getStripeCustomerID());
 
             try {
                 Charge charge = Charge.create(params);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.Assert;
 
 import java.util.Optional;
 
@@ -21,8 +22,9 @@ public class GenericAPIGatewayRequest {
     public GenericAPIGatewayRequest() {
     }
 
-    public GenericAPIGatewayRequest(Optional<UserRecord> execUserRecord) {
-        this.execUserRecord = execUserRecord;
+    public GenericAPIGatewayRequest(UserRecord execUserRecord) {
+        Assert.notNull(execUserRecord, "UserRecord cannot be null");
+        this.execUserRecord = Optional.of(execUserRecord);
     }
 
     public Optional<UserRecord> getExecUserRecord() {
@@ -40,7 +42,7 @@ public class GenericAPIGatewayRequest {
                 .toString();
     }
 
-    public static GenericAPIGatewayRequest buildGenericAPIGatewayRequest(Optional<UserRecord> execUserRecord) {
+    public static GenericAPIGatewayRequest build(UserRecord execUserRecord) {
         return new GenericAPIGatewayRequest(execUserRecord);
     }
 

@@ -57,13 +57,13 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
     public Optional<Balance> getACHPaymentInfoBalances(ACHPaymentInfo achPaymentInfo) {
         Assert.notNull(achPaymentInfo, "ACHPaymentInfo cannot be null");
 
-        LOGGER.info("Executing Plaid request to check balance for acctID:=>  {}", achPaymentInfo.getPlaidAcctID());
+        LOGGER.info("Executing Plaid request to check balance for acctID:=>  {}", achPaymentInfo.getPlaidBankAcct().getAccountID());
 
         ACHInfoRequestObj achInfoRequestObj = ACHInfoRequestObj.builder()
                 .clientID("5cf09bb96590ed001352c26f")
                 .secret("e0cd2b5363f8864089a2cf23d2e1de")
                 .accessToken("access-sandbox-41e7c7bf-4eee-41cb-bfea-b4c2ec227a7b")
-                .accountID(achPaymentInfo.getPlaidAcctID())
+                .accountID(achPaymentInfo.getPlaidBankAcct().getAccountID())
                 //.accountID("m1ELdBMPLAHBGR7eDGaktknLRNaN8VHLe663j")
                 .build();
 
@@ -113,7 +113,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
         Assert.notNull(paymentAmnt, "paymentAmnt cannot be null");
         Assert.isTrue(paymentAmnt.doubleValue() > 0,  "");
 
-        LOGGER.info("Executing Plaid request to check available balance on acctID:=>  {} for payment: {}", achPaymentInfo.getPlaidAcctID(), paymentAmnt);
+        LOGGER.info("Executing Plaid request to check available balance on acctID:=>  {} for payment: {}", achPaymentInfo.getPlaidBankAcct().getAccountID(), paymentAmnt);
 
         Optional<Balance> balance = getACHPaymentInfoBalances(achPaymentInfo);
         if(balance.isPresent()) {

@@ -51,7 +51,7 @@ public class UserRecord extends AuditableRecord {
 
 
     // Represents a Stripe Customer ID if this entry is for an End-User Customer(UserRecord)
-    @Column(name="StripeCustomerID", nullable=false, length=100)
+    @Column(name="StripeCustomerID", nullable=true, length=100)
     public String stripeCustomerID;
 
 

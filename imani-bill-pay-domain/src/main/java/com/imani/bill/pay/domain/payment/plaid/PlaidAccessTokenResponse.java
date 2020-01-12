@@ -14,6 +14,7 @@ public class PlaidAccessTokenResponse extends PlaidAPIResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
+
     public PlaidAccessTokenResponse() {
         super();
     }
@@ -26,11 +27,17 @@ public class PlaidAccessTokenResponse extends PlaidAPIResponse {
         this.accessToken = accessToken;
     }
 
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("accessToken", accessToken)
+                .append("displayMessage", displayMessage)
+                .append("errorCode", errorCode)
+                .append("errorType", errorType)
+                .append("errorMessage", errorMessage)
+                .append("requestID", requestID)
+                .append("suggestedAction", suggestedAction)
                 .toString();
     }
-
 }

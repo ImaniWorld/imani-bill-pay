@@ -3,10 +3,7 @@ package com.imani.bill.pay.service.payment.stripe;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
-import com.imani.bill.pay.domain.payment.plaid.PlaidItemAccountsResponse;
-import com.imani.bill.pay.domain.payment.plaid.StripeBankAccountResponse;
+import com.imani.bill.pay.domain.payment.plaid.*;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
@@ -23,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
@@ -76,7 +74,7 @@ public class StripeCustomerService implements IStripeCustomerService {
     @Transactional
     public Optional<Customer> createStripeCustomer(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
+        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
         LOGGER.info("Creating Stripe Customer object reference for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
@@ -87,7 +85,7 @@ public class StripeCustomerService implements IStripeCustomerService {
 
         try {
             Customer customer = Customer.create(params);
-            LOGGER.debug("Successfully Created Stripe Customer, updating UserRecord with Id:=> {}", customer.getId());
+            LOGGER.info("Successfully Created Stripe Customer, updating UserRecord with Id:=> {}", customer.getId());
             userRecord.setStripeCustomerID(customer.getId());
             iUserRecordRepository.save(userRecord);
             return Optional.of(customer);
@@ -101,7 +99,7 @@ public class StripeCustomerService implements IStripeCustomerService {
     @Override
     public Optional<Customer> retrieveStripeCustomer(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
+        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
 
         Stripe.apiKey = stripeAPIConfig.getApiKey();
 
@@ -123,9 +121,11 @@ public class StripeCustomerService implements IStripeCustomerService {
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
         Assert.notNull(plaidPublicToken, "achPaymentInfo cannot be null");
         Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
-        Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
+        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
 
-        LOGGER.info("Creating Stripe Customer BankAcct for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+        // Fetch UserRecord from persistent store
+        userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+
         Optional<Customer> stripeCustomer;
 
         if (userRecord.getStripeCustomerID() == null) {
@@ -135,38 +135,45 @@ public class StripeCustomerService implements IStripeCustomerService {
         }
 
         if(stripeCustomer.isPresent()) {
-            // In order to perform execute Plaid API request for this Plaid account, we will need an Access Token using Public Token.
+            LOGGER.info("Creating Stripe Customer BankAcct for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+
+            // In order to execute Plaid API request for this Plaid account, we will need an Access Token using passed Public Token.
             Optional<PlaidAccessTokenResponse> plaidAccessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken);
 
 
             Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-            // We can now attempt to create a Stripe BankAcct that links to selected plaidAccountID
-            Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAccountMasterService.createStripeAccount(plaidPublicToken, plaidAccountID);
+            if (plaidAccessTokenResponse.isPresent()) {
+                // We can now attempt to create a Stripe BankAcct that links to selected plaidAccountID
+                Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAccountMasterService.createStripeAccount(plaidAccessTokenResponse.get(), plaidAccountID);
 
-            if(stripeBankAccountResponse.isPresent()) {
                 // Get the details of the linked Plaid Account and update the ACH payment info.
-                PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(stripeBankAccountResponse.get().getPlaidAccessToken());
+                PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(plaidAccessTokenResponse.get().getAccessToken());
                 Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest);
 
-                LOGGER.info("Successfully retrieved a created StripeBank Token associated with created Plaid Linked AcctID, creating Customer BankAcct...");
-                Map<String, Object> params = new HashMap<>();
-                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, stripeBankAccountResponse.get().getStripeBankAcctToken());
+                if(stripeBankAccountResponse.isPresent()
+                        && plaidItemAccountsResponse.isPresent()
+                        && StringUtils.isEmpty(stripeBankAccountResponse.get().getErrorMessage())) {
+                    LOGGER.info("Successfully retrieved a created StripeBank Token associated with created Plaid Linked AcctID, creating Customer BankAcct...");
+                    Map<String, Object> params = new HashMap<>();
+                    params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, stripeBankAccountResponse.get().getStripeBankAcctToken());
 
-                try {
-                    ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(userRecord);
-                    BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
+                    try {
+                        ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(userRecord);
+                        BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
 
-                    // IF Stripe bank account has been created correctly  persist for Imani BillPay reference
-                    if(bankAccount != null) {
-                        LOGGER.info("Customer Bank account successfully created saving customer ");
+                        // Update Stripe account details on ACHPaymentInfo
                         iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
+
+                        // Update Plaid Bank account details on ACHPaymentInfo
+                        PlaidBankAcct plaidBankAcct = plaidItemAccountsResponse.get().getFirst();
+                        plaidBankAcct.setPlaidAccessToken(plaidAccessTokenResponse.get().getAccessToken());
+                        iachPaymentInfoService.updatePlaidBankAcct(plaidBankAcct, achPaymentInfo);
+
+                        return Optional.of(achPaymentInfo);
+                    } catch (StripeException e) {
+                        LOGGER.warn("Failed to create Stripe BankAcct for UserRecord on Linked Plaid Account", e);
                     }
-
-
-
-                } catch (StripeException e) {
-                    LOGGER.warn("Failed to create Stripe BankAcct for UserRecord on Linked Plaid Account", e);
                 }
             }
         }
