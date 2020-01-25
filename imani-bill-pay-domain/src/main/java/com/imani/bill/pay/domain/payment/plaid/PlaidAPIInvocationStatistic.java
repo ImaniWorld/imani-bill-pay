@@ -1,7 +1,8 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.payment.plaid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.imani.bill.pay.domain.payment.plaid.PlaidProductE;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -10,14 +11,12 @@ import org.springframework.data.annotation.CreatedDate;
 import javax.persistence.*;
 
 /**
- * Captures metric on invoking Plaid API's.
- *
  * @author manyce400
  */
 @Entity
-@Table(name="PlaidAPIStatistic")
+@Table(name="PlaidAPIInvocationStatistic")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PlaidAPIStatistic {
+public class PlaidAPIInvocationStatistic {
 
 
     @Id
@@ -26,25 +25,33 @@ public class PlaidAPIStatistic {
     private Long id;
 
 
-    @Column(name="PlaidProduct", nullable=false, length=20)
+    @Column(name="PlaidProduct", length=20)
     @Enumerated(EnumType.STRING)
     private PlaidProductE plaidProductE;
 
 
-    // Tracks the result of executing the Plaid API
-    @Column(name="PaymentAPIExecResult", nullable=false, length=20)
+    @Column(name="PlaidAPIInvocation", length=20)
     @Enumerated(EnumType.STRING)
-    private PaymentAPIExecResultE paymentAPIExecResultE;
+    private PlaidAPIInvocationE plaidAPIInvocationE;
 
-    // Captures any exec errors that were encountered during API call
-    @Column(name="ApiExecError", nullable=true, length=300)
-    private String apiExecError;
+
+    // UserRecord that this Payment information belongs to
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserRecordID", nullable = true)
+    private UserRecord userRecord;
 
 
     // Tracks the ACHPaymentInfo that Plaid API call was made against
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACHPaymentInfoID", nullable = true)
+    @JoinColumn(name = "ACHPaymentInfoID")
     private ACHPaymentInfo achPaymentInfo;
+
+
+    @Embedded
+    private PlaidAPIRequest plaidAPIRequest;
+
+    @Embedded
+    private PlaidAPIResponse plaidAPIResponse;
 
 
     // DateTime that the Plaid API invocation was made.
@@ -61,7 +68,7 @@ public class PlaidAPIStatistic {
     private DateTime apiInvocationEndDate;
 
 
-    public PlaidAPIStatistic() {
+    public PlaidAPIInvocationStatistic() {
 
     }
 
@@ -81,20 +88,20 @@ public class PlaidAPIStatistic {
         this.plaidProductE = plaidProductE;
     }
 
-    public PaymentAPIExecResultE getPaymentAPIExecResultE() {
-        return paymentAPIExecResultE;
+    public PlaidAPIInvocationE getPlaidAPIInvocationE() {
+        return plaidAPIInvocationE;
     }
 
-    public void setPaymentAPIExecResultE(PaymentAPIExecResultE paymentAPIExecResultE) {
-        this.paymentAPIExecResultE = paymentAPIExecResultE;
+    public void setPlaidAPIInvocationE(PlaidAPIInvocationE plaidAPIInvocationE) {
+        this.plaidAPIInvocationE = plaidAPIInvocationE;
     }
 
-    public String getApiExecError() {
-        return apiExecError;
+    public UserRecord getUserRecord() {
+        return userRecord;
     }
 
-    public void setApiExecError(String apiExecError) {
-        this.apiExecError = apiExecError;
+    public void setUserRecord(UserRecord userRecord) {
+        this.userRecord = userRecord;
     }
 
     public ACHPaymentInfo getAchPaymentInfo() {
@@ -103,6 +110,22 @@ public class PlaidAPIStatistic {
 
     public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
         this.achPaymentInfo = achPaymentInfo;
+    }
+
+    public PlaidAPIRequest getPlaidAPIRequest() {
+        return plaidAPIRequest;
+    }
+
+    public void setPlaidAPIRequest(PlaidAPIRequest plaidAPIRequest) {
+        this.plaidAPIRequest = plaidAPIRequest;
+    }
+
+    public PlaidAPIResponse getPlaidAPIResponse() {
+        return plaidAPIResponse;
+    }
+
+    public void setPlaidAPIResponse(PlaidAPIResponse plaidAPIResponse) {
+        this.plaidAPIResponse = plaidAPIResponse;
     }
 
     public DateTime getApiInvocationStartDate() {
@@ -126,9 +149,11 @@ public class PlaidAPIStatistic {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("plaidProductE", plaidProductE)
-                .append("paymentAPIExecResultE", paymentAPIExecResultE)
-                .append("apiExecError", apiExecError)
+                .append("plaidAPIInvocationE", plaidAPIInvocationE)
+                .append("userRecord", userRecord)
                 .append("achPaymentInfo", achPaymentInfo)
+                .append("plaidAPIRequest", plaidAPIRequest)
+                .append("plaidAPIResponse", plaidAPIResponse)
                 .append("apiInvocationStartDate", apiInvocationStartDate)
                 .append("apiInvocationEndDate", apiInvocationEndDate)
                 .toString();
@@ -140,40 +165,51 @@ public class PlaidAPIStatistic {
 
     public static class Builder {
 
-        private PlaidAPIStatistic plaidAPIStatistic = new PlaidAPIStatistic();
+        private final PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = new PlaidAPIInvocationStatistic();
+
 
         public Builder plaidProductE(PlaidProductE plaidProductE) {
-            plaidAPIStatistic.plaidProductE = plaidProductE;
+            plaidAPIInvocationStatistic.plaidProductE = plaidProductE;
             return this;
         }
 
-        public Builder paymentAPIExecResultE(PaymentAPIExecResultE paymentAPIExecResultE) {
-            plaidAPIStatistic.paymentAPIExecResultE = paymentAPIExecResultE;
+        public Builder plaidAPIInvocationE(PlaidAPIInvocationE plaidAPIInvocationE) {
+            plaidAPIInvocationStatistic.plaidAPIInvocationE = plaidAPIInvocationE;
             return this;
         }
 
-        public Builder apiExecError(String apiExecError) {
-            plaidAPIStatistic.apiExecError = apiExecError;
+        public Builder userRecord(UserRecord userRecord) {
+            plaidAPIInvocationStatistic.userRecord = userRecord;
             return this;
         }
 
         public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
-            plaidAPIStatistic.achPaymentInfo = achPaymentInfo;
+            plaidAPIInvocationStatistic.achPaymentInfo = achPaymentInfo;
+            return this;
+        }
+
+        public Builder plaidAPIRequest(PlaidAPIRequest plaidAPIRequest) {
+            plaidAPIInvocationStatistic.plaidAPIRequest = plaidAPIRequest;
+            return this;
+        }
+
+        public Builder plaidAPIResponse(PlaidAPIResponse plaidAPIResponse) {
+            plaidAPIInvocationStatistic.plaidAPIResponse = plaidAPIResponse;
             return this;
         }
 
         public Builder apiInvocationStartDate(DateTime apiInvocationStartDate) {
-            plaidAPIStatistic.apiInvocationStartDate = apiInvocationStartDate;
+            plaidAPIInvocationStatistic.apiInvocationStartDate = apiInvocationStartDate;
             return this;
         }
 
         public Builder apiInvocationEndDate(DateTime apiInvocationEndDate) {
-            plaidAPIStatistic.apiInvocationEndDate = apiInvocationEndDate;
+            plaidAPIInvocationStatistic.apiInvocationStartDate = apiInvocationEndDate;
             return this;
         }
 
-        public PlaidAPIStatistic build() {
-            return plaidAPIStatistic;
+        public PlaidAPIInvocationStatistic build() {
+            return plaidAPIInvocationStatistic;
         }
     }
 }

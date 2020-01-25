@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.PaymentAPIExecResultE;
 import com.imani.bill.pay.domain.payment.PlaidAPIStatistic;
-import com.imani.bill.pay.domain.payment.PlaidProductE;
+import com.imani.bill.pay.domain.payment.plaid.PlaidProductE;
 import com.imani.bill.pay.domain.payment.repository.IPlaidAPIStatisticRepository;
 import com.imani.bill.pay.service.concurrency.AppConcurrencyConfigurator;
 import com.imani.bill.pay.service.util.DateTimeUtil;

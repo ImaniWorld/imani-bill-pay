@@ -1,4 +1,4 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.payment.plaid;
 
 /**
  * Enumeration of Plaid products that we use on Imani platform.

@@ -8,6 +8,27 @@ create table GeographicalRegion (
     );
 
 
+create table PlaidAPIInvocationStatistic (
+       ID bigint not null auto_increment,
+       PlaidAPIInvocation varchar(20),
+        PlaidProduct varchar(20),
+        UserRecordID bigint,
+        ACHPaymentInfoID bigint,
+        ClientID varchar(300),
+        PublicToken varchar(300),
+        AccountID varchar(300),
+        DisplayMessage varchar(300),
+        ErrorCode varchar(300),
+        ErrorMessage varchar(300),
+        ErrorType varchar(300),
+        ItemID varchar(300),
+        RequestID varchar(300),
+        SuggestedAction varchar(300),
+        ApiInvocationEndDate datetime,
+        ApiInvocationStartDate datetime not null,
+        primary key (ID)
+    )
+
 create table ACHPaymentInfo (
        ID bigint not null auto_increment,
        acctName varchar(100),

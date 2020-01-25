@@ -1,7 +1,7 @@
 package com.imani.bill.pay.domain.payment.repository;
 
 import com.imani.bill.pay.domain.payment.PlaidAPIStatistic;
-import com.imani.bill.pay.domain.payment.PlaidProductE;
+import com.imani.bill.pay.domain.payment.plaid.PlaidProductE;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.repository.JpaRepository;

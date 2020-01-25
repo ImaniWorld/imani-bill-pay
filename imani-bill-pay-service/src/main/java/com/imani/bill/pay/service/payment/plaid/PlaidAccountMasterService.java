@@ -57,8 +57,8 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
 
         // 1: In order to access Plaid API's for this account, we will first need to request an access token which should be stored.
-        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken);
-        if(accessTokenResponse.isPresent()) {
+        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, userRecord);
+        if(accessTokenResponse.isPresent() && !accessTokenResponse.get().hasError()) {
             LOGGER.info("Access token for account has been succesfully retrieved:=> ", accessTokenResponse.get().getAccessToken());
 
             // 2: Using access token we can now request all the details for this Plaid linked account
@@ -86,6 +86,8 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
                 }
             }
         }
+
+        LOGGER.warn("Required Plaid access token could not be retrieved, abandoning link operation.");
         return Optional.empty();
     }
 
@@ -98,7 +100,7 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
         // Step I: Using the Public Token for Plaid Account, we will create a request for an Access Token which can be used to perform actions against Plaid Account
         PlaidAPIRequest accessTokenAPIRequest = buildPlaidAPIRequestForAccessToken(plaidPublicToken);
-        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(accessTokenAPIRequest);
+        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(accessTokenAPIRequest, null);
 
         if(accessTokenResponse.isPresent()) {
             return createStripeAccount(accessTokenResponse.get(), plaidAccountID);

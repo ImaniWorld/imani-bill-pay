@@ -2,7 +2,7 @@ package com.imani.bill.pay.service.payment;
 
 
 import com.imani.bill.pay.domain.payment.PlaidAPIStatistic;
-import com.imani.bill.pay.domain.payment.PlaidProductE;
+import com.imani.bill.pay.domain.payment.plaid.PlaidProductE;
 import com.imani.bill.pay.domain.payment.repository.IPlaidAPIStatisticRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.service.util.DateTimeUtil;

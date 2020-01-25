@@ -3,10 +3,8 @@ package com.imani.bill.pay.service.payment.plaid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
-import com.imani.bill.pay.domain.payment.plaid.PlaidItemAccountsResponse;
-import com.imani.bill.pay.domain.payment.plaid.StripeBankAccountResponse;
+import com.imani.bill.pay.domain.payment.plaid.*;
+import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.service.rest.RestTemplateConfigurator;
 import com.imani.bill.pay.service.util.IRestUtil;
 import com.imani.bill.pay.service.util.RestUtil;
@@ -17,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -39,6 +36,10 @@ public class PlaidAPIService implements IPlaidAPIService {
     @Autowired
     @Qualifier(RestTemplateConfigurator.SERVICE_REST_TEMPLATE)
     private RestTemplate restTemplate;
+
+    @Autowired
+    @Qualifier(PlaidAPIInvocationStatisticService.SPRING_BEAN)
+    private IPlaidAPIInvocationStatisticService iPlaidAPIInvocationStatisticService;
 
     @Autowired
     private ObjectMapper mapper;
@@ -106,7 +107,7 @@ public class PlaidAPIService implements IPlaidAPIService {
 
 
     @Override
-    public Optional<PlaidAccessTokenResponse> exchangePublicTokenForAccess(String plaidPublicToken) {
+    public Optional<PlaidAccessTokenResponse> exchangePublicTokenForAccess(String plaidPublicToken, UserRecord userRecord) {
         Assert.notNull(plaidPublicToken, "plaidPublicToken cannot be null");
         LOGGER.info("Exchanging Plaid Account public token for Access Token....");
 
@@ -117,7 +118,7 @@ public class PlaidAPIService implements IPlaidAPIService {
                 .publicToken(plaidPublicToken)
                 .build();
 
-        return exchangePublicTokenForAccess(plaidAPIRequest);
+        return exchangePublicTokenForAccess(plaidAPIRequest, userRecord);
     }
 
     /**
@@ -130,36 +131,65 @@ public class PlaidAPIService implements IPlaidAPIService {
      * @return
      */
     @Override
-    public Optional<PlaidAccessTokenResponse> exchangePublicTokenForAccess(PlaidAPIRequest plaidAPIRequest) {
+    public Optional<PlaidAccessTokenResponse> exchangePublicTokenForAccess(PlaidAPIRequest plaidAPIRequest, UserRecord userRecord) {
         Assert.notNull(plaidAPIRequest, "PlaidAPIRequest cannot be null");
         Assert.notNull(plaidAPIRequest.getSecret(), "Plaid secret cannot be null");
         Assert.notNull(plaidAPIRequest.getClientID(), "Plaid clientID cannot be null");
         Assert.notNull(plaidAPIRequest.getPublicToken(), "Plaid publicToken cannot be null");
+        Assert.notNull(plaidAPIRequest.getPublicToken(), "Plaid publicToken cannot be null");
 
         LOGGER.info("Invoking Plaid API to retrieve an access token using PlaidAPIRequest:=> {}", plaidAPIRequest);
+
+        PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = null;
+        PlaidAccessTokenResponse plaidAccessTokenResponse = new PlaidAccessTokenResponse();
 
         try {
             HttpHeaders httpHeaders = iRestUtil.getRestJSONHeader();
             String request = mapper.writeValueAsString(plaidAPIRequest);
             HttpEntity<String> requestHttpEntity = new HttpEntity<>(request, httpHeaders);
 
-            // Build API URL for requesting Plaid Access Token and post for response
             String apiURL = plaidAPIConfig.getAPIPathURL("/item/public_token/exchange");
-            LOGGER.info("Invoking Plaid API to exchange for access token with URL:=> {}", apiURL);
-            PlaidAccessTokenResponse plaidAccessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidAccessTokenResponse.class);
+            LOGGER.info("Invoking Plaid API to exchange Public Token for Access Token with URL:=> {}", apiURL);
+
+            plaidAPIInvocationStatistic = iPlaidAPIInvocationStatisticService.startPlaidAPIInvocation(userRecord, PlaidAPIInvocationE.AccessToken, plaidAPIRequest);
+            plaidAccessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidAccessTokenResponse.class);
+            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
             return Optional.of(plaidAccessTokenResponse);
         } catch (JsonProcessingException e) {
-            LOGGER.warn("JSON Processing Error:  Failed to exchange Plaid public token for access token", e);
+             enhanceResponseOnException(e, plaidAccessTokenResponse);
+            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
         } catch (HttpClientErrorException e) {
-            LOGGER.warn("Failed to exchange Plaid public token", e);
-            String responseBody = e.getResponseBodyAsString();
-            System.out.println("responseBody = " + responseBody);
-        } catch (HttpServerErrorException e) {
-            LOGGER.warn("Failed to exchange Plaid public token", e);
-            String responseBody = e.getResponseBodyAsString();
-            System.out.println("responseBody = " + responseBody);
+            enhanceResponseOnException(e, plaidAccessTokenResponse);
+            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
         }
 
-        return Optional.empty();
+        return Optional.of(plaidAccessTokenResponse);
     }
+
+    public <O extends PlaidAPIResponse> void enhanceResponseOnException(Exception exception, O responseObj) {
+        if(exception instanceof JsonProcessingException) {
+             // In this case either processing JSON request or JSON response has failed
+            LOGGER.warn("JSON Processing Exception occurred", exception);
+            responseObj.setDisplayMessage("JSON processing exception occurred");
+        } else if(exception instanceof HttpClientErrorException) {
+            // Client exception on calling API has occurred, could be some bad request that we sent
+            LOGGER.warn("API Client Exception occurred.  Bad request detected");
+            LOGGER.info("============================  Start Plaid API Response ============================");
+            String responseBody = ((HttpClientErrorException)exception).getResponseBodyAsString();
+            try {
+                PlaidAPIResponse plaidAPIResponse = mapper.readValue(responseBody, PlaidAPIResponse.class);
+                LOGGER.info("{}", plaidAPIResponse);
+                LOGGER.info("============================  End Plaid API Response ============================");
+                responseObj.from(plaidAPIResponse);
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while trying to retrieve Plaid API client error", e);
+                responseObj.setErrorMessage("*** Received unreadable exception from Plaid API ***");
+            }
+        } else {
+            // All other exceptions add message
+            LOGGER.warn("Unexpected Exception occurred while invoking Plaid API", exception);
+            responseObj.setErrorMessage("*** Exception occurred while invoking Plaid API. Investigate. ***");
+        }
+    }
+
 }

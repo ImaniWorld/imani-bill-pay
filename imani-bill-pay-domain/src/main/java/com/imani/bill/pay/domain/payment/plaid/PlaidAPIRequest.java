@@ -3,28 +3,44 @@ package com.imani.bill.pay.domain.payment.plaid;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 /**
  * @author manyce400
  */
+@Embeddable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlaidAPIRequest {
 
 
     @JsonProperty("client_id")
+    @Column(name="ClientID", length = 300)
     private String clientID;
 
+
     @JsonProperty("secret")
+    @Transient
     private String secret;
 
+
     @JsonProperty("public_token")
+    @Column(name="PublicToken", length = 300)
     private String publicToken;
 
+
     @JsonProperty("access_token")
+    @Transient
     private String accessToken;
 
+
     @JsonProperty("account_id")
+    @Column(name="AccountID", length = 300)
     private String accountID;
+
 
     public PlaidAPIRequest() {
 
@@ -72,7 +88,7 @@ public class PlaidAPIRequest {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
                 .append("clientID", clientID)
                 .append("secret", secret)
                 .append("publicToken", publicToken)

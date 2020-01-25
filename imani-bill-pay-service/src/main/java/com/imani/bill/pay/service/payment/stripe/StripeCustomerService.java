@@ -162,7 +162,7 @@ public class StripeCustomerService implements IStripeCustomerService {
             LOGGER.info("Creating Stripe Customer BankAcct for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
             // In order to execute Plaid API request for this Plaid account, we will need an Access Token using passed Public Token.
-            Optional<PlaidAccessTokenResponse> plaidAccessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken);
+            Optional<PlaidAccessTokenResponse> plaidAccessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, userRecord);
 
 
             Stripe.apiKey = stripeAPIConfig.getApiKey();
