@@ -19,6 +19,8 @@ public interface IStripeCustomerService {
 
     public Optional<Customer> retrieveStripeCustomer(UserRecord userRecord);
 
+    public boolean deleteStripeCustomer(UserRecord userRecord);
+
     public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord, String plaidPublicToken, String plaidAccountID);
 
 }

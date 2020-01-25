@@ -23,12 +23,12 @@ public interface IMockUserRecordTestBuilder {
 
     public default UserRecord buildUserRecord(String email, String firstName, String lastName) {
         EmbeddedContactInfo embeddedContactInfo = EmbeddedContactInfo.builder()
-                .email("test.user@imani.com")
+                .email(email)
                 .build();
 
         UserRecord userRecord = UserRecord.builder()
-                .firstName("Test")
-                .lastName("User")
+                .firstName(firstName)
+                .lastName(lastName)
                 .embeddedContactInfo(embeddedContactInfo)
                 .build();
         return userRecord;

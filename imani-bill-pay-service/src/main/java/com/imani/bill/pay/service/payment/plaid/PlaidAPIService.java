@@ -3,8 +3,8 @@ package com.imani.bill.pay.service.payment.plaid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
 import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
+import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
 import com.imani.bill.pay.domain.payment.plaid.PlaidItemAccountsResponse;
 import com.imani.bill.pay.domain.payment.plaid.StripeBankAccountResponse;
 import com.imani.bill.pay.service.rest.RestTemplateConfigurator;
@@ -16,6 +16,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -143,11 +145,19 @@ public class PlaidAPIService implements IPlaidAPIService {
 
             // Build API URL for requesting Plaid Access Token and post for response
             String apiURL = plaidAPIConfig.getAPIPathURL("/item/public_token/exchange");
-            PlaidAccessTokenResponse plaidAccessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidAccessTokenResponse.class);
             LOGGER.info("Invoking Plaid API to exchange for access token with URL:=> {}", apiURL);
+            PlaidAccessTokenResponse plaidAccessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidAccessTokenResponse.class);
             return Optional.of(plaidAccessTokenResponse);
         } catch (JsonProcessingException e) {
-            LOGGER.warn("Failed to exchange Plaid public token for access token", e);
+            LOGGER.warn("JSON Processing Error:  Failed to exchange Plaid public token for access token", e);
+        } catch (HttpClientErrorException e) {
+            LOGGER.warn("Failed to exchange Plaid public token", e);
+            String responseBody = e.getResponseBodyAsString();
+            System.out.println("responseBody = " + responseBody);
+        } catch (HttpServerErrorException e) {
+            LOGGER.warn("Failed to exchange Plaid public token", e);
+            String responseBody = e.getResponseBodyAsString();
+            System.out.println("responseBody = " + responseBody);
         }
 
         return Optional.empty();

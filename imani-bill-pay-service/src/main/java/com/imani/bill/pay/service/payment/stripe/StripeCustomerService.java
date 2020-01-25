@@ -115,6 +115,30 @@ public class StripeCustomerService implements IStripeCustomerService {
         return Optional.empty();
     }
 
+
+    @Override
+    public boolean deleteStripeCustomer(UserRecord userRecord) {
+        Assert.notNull(userRecord, "UserRecord cannot be null");
+
+        Stripe.apiKey = stripeAPIConfig.getApiKey();
+
+        LOGGER.info("Attempting to delete existing Stripe Customer object for for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+
+        // First retrieve the Stripe Customer object for this UserRecord
+        Optional<Customer> stripeCustomer = retrieveStripeCustomer(userRecord);
+
+        if(stripeCustomer.isPresent()) {
+            try {
+                stripeCustomer.get().delete();
+                return true;
+            } catch (StripeException e) {
+                LOGGER.warn("Exception occurred while trying to delete existing Stripe Customer", e);
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord, String plaidPublicToken, String plaidAccountID) {
         Assert.notNull(userRecord, "UserRecord cannot be null");

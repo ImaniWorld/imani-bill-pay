@@ -1,6 +1,7 @@
 package com.imani.bill.pay.domain.payment.config;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -78,7 +79,7 @@ public class PlaidAPIConfig {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("clientID", clientID)
                 .append("publicKey", publicKey)
                 .append("secret", secret)
