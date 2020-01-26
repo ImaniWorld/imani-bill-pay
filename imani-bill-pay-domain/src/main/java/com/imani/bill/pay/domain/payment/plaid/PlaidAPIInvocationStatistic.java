@@ -144,6 +144,14 @@ public class PlaidAPIInvocationStatistic {
         this.apiInvocationEndDate = apiInvocationEndDate;
     }
 
+    public void startAPIInvocation() {
+        setApiInvocationStartDate(DateTime.now());
+    }
+
+    public void endAPIInvocation() {
+        setApiInvocationEndDate(DateTime.now());
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

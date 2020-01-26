@@ -14,7 +14,6 @@ create table PlaidAPIInvocationStatistic (
         PlaidProduct varchar(20),
         UserRecordID bigint,
         ACHPaymentInfoID bigint,
-        ClientID varchar(300),
         PublicToken varchar(300),
         AccountID varchar(300),
         DisplayMessage varchar(300),

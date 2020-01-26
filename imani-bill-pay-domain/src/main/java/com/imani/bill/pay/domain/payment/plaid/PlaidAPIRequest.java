@@ -18,7 +18,7 @@ public class PlaidAPIRequest {
 
 
     @JsonProperty("client_id")
-    @Column(name="ClientID", length = 300)
+    @Transient
     private String clientID;
 
 

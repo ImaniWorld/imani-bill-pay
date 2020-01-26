@@ -14,7 +14,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -38,8 +37,8 @@ public class PlaidAPIService implements IPlaidAPIService {
     private RestTemplate restTemplate;
 
     @Autowired
-    @Qualifier(PlaidAPIInvocationStatisticService.SPRING_BEAN)
-    private IPlaidAPIInvocationStatisticService iPlaidAPIInvocationStatisticService;
+    @Qualifier(PlaidAPIEndPointFacade.SPRING_BEAN)
+    private IPlaidAPIEndPointFacade iPlaidAPIEndPointFacade;
 
     @Autowired
     private ObjectMapper mapper;
@@ -140,56 +139,17 @@ public class PlaidAPIService implements IPlaidAPIService {
 
         LOGGER.info("Invoking Plaid API to retrieve an access token using PlaidAPIRequest:=> {}", plaidAPIRequest);
 
-        PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = null;
+        // Build PlaidAPIInvocationStatistic
+        PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = PlaidAPIInvocationStatistic.builder()
+                .userRecord(userRecord)
+                .plaidAPIInvocationE(PlaidAPIInvocationE.AccessToken)
+                .plaidAPIRequest(plaidAPIRequest)
+                .build();
+
+        String apiURL = plaidAPIConfig.getAPIPathURL("/item/public_token/exchange");
         PlaidAccessTokenResponse plaidAccessTokenResponse = new PlaidAccessTokenResponse();
-
-        try {
-            HttpHeaders httpHeaders = iRestUtil.getRestJSONHeader();
-            String request = mapper.writeValueAsString(plaidAPIRequest);
-            HttpEntity<String> requestHttpEntity = new HttpEntity<>(request, httpHeaders);
-
-            String apiURL = plaidAPIConfig.getAPIPathURL("/item/public_token/exchange");
-            LOGGER.info("Invoking Plaid API to exchange Public Token for Access Token with URL:=> {}", apiURL);
-
-            plaidAPIInvocationStatistic = iPlaidAPIInvocationStatisticService.startPlaidAPIInvocation(userRecord, PlaidAPIInvocationE.AccessToken, plaidAPIRequest);
-            plaidAccessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidAccessTokenResponse.class);
-            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
-            return Optional.of(plaidAccessTokenResponse);
-        } catch (JsonProcessingException e) {
-             enhanceResponseOnException(e, plaidAccessTokenResponse);
-            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
-        } catch (HttpClientErrorException e) {
-            enhanceResponseOnException(e, plaidAccessTokenResponse);
-            iPlaidAPIInvocationStatisticService.endPlaidAPIInvocation(plaidAPIInvocationStatistic, plaidAccessTokenResponse);
-        }
-
+        plaidAccessTokenResponse = iPlaidAPIEndPointFacade.invokePlaidAPIEndPoint(plaidAPIInvocationStatistic, apiURL, plaidAccessTokenResponse);
         return Optional.of(plaidAccessTokenResponse);
-    }
-
-    public <O extends PlaidAPIResponse> void enhanceResponseOnException(Exception exception, O responseObj) {
-        if(exception instanceof JsonProcessingException) {
-             // In this case either processing JSON request or JSON response has failed
-            LOGGER.warn("JSON Processing Exception occurred", exception);
-            responseObj.setDisplayMessage("JSON processing exception occurred");
-        } else if(exception instanceof HttpClientErrorException) {
-            // Client exception on calling API has occurred, could be some bad request that we sent
-            LOGGER.warn("API Client Exception occurred.  Bad request detected");
-            LOGGER.info("============================  Start Plaid API Response ============================");
-            String responseBody = ((HttpClientErrorException)exception).getResponseBodyAsString();
-            try {
-                PlaidAPIResponse plaidAPIResponse = mapper.readValue(responseBody, PlaidAPIResponse.class);
-                LOGGER.info("{}", plaidAPIResponse);
-                LOGGER.info("============================  End Plaid API Response ============================");
-                responseObj.from(plaidAPIResponse);
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred while trying to retrieve Plaid API client error", e);
-                responseObj.setErrorMessage("*** Received unreadable exception from Plaid API ***");
-            }
-        } else {
-            // All other exceptions add message
-            LOGGER.warn("Unexpected Exception occurred while invoking Plaid API", exception);
-            responseObj.setErrorMessage("*** Exception occurred while invoking Plaid API. Investigate. ***");
-        }
     }
 
 }
