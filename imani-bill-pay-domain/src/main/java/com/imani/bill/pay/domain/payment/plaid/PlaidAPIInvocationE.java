@@ -7,6 +7,6 @@ public enum PlaidAPIInvocationE {
 
     AccessToken,
 
-    AccountInfo,
+    AccountsInfo,
 
 }

@@ -63,7 +63,7 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
             // 2: Using access token we can now request all the details for this Plaid linked account
             PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(accessTokenResponse.get().getAccessToken());
-            Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest);
+            Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest, userRecord);
 
             if(plaidItemAccountsResponse.isPresent()) {
                 LOGGER.info("Successfully retrieved Plaid Account details");

@@ -173,7 +173,7 @@ public class StripeCustomerService implements IStripeCustomerService {
 
                 // Get the details of the linked Plaid Account and update the ACH payment info.
                 PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(plaidAccessTokenResponse.get().getAccessToken());
-                Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest);
+                Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = null;//iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest);
 
                 if(stripeBankAccountResponse.isPresent()
                         && plaidItemAccountsResponse.isPresent()

@@ -80,28 +80,25 @@ public class PlaidAPIService implements IPlaidAPIService {
     }
 
     @Override
-    public Optional<PlaidItemAccountsResponse> getPlaidItemAccounts(PlaidAPIRequest plaidAPIRequest) {
+    public Optional<PlaidItemAccountsResponse> getPlaidItemAccounts(PlaidAPIRequest plaidAPIRequest, UserRecord userRecord) {
         Assert.notNull(plaidAPIRequest, "PlaidAPIRequest cannot be null");
         Assert.notNull(plaidAPIRequest.getSecret(), "Plaid secret cannot be null");
         Assert.notNull(plaidAPIRequest.getClientID(), "Plaid clientID cannot be null");
         Assert.notNull(plaidAPIRequest.getAccessToken(), "Plaid accessToken cannot be null");
         Assert.notNull(plaidAPIRequest.getAccountID(), "Plaid accountID cannot be null");
 
-        try {
-            HttpHeaders httpHeaders = iRestUtil.getRestJSONHeader();
-            String request = mapper.writeValueAsString(plaidAPIRequest);
-            HttpEntity<String> requestHttpEntity = new HttpEntity<>(request, httpHeaders);
+        // Build PlaidAPIInvocationStatistic
+        PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = PlaidAPIInvocationStatistic.builder()
+                .userRecord(userRecord)
+                .plaidAPIInvocationE(PlaidAPIInvocationE.AccountsInfo)
+                .plaidAPIRequest(plaidAPIRequest)
+                .build();
 
-            // Build API URL for getting all an Items accounts
-            String apiURL = plaidAPIConfig.getAPIPathURL(ITEM_ACCOUNTS_RETRIEVE_PATH);
-            LOGGER.info("Invoking Plaid API to retrieve Item Accounts with URL:=> {}", apiURL);
-            PlaidItemAccountsResponse plaidItemAccountsResponse = restTemplate.postForObject(apiURL, requestHttpEntity, PlaidItemAccountsResponse.class);
-            return Optional.of(plaidItemAccountsResponse);
-        } catch (JsonProcessingException e) {
-            LOGGER.warn("Failed to create connected Strip Bank Account for given Plaid Account details.", e);
-        }
-
-        return Optional.empty();
+        // Build API URL for getting all an Items accounts
+        String apiURL = plaidAPIConfig.getAPIPathURL(ITEM_ACCOUNTS_RETRIEVE_PATH);
+        PlaidItemAccountsResponse plaidItemAccountsResponse = new PlaidItemAccountsResponse();
+        plaidItemAccountsResponse = iPlaidAPIEndPointFacade.invokePlaidAPIEndPoint(plaidAPIInvocationStatistic, apiURL, plaidItemAccountsResponse);
+        return Optional.of(plaidItemAccountsResponse);
     }
 
 
