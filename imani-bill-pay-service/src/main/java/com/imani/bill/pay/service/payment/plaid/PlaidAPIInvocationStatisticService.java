@@ -24,7 +24,7 @@ public class PlaidAPIInvocationStatisticService implements IPlaidAPIInvocationSt
     @Override
     public void save(PlaidAPIInvocationStatistic plaidAPIInvocationStatistic) {
         Assert.notNull(plaidAPIInvocationStatistic, "PlaidAPIInvocationStatistic cannot be null");
-        LOGGER.debug("Saving plaidAPIInvocationStatistic:=> {}", plaidAPIInvocationStatistic);
+        LOGGER.info("Saving plaidAPIInvocationStatistic:=> {}", plaidAPIInvocationStatistic);
         iPlaidAPIInvocationStatisticRepository.save(plaidAPIInvocationStatistic);
     }
 

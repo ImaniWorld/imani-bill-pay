@@ -59,13 +59,13 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         // 1: In order to access Plaid API's for this account, we will first need to request an access token which should be stored.
         Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, userRecord);
         if(accessTokenResponse.isPresent() && !accessTokenResponse.get().hasError()) {
-            LOGGER.info("Access token for account has been succesfully retrieved:=> ", accessTokenResponse.get().getAccessToken());
+            LOGGER.info("Access token for account has been succesfully retrieved:=> {}", accessTokenResponse.get().getAccessToken());
 
             // 2: Using access token we can now request all the details for this Plaid linked account
             PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(accessTokenResponse.get().getAccessToken());
             Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest, userRecord);
 
-            if(plaidItemAccountsResponse.isPresent()) {
+            if(plaidItemAccountsResponse.isPresent() && !plaidItemAccountsResponse.get().hasError()) {
                 LOGGER.info("Successfully retrieved Plaid Account details");
                 System.out.println("plaidItemAccountsResponse.get().getPlaidItemInfo() = " + plaidItemAccountsResponse.get().getPlaidItemInfo());
 
@@ -91,38 +91,37 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         return Optional.empty();
     }
 
+
+    @Transactional
     @Override
-    public Optional<StripeBankAccountResponse> createStripeAccount(String plaidPublicToken, String plaidAccountID) {
-        Assert.notNull(plaidPublicToken, "plaidPublicToken cannot be null");
-        Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
+    public Optional<ACHPaymentInfo> createStripeAcctForPrimaryPlaidAcct(UserRecord userRecord) {
+        Assert.notNull(userRecord, "UserRecord cannot be null");
+        Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
 
-        LOGGER.info("Creating Stripe Connected account for newly created Plaid AccountID:=> {}", plaidAccountID);
+        LOGGER.info("Attempting to create Stripe and link Stripe BankAcct for primary payment for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
 
-        // Step I: Using the Public Token for Plaid Account, we will create a request for an Access Token which can be used to perform actions against Plaid Account
-        PlaidAPIRequest accessTokenAPIRequest = buildPlaidAPIRequestForAccessToken(plaidPublicToken);
-        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(accessTokenAPIRequest, null);
+        // Fetch user from DB for consistency and find primary ACHPayment Information
+        userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
 
-        if(accessTokenResponse.isPresent()) {
-            return createStripeAccount(accessTokenResponse.get(), plaidAccountID);
+        if(achPaymentInfo != null) {
+            // Verify that a Stripe Bank AcctID hasn't already been created and create.
+            if(achPaymentInfo.getStripeBankAcct() == null
+                    || achPaymentInfo.getStripeBankAcct().getId() == null) {
+                PlaidAPIRequest plaidStripeAcctCreateRequest = buildPlaidAPIRequestForStripeAccountCreate(achPaymentInfo);
+                Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(plaidStripeAcctCreateRequest, userRecord);
+
+                if(stripeBankAccountResponse.isPresent() && !stripeBankAccountResponse.get().hasError()) {
+                    LOGGER.info("Successfully created and linked Stripe Bank Account with ID:=> {}", stripeBankAccountResponse.get().getStripeBankAcctToken());
+                    achPaymentInfo.updateStripeBankAcctID(stripeBankAccountResponse.get().getStripeBankAcctToken());
+                    iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
+                    return Optional.of(achPaymentInfo);
+                }
+            }
         }
 
-        LOGGER.warn("Failed to create an access token for Plaid Account, cannot create and link Stripe Account");
+        LOGGER.warn("Failed to find the primary ACHPaymentInfo for user, cannot create and link a Stripe Bank account.");
         return Optional.empty();
-    }
-
-    @Override
-    public Optional<StripeBankAccountResponse> createStripeAccount(PlaidAccessTokenResponse plaidAccessTokenResponse, String plaidAccountID) {
-        Assert.notNull(plaidAccessTokenResponse, "PlaidAccessTokenResponse cannot be null");
-        Assert.notNull(plaidAccessTokenResponse.getAccessToken(), "Actual token cannot be null");
-        Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
-
-        LOGGER.debug("Using Plaid Account access token to create a matching Stripe Account.....");
-
-        PlaidAPIRequest newStripeAcctAPIRequest = buildPlaidAPIRequestForStripeAccountCreate(plaidAccessTokenResponse.getAccessToken(), plaidAccountID);
-
-        // We can now use the Access token to create a connected Stripe account for this Plaid account.
-        Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(newStripeAcctAPIRequest);
-        return stripeBankAccountResponse;
     }
 
     PlaidAPIRequest buildPlaidAPIRequestForAccessToken(String plaidPublicToken) {
@@ -134,12 +133,12 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         return plaidAPIRequest;
     }
 
-    PlaidAPIRequest buildPlaidAPIRequestForStripeAccountCreate(String accessToken, String plaidAccountID) {
+    PlaidAPIRequest buildPlaidAPIRequestForStripeAccountCreate(ACHPaymentInfo achPaymentInfo) {
         PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()
                 .secret(plaidAPIConfig.getSecret())
                 .clientID(plaidAPIConfig.getClientID())
-                .accessToken(accessToken)
-                .accountID(plaidAccountID)
+                .accessToken(achPaymentInfo.getPlaidBankAcct().getPlaidAccessToken())
+                .accountID(achPaymentInfo.getPlaidBankAcct().getAccountID())
                 .build();
         return plaidAPIRequest;
     }

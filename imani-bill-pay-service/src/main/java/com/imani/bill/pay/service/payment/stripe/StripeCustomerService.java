@@ -3,7 +3,7 @@ package com.imani.bill.pay.service.payment.stripe;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.*;
+import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
@@ -20,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,11 +140,42 @@ public class StripeCustomerService implements IStripeCustomerService {
     }
 
     @Override
-    public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord, String plaidPublicToken, String plaidAccountID) {
+    public boolean updatePrimaryStripeCustomerBankAcct(UserRecord userRecord) {
+        Assert.notNull(userRecord, "UserRecord cannot be null");
+
+        LOGGER.info("Attempting to update Stripe Customer bank account for user:=> {}");
+
+        // Fetch UserRecord from persistent store
+        userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+        Optional<Customer> stripeCustomer = retrieveStripeCustomer(userRecord);
+
+        if(stripeCustomer.isPresent()) {
+            LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
+            Stripe.apiKey = stripeAPIConfig.getApiKey();
+
+            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
+
+            if (achPaymentInfo != null) {
+                Map<String, Object> params = new HashMap<>();
+                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getId());
+                try {
+                    BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
+                    iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
+                    iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
+                    return true;
+                } catch (StripeException e) {
+                    LOGGER.warn("Failed to update Stripe Bank account details for customer", e);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
-        Assert.notNull(plaidPublicToken, "achPaymentInfo cannot be null");
-        Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
         //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
 
         // Fetch UserRecord from persistent store
@@ -159,49 +190,26 @@ public class StripeCustomerService implements IStripeCustomerService {
         }
 
         if(stripeCustomer.isPresent()) {
-            LOGGER.info("Creating Stripe Customer BankAcct for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-
-            // In order to execute Plaid API request for this Plaid account, we will need an Access Token using passed Public Token.
-            Optional<PlaidAccessTokenResponse> plaidAccessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, userRecord);
-
-
+            LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
             Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-            if (plaidAccessTokenResponse.isPresent()) {
-                // We can now attempt to create a Stripe BankAcct that links to selected plaidAccountID
-                Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAccountMasterService.createStripeAccount(plaidAccessTokenResponse.get(), plaidAccountID);
+            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
 
-                // Get the details of the linked Plaid Account and update the ACH payment info.
-                PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(plaidAccessTokenResponse.get().getAccessToken());
-                Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = null;//iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest);
-
-                if(stripeBankAccountResponse.isPresent()
-                        && plaidItemAccountsResponse.isPresent()
-                        && StringUtils.isEmpty(stripeBankAccountResponse.get().getErrorMessage())) {
-                    LOGGER.info("Successfully retrieved a created StripeBank Token associated with created Plaid Linked AcctID, creating Customer BankAcct...");
-                    Map<String, Object> params = new HashMap<>();
-                    params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, stripeBankAccountResponse.get().getStripeBankAcctToken());
-
-                    try {
-                        ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(userRecord);
-                        BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
-
-                        // Update Stripe account details on ACHPaymentInfo
-                        iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
-
-                        // Update Plaid Bank account details on ACHPaymentInfo
-                        PlaidBankAcct plaidBankAcct = plaidItemAccountsResponse.get().getFirst();
-                        plaidBankAcct.setPlaidAccessToken(plaidAccessTokenResponse.get().getAccessToken());
-                        iachPaymentInfoService.updatePlaidBankAcct(plaidBankAcct, achPaymentInfo);
-
-                        return Optional.of(achPaymentInfo);
-                    } catch (StripeException e) {
-                        LOGGER.warn("Failed to create Stripe BankAcct for UserRecord on Linked Plaid Account", e);
-                    }
+            if (achPaymentInfo != null) {
+                Map<String, Object> params = new HashMap<>();
+                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getId());
+                try {
+                    BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
+                    iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
+                    iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
+                    return Optional.of(achPaymentInfo);
+                } catch (StripeException e) {
+                    LOGGER.warn("Failed to update Stripe Bank account details for customer", e);
                 }
             }
         }
 
+        LOGGER.info("Stripe Customer or ACHPaymentInfo could not be found");
         return Optional.empty();
     }
 
@@ -213,5 +221,12 @@ public class StripeCustomerService implements IStripeCustomerService {
                 .accessToken(accessToken)
                 .build();
         return plaidAPIRequest;
+    }
+
+    @PostConstruct
+    void postConstruct() {
+        LOGGER.info("===================  Running Stripe API with configuration =======================");
+        LOGGER.info("{}", stripeAPIConfig);
+        LOGGER.info("=================================================================================");
     }
 }

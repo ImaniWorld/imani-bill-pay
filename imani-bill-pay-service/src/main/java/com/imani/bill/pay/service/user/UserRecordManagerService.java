@@ -1,5 +1,7 @@
 package com.imani.bill.pay.service.user;
 
+import com.imani.bill.pay.domain.execution.ExecutionResult;
+import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.gateway.APIGatewayEvent;
 import com.imani.bill.pay.domain.gateway.GenericAPIGatewayResponse;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -7,12 +9,15 @@ import com.imani.bill.pay.domain.user.gateway.UserRecordRequest;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.encryption.ClearTextEncryptionService;
 import com.imani.bill.pay.service.encryption.IClearTextEncryptionService;
+import com.imani.bill.pay.service.user.validation.IUserRegistrationValidationAdviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author manyce400
@@ -29,6 +34,11 @@ public class UserRecordManagerService implements IUserRecordManagerService {
     @Autowired
     @Qualifier(ClearTextEncryptionService.SPRING_BEAN)
     private IClearTextEncryptionService clearTextEncryptionService;
+
+
+    //  Inject all User registration advice services
+    @Autowired
+    private List<IUserRegistrationValidationAdviceService> iUserRegistrationValidationAdviceServiceList;
 
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.UserRecordManagerService";
@@ -79,6 +89,34 @@ public class UserRecordManagerService implements IUserRecordManagerService {
         return getUserRecordEventOnInvalidUser(userRecord);
     }
 
+    @Override
+    public ExecutionResult registerUserRecord(UserRecord userRecord) {
+        Assert.notNull(userRecord, "UserRecord cannot be null");
+
+        LOGGER.info("Attempting to register userRecord:=> {}", userRecord);
+
+        // Create ExecutionResult and begin validating userRecord
+        ExecutionResult executionResult = new ExecutionResult();
+
+        iUserRegistrationValidationAdviceServiceList.forEach(adviceService -> {
+            Set<ValidationAdvice> validationAdvices = adviceService.getAdvice(userRecord);
+            executionResult.addValidationAdvices(validationAdvices);
+        });
+
+        if(!executionResult.hasValidationAdvice()) {
+            // No validation advice, we are good to register this user
+            LOGGER.info("Registering new UserRecord for user with email:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+            String encoded = clearTextEncryptionService.encryptClearText(userRecord.getPassword());
+            userRecord.setPassword(encoded);
+            iUserRecordRepository.save(userRecord);
+            return executionResult;
+        } else {
+            LOGGER.warn("Validation advices found, skipping registration of user");
+            return executionResult;
+        }
+
+
+    }
 
     @Transactional
     @Override

@@ -2,6 +2,7 @@ package com.imani.bill.pay.domain.payment.plaid;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class PlaidItemAccountsResponse extends PlaidAPIResponse {
 
 
+    @JsonProperty("item")
     private PlaidItemInfo plaidItemInfo;
 
     private List<PlaidBankAcct> accounts = new ArrayList<>();

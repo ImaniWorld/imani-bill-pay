@@ -9,4 +9,8 @@ public enum PlaidAPIInvocationE {
 
     AccountsInfo,
 
+    StripeAcctCreate
+
+    ;
+
 }

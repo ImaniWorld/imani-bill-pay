@@ -60,7 +60,7 @@ public class RentalPaymentHistoryService implements IRentalPaymentHistoryService
 
         LOGGER.debug("Creating RentalPayment history for payment on monthlyRentalBillExplained:=> {}", monthlyRentalBillExplained);
 
-        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findUserACHPaymentInfo(monthlyRentalBillExplained.getUserResidence().getUserRecord());
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(monthlyRentalBillExplained.getUserResidence().getUserRecord());
 
         // Create embedded payment information
         EmbeddedPayment embeddedPayment = EmbeddedPayment.builder()

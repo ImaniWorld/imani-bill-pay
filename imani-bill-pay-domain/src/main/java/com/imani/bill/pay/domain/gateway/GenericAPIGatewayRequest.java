@@ -19,6 +19,9 @@ public class GenericAPIGatewayRequest {
     // UserRecord that this Request applies to.  All actions will be executed for this user.
     protected Optional<UserRecord> execUserRecord;
 
+    // Tracks the User that this request is being executed on behalf of
+    protected UserRecord onBehalfOf;
+
     public GenericAPIGatewayRequest() {
     }
 
@@ -33,6 +36,14 @@ public class GenericAPIGatewayRequest {
 
     public void setExecUserRecord(Optional<UserRecord> execUserRecord) {
         this.execUserRecord = execUserRecord;
+    }
+
+    public UserRecord getOnBehalfOf() {
+        return onBehalfOf;
+    }
+
+    public void setOnBehalfOf(UserRecord onBehalfOf) {
+        this.onBehalfOf = onBehalfOf;
     }
 
     @Override

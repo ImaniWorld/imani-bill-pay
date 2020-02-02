@@ -2,7 +2,12 @@ package com.imani.bill.pay.domain.gateway;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.http.HttpStatus;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author manyce400
@@ -12,6 +17,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class GenericAPIGatewayResponse {
 
 
+    protected HttpStatus httpStatus;
+
+    private Set<ValidationAdvice> validationAdvices = new HashSet<>();
+
     protected String communication;
 
     protected APIGatewayEventStatusE apiGatewayEventStatusE;
@@ -20,7 +29,10 @@ public class GenericAPIGatewayResponse {
 
     }
 
-    public GenericAPIGatewayResponse(APIGatewayEventStatusE apiGatewayEventStatusE) {
+
+
+    public GenericAPIGatewayResponse( APIGatewayEventStatusE apiGatewayEventStatusE) {
+        //this.httpStatus = httpStatus;
         this.apiGatewayEventStatusE = apiGatewayEventStatusE;
     }
 
@@ -28,6 +40,8 @@ public class GenericAPIGatewayResponse {
         this.communication = communication;
         this.apiGatewayEventStatusE = apiGatewayEventStatusE;
     }
+
+
 
     public String getCommunication() {
         return communication;
@@ -54,7 +68,7 @@ public class GenericAPIGatewayResponse {
     }
 
     public static GenericAPIGatewayResponse getSuccessGenericAPIGatewayResponse() {
-        return new GenericAPIGatewayResponse(APIGatewayEventStatusE.Success);
+        return new GenericAPIGatewayResponse(null, APIGatewayEventStatusE.Success);
     }
 
     public static GenericAPIGatewayResponse getInvalidRequestGenericAPIGatewayResponse(String communication) {

@@ -1,6 +1,5 @@
 package com.imani.bill.pay.service.payment.plaid;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.plaid.*;
@@ -10,8 +9,6 @@ import com.imani.bill.pay.service.util.IRestUtil;
 import com.imani.bill.pay.service.util.RestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -55,28 +52,25 @@ public class PlaidAPIService implements IPlaidAPIService {
 
 
     @Override
-    public Optional<StripeBankAccountResponse> createStripeBankAccount(PlaidAPIRequest plaidAPIRequest) {
+    public Optional<StripeBankAccountResponse> createStripeBankAccount(PlaidAPIRequest plaidAPIRequest, UserRecord userRecord) {
         Assert.notNull(plaidAPIRequest, "PlaidAPIRequest cannot be null");
         Assert.notNull(plaidAPIRequest.getSecret(), "Plaid secret cannot be null");
         Assert.notNull(plaidAPIRequest.getClientID(), "Plaid clientID cannot be null");
         Assert.notNull(plaidAPIRequest.getAccessToken(), "Plaid accessToken cannot be null");
         Assert.notNull(plaidAPIRequest.getAccountID(), "Plaid accountID cannot be null");
 
-        try {
-            HttpHeaders httpHeaders = iRestUtil.getRestJSONHeader();
-            String request = mapper.writeValueAsString(plaidAPIRequest);
-            HttpEntity<String> requestHttpEntity = new HttpEntity<>(request, httpHeaders);
+        // Build PlaidAPIInvocationStatistic
+        PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = PlaidAPIInvocationStatistic.builder()
+                .userRecord(userRecord)
+                .plaidAPIInvocationE(PlaidAPIInvocationE.StripeAcctCreate)
+                .plaidAPIRequest(plaidAPIRequest)
+                .build();
 
-            // Build API URL for requesting Plaid Access Token and post for response
-            String apiURL = plaidAPIConfig.getAPIPathURL(CREATE_STRIPE_BANK_TOKEN_PATH);
-            LOGGER.info("Invoking Plaid API to create a Stripe Connected Bank Acct  with URL:=> {}", apiURL);
-            StripeBankAccountResponse accessTokenResponse = restTemplate.postForObject(apiURL, requestHttpEntity, StripeBankAccountResponse.class);
-            return Optional.of(accessTokenResponse);
-        } catch (JsonProcessingException e) {
-            LOGGER.warn("Failed to create connected Strip Bank Account for given Plaid Account details.", e);
-        }
-
-        return Optional.empty();
+        // Build API URL for creating Plaid Stripe account id
+        String apiURL = plaidAPIConfig.getAPIPathURL(CREATE_STRIPE_BANK_TOKEN_PATH);
+        StripeBankAccountResponse stripeBankAccountResponse = new StripeBankAccountResponse();
+        stripeBankAccountResponse = iPlaidAPIEndPointFacade.invokePlaidAPIEndPoint(plaidAPIInvocationStatistic, apiURL, stripeBankAccountResponse);
+        return Optional.of(stripeBankAccountResponse);
     }
 
     @Override
@@ -85,7 +79,6 @@ public class PlaidAPIService implements IPlaidAPIService {
         Assert.notNull(plaidAPIRequest.getSecret(), "Plaid secret cannot be null");
         Assert.notNull(plaidAPIRequest.getClientID(), "Plaid clientID cannot be null");
         Assert.notNull(plaidAPIRequest.getAccessToken(), "Plaid accessToken cannot be null");
-        Assert.notNull(plaidAPIRequest.getAccountID(), "Plaid accountID cannot be null");
 
         // Build PlaidAPIInvocationStatistic
         PlaidAPIInvocationStatistic plaidAPIInvocationStatistic = PlaidAPIInvocationStatistic.builder()

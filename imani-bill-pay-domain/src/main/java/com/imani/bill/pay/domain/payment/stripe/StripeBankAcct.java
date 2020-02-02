@@ -23,6 +23,9 @@ public class StripeBankAcct {
     @Column(name="StripeBankAcctID", nullable=true, length=200)
     private String id;
 
+    @Column(name="StripeBankAcctToken", nullable=true, length=200)
+    private String bankAcctToken;
+
     @Column(name="StripeObject", nullable=true, length=200)
     private String object;
 
@@ -64,6 +67,14 @@ public class StripeBankAcct {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getBankAcctToken() {
+        return bankAcctToken;
+    }
+
+    public void setBankAcctToken(String bankAcctToken) {
+        this.bankAcctToken = bankAcctToken;
     }
 
     public String getObject() {
@@ -142,6 +153,7 @@ public class StripeBankAcct {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
+                .append("bankAcctToken", bankAcctToken)
                 .append("object", object)
                 .append("accountHolderName", accountHolderName)
                 .append("accountHolderType", accountHolderType)
@@ -154,7 +166,6 @@ public class StripeBankAcct {
                 .toString();
     }
 
-
     public static Builder builder() {
         return new Builder();
     }
@@ -165,6 +176,11 @@ public class StripeBankAcct {
 
         public Builder id(String id) {
             stripeBankAcct.id = id;
+            return this;
+        }
+
+        public Builder bankAcctToken(String bankAcctToken) {
+            stripeBankAcct.bankAcctToken = bankAcctToken;
             return this;
         }
 

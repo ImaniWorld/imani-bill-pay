@@ -49,7 +49,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
     public Optional<Balance> getACHPaymentInfoBalances(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         LOGGER.info("Finding ACHPaymentInfo for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findUserACHPaymentInfo(userRecord);
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
         return getACHPaymentInfoBalances(achPaymentInfo);
     }
 
@@ -103,7 +103,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(paymentAmnt, "paymentAmnt cannot be null");
         LOGGER.info("Finding ACHPaymentInfo for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findUserACHPaymentInfo(userRecord);
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
         return availableBalanceCoversPayment(achPaymentInfo, paymentAmnt);
     }
 

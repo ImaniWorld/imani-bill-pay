@@ -1,6 +1,6 @@
 package com.imani.bill.pay.domain.payment.stripe;
 
-import org.springframework.util.Assert;
+import java.util.Optional;
 
 /**
  * Stripe BankAccount API Doc: https://stripe.com/docs/api/customer_bank_accounts/object
@@ -25,16 +25,16 @@ public enum StripeAcctHolderTypeE {
         return holderType;
     }
 
-    public static StripeAcctHolderTypeE getByHolderType(String holderType) {
-        Assert.notNull(holderType, "holderType cannot be null");
-
-        for(StripeAcctHolderTypeE stripeAcctHolderTypeE : values()) {
-            if(stripeAcctHolderTypeE.getHolderType().equals(holderType)) {
-                return stripeAcctHolderTypeE;
+    public static Optional<StripeAcctHolderTypeE> getByHolderType(String holderType) {
+        if (holderType != null) {
+            for(StripeAcctHolderTypeE stripeAcctHolderTypeE : values()) {
+                if(stripeAcctHolderTypeE.getHolderType().equals(holderType)) {
+                    return Optional.of(stripeAcctHolderTypeE);
+                }
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
 }

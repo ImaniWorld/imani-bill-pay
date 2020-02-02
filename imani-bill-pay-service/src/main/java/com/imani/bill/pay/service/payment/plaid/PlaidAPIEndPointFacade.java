@@ -2,10 +2,7 @@ package com.imani.bill.pay.service.payment.plaid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIInvocationStatistic;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIResponse;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAccessTokenResponse;
+import com.imani.bill.pay.domain.payment.plaid.*;
 import com.imani.bill.pay.service.rest.RestTemplateConfigurator;
 import com.imani.bill.pay.service.util.IRestUtil;
 import com.imani.bill.pay.service.util.RestUtil;
@@ -61,10 +58,21 @@ public class PlaidAPIEndPointFacade implements IPlaidAPIEndPointFacade {
 
         if(request.isPresent()) {
             plaidAPIInvocationStatistic.startAPIInvocation();
+
             try {
                 if (responseObj instanceof PlaidAccessTokenResponse) {
                     PlaidAccessTokenResponse plaidAccessTokenResponse = restTemplate.postForObject(apiURL, request.get(), PlaidAccessTokenResponse.class);
+                    ((PlaidAccessTokenResponse) responseObj).setAccessToken(plaidAccessTokenResponse.getAccessToken());
                     plaidAPIInvocationStatistic.setPlaidAPIResponse(plaidAccessTokenResponse);
+                } else if(responseObj instanceof PlaidItemAccountsResponse) {
+                    PlaidItemAccountsResponse plaidItemAccountsResponse = restTemplate.postForObject(apiURL, request.get(), PlaidItemAccountsResponse.class);
+                    System.out.println("plaidItemAccountsResponse = " + plaidItemAccountsResponse);
+                    ((PlaidItemAccountsResponse) responseObj).setPlaidItemInfo(plaidItemAccountsResponse.getPlaidItemInfo());
+                    ((PlaidItemAccountsResponse) responseObj).setAccounts(plaidItemAccountsResponse.getAccounts());
+                } else if(responseObj instanceof StripeBankAccountResponse) {
+                    StripeBankAccountResponse stripeBankAccountResponse = restTemplate.postForObject(apiURL, request.get(), StripeBankAccountResponse.class);
+                    System.out.println("stripeBankAccountResponse = " + stripeBankAccountResponse);
+                    ((StripeBankAccountResponse) responseObj).setStripeBankAcctToken(stripeBankAccountResponse.getStripeBankAcctToken());
                 }
             } catch (HttpClientErrorException e) {
                 buildResponseWithAPIException(e, responseObj);

@@ -33,6 +33,7 @@ public class PlaidBankAcct {
     @Column(name="PlaidBankAcctOfficialName", nullable=true, length=200)
     private String officialName;
 
+    @JsonProperty("subtype")
     @Column(name="PlaidBankAcctSubType", nullable=true, length=100)
     private String subType;
 

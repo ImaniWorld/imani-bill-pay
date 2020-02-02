@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
 public interface IACHPaymentInfoRepository extends JpaRepository<ACHPaymentInfo, Long> {
 
 
-    @Query("Select aCHPaymentInfo From ACHPaymentInfo aCHPaymentInfo Where aCHPaymentInfo.userRecord =?1")
-    public ACHPaymentInfo findUserACHPaymentInfo(UserRecord userRecord);
+    @Query("Select aCHPaymentInfo From ACHPaymentInfo aCHPaymentInfo Where aCHPaymentInfo.userRecord =?1 and aCHPaymentInfo.isPrimary = true")
+    public ACHPaymentInfo findPrimaryUserACHPaymentInfo(UserRecord userRecord);
 
     @Query("Select aCHPaymentInfo From ACHPaymentInfo aCHPaymentInfo Where aCHPaymentInfo.propertyManager =?1")
     public ACHPaymentInfo findPropertyManagerACHPaymentInfo(PropertyManager propertyManager);

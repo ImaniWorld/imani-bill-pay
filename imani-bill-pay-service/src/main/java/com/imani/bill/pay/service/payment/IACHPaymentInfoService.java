@@ -10,6 +10,9 @@ import com.stripe.model.BankAccount;
  */
 public interface IACHPaymentInfoService {
 
+
+    public ACHPaymentInfo findUserPrimaryPamentInfo(UserRecord userRecord);
+
     public ACHPaymentInfo buildPrimaryACHPaymentInfo(UserRecord userRecord);
 
     public void updateStripeBankAcct(BankAccount stripeBankAccount, ACHPaymentInfo achPaymentInfo);

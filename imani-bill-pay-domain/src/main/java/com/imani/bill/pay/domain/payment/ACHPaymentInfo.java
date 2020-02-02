@@ -9,6 +9,7 @@ import com.imani.bill.pay.domain.property.PropertyOwner;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
+import org.springframework.util.Assert;
 
 import javax.persistence.*;
 
@@ -117,6 +118,24 @@ public class ACHPaymentInfo extends AuditableRecord {
 
     public void setPropertyOwner(PropertyOwner propertyOwner) {
         this.propertyOwner = propertyOwner;
+    }
+
+    public void updateStripeBankAcctID(String acctID) {
+        Assert.notNull(acctID, "Stripe Bank Account Id cannot be null");
+        if(stripeBankAcct == null) {
+            stripeBankAcct = new StripeBankAcct();
+        }
+
+        stripeBankAcct.setId(acctID);
+    }
+
+    public void updateStripeBankAcctToken(String bankAcctToken) {
+        Assert.notNull(bankAcctToken, "Stripe Bank Account token cannot be null");
+        if(stripeBankAcct == null) {
+            stripeBankAcct = new StripeBankAcct();
+        }
+
+        stripeBankAcct.setBankAcctToken(bankAcctToken);
     }
 
     @Override
