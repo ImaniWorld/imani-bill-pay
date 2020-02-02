@@ -24,6 +24,8 @@ public class APIGatewayResponse {
 
     protected HttpStatus httpStatus;
 
+    protected String message;
+
     private Set<ValidationAdvice> validationAdvices = new HashSet<>();
 
     public APIGatewayResponse() {
@@ -34,6 +36,14 @@ public class APIGatewayResponse {
         return httpStatus;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public Set<ValidationAdvice> getValidationAdvices() {
         return ImmutableSet.copyOf(validationAdvices);
     }
@@ -42,6 +52,7 @@ public class APIGatewayResponse {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("httpStatus", httpStatus)
+                .append("message", message)
                 .append("validationAdvices", validationAdvices)
                 .toString();
     }
@@ -53,9 +64,15 @@ public class APIGatewayResponse {
         if(executionResult.isExecutionSuccessful()) {
             apiGatewayResponse.httpStatus = HttpStatus.OK;
         } else {
-            // We have validation errors, this will signify that there is something wrong with client request
-            apiGatewayResponse.httpStatus = HttpStatus.BAD_REQUEST;
-            apiGatewayResponse.validationAdvices.addAll(executionResult.getValidationAdvices());
+            if(executionResult.hasValidationAdvice()) {
+                // We have validation errors, this will signify that there is something wrong with client request
+                apiGatewayResponse.httpStatus = HttpStatus.BAD_REQUEST;
+                apiGatewayResponse.validationAdvices.addAll(executionResult.getValidationAdvices());
+            } else if(executionResult.hasExecutionError()) {
+                // We have validation errors, this will signify that there is something wrong with client request
+                apiGatewayResponse.httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                apiGatewayResponse.message = "A problem occurred while executing request. Contact Imani BillPay Support";
+            }
         }
 
         return apiGatewayResponse;

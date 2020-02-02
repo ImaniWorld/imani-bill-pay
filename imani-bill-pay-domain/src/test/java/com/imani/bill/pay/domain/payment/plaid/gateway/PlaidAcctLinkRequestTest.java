@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * @author manyce400
@@ -25,7 +24,7 @@ public class PlaidAcctLinkRequestTest implements IMockUserRecordTestBuilder {
 
     private ObjectMapper mapper = new MockObjectMapper();
     
-    private static final String expected = "{\"execUserRecord\":{\"firstName\":\"Erin\",\"lastName\":\"Addy Lamptey\",\"embeddedContactInfo\":{\"email\":\"erin.addy@gmail.com\"},\"loggedIn\":false,\"resetPassword\":false,\"accountLocked\":false,\"acceptedTermsAndConditions\":false},\"plaidPublicToken\":\"public-development-7c8a40c5-cbe1-49c6-93de-3c4bdbe2994d\",\"plaidAccountID\":\"Me7MpWB1jvueZ6kMxgVBUGjxoMdBAmi9lRwDy\"}";
+    private static final String expected = "{\"onBehalfOf\":{\"firstName\":\"Erin\",\"lastName\":\"Addy Lamptey\",\"embeddedContactInfo\":{\"email\":\"erin.addy@gmail.com\"},\"loggedIn\":false,\"resetPassword\":false,\"accountLocked\":false,\"acceptedTermsAndConditions\":false},\"plaidPublicToken\":\"public-development-7c8a40c5-cbe1-49c6-93de-3c4bdbe2994d\",\"plaidAccountID\":\"Me7MpWB1jvueZ6kMxgVBUGjxoMdBAmi9lRwDy\"}";
 
 
     @Before
@@ -36,7 +35,7 @@ public class PlaidAcctLinkRequestTest implements IMockUserRecordTestBuilder {
     @Test
     public void testWritePlaidAcctLinkRequest() {
         PlaidAcctLinkRequest plaidAcctLinkRequest = new PlaidAcctLinkRequest();
-        plaidAcctLinkRequest.setExecUserRecord(Optional.of(eventUserRecord));
+        plaidAcctLinkRequest.setOnBehalfOf(eventUserRecord);
         plaidAcctLinkRequest.setPlaidAccountID("Me7MpWB1jvueZ6kMxgVBUGjxoMdBAmi9lRwDy");
         plaidAcctLinkRequest.setPlaidPublicToken("public-development-7c8a40c5-cbe1-49c6-93de-3c4bdbe2994d");
 
@@ -55,7 +54,7 @@ public class PlaidAcctLinkRequestTest implements IMockUserRecordTestBuilder {
     public void testReadPlaidAcctLinkRequest() {
         try {
             PlaidAcctLinkRequest plaidAcctLinkRequest = mapper.readValue(expected, PlaidAcctLinkRequest.class);
-            System.out.println("plaidAcctLinkRequest.getExecUserRecord().get() = " + plaidAcctLinkRequest.getExecUserRecord().get());
+            System.out.println("plaidAcctLinkRequest.getExecUserRecord().get() = " + plaidAcctLinkRequest.getOnBehalfOf());
         } catch (IOException e) {
             Assert.fail("Failed to read PlaidAcctLinkRequest from JSON.");
         }

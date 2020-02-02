@@ -13,7 +13,7 @@ public interface IPlaidAPIStatisticBuilderService {
 
 
     /**
-     * Build a PlaidAPIStatistic on successful execution of a Plaid Balance product call.
+     * Build a PlaidAPIStatistic on successful execution of a Plaid PlaidBankAcctBalance product call.
      *
      * @param achPaymentInfo
      * @param apiInvocationStartDate
@@ -23,7 +23,7 @@ public interface IPlaidAPIStatisticBuilderService {
 
 
     /**
-     * Build a PlaidAPIStatistic on failed execution of a Plaid Balance product call.
+     * Build a PlaidAPIStatistic on failed execution of a Plaid PlaidBankAcctBalance product call.
      *
      * @param achPaymentInfo
      * @param apiExecError

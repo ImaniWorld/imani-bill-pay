@@ -142,6 +142,14 @@ public class UserRecord extends AuditableRecord {
         this.lastName = lastName;
     }
 
+    @JsonIgnore
+    public String getFullName() {
+        StringBuffer sb = new StringBuffer(firstName)
+                .append(" ")
+                .append(lastName);
+        return sb.toString();
+    }
+
     public EmbeddedContactInfo getEmbeddedContactInfo() {
         return embeddedContactInfo;
     }

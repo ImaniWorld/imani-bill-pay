@@ -1,6 +1,6 @@
 package com.imani.bill.pay.service.payment;
 
-import com.imani.bill.pay.domain.payment.Balance;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.payment.PaymentStatusE;
 import com.imani.bill.pay.domain.property.MonthlyRentalBill;
 import com.imani.bill.pay.domain.property.MonthlyRentalBillExplained;
@@ -87,7 +87,7 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
 
             if(canMakePaymentOnBill) {
                 // Now validate real-time using Plaid that this user has enough funds in their available account balance to make this payment and execute.
-                Optional<Balance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
+                Optional<PlaidBankAcctBalance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
 
                 if(balance.isPresent() && !balance.get().hasAvailableBalanceForPayment(monthlyRentalBillExplained.getAmtBeingPaid())) {
                     return getRentalBillPayResultOnInsufficientFunds(balance, monthlyRentalBillExplained);
@@ -174,13 +174,13 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
     }
 
 
-    RentalBillPayResult getRentalBillPayResultOnInsufficientFunds(Optional<Balance> balance, MonthlyRentalBillExplained monthlyRentalBillExplained) {
+    RentalBillPayResult getRentalBillPayResultOnInsufficientFunds(Optional<PlaidBankAcctBalance> balance, MonthlyRentalBillExplained monthlyRentalBillExplained) {
         UserRecord userRecord = monthlyRentalBillExplained.getUserResidence().getUserRecord();
 
         LOGGER.warn("Cannot process payment. Insufficient funds found User:=> {} and RentalMonth:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), monthlyRentalBillExplained.getRentalMonth());
 
         StringBuffer sb = new StringBuffer()
-                .append("Insufficient Available Funds:  Your available Bank Acct Balance => ").append(balance.get().getAvailable())
+                .append("Insufficient Available Funds:  Your available Bank Acct PlaidBankAcctBalance => ").append(balance.get().getAvailable())
                 .append(" cannot cover payment amount => ").append(monthlyRentalBillExplained.getAmtBeingPaid());
 
         RentalBillPayResult rentalBillPayResult = RentalBillPayResult.builder()

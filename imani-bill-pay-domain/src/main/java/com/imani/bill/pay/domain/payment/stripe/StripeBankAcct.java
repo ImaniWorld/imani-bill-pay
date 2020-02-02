@@ -19,10 +19,11 @@ import javax.persistence.Enumerated;
 public class StripeBankAcct {
 
 
-
+    // This is the acutual Stripe generated Bank Account ID, retrieved only from Stripe directly.
     @Column(name="StripeBankAcctID", nullable=true, length=200)
     private String id;
 
+    // Stripe Bank Account token is returned from Plaid after we create and link a Stripe Bank account to Plaid
     @Column(name="StripeBankAcctToken", nullable=true, length=200)
     private String bankAcctToken;
 

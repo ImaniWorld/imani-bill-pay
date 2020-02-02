@@ -56,13 +56,14 @@ create table ACHPaymentInfo (
         PlaidAccessToken varchar(300) not null,
         PlaidBankAcctSubType varchar(100),
         PlaidBankAcctType varchar(100),
+        StripeBankAcctToken varchar(200),
+        StripeBankAcctID varchar(200),
         StripeAccountHolderName varchar(200),
         StripeAccountHolderType varchar(100),
         StripeBankAcctStatus varchar(15),
         StripeBankName varchar(200),
         StripeBankCountry varchar(100),
         StripeBankCurrency varchar(10),
-        StripeBankAcctID varchar(200),
         StripeBankAcctLast4Digits varchar(10),
         StripeObject varchar(200),
         StripeBankRoutingNumber varchar(10),
@@ -75,6 +76,19 @@ create table ACHPaymentInfo (
         primary key (ID)
     ) engine=MyISAM;
 
+
+create table PlaidBankAcctBalance (
+        ID bigint not null auto_increment,
+        Available double precision,
+        AcctLimit double precision,
+        UnOfficialCurrency varchar(255),
+        CurrencyCode varchar(255),
+        Current double precision,
+        ACHPaymentInfoID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    ) engine=MyISAM;
 
 create table PropertyOwner (
        ID bigint not null auto_increment,

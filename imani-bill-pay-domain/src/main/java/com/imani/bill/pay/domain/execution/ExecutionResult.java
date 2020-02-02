@@ -21,21 +21,26 @@ public class ExecutionResult {
 
     private Set<ValidationAdvice> validationAdvices = new HashSet<>();
 
+    private Set<ExecutionError> executionErrors = new HashSet<>();
+
     public ExecutionResult() {
 
     }
 
     public boolean isExecutionSuccessful() {
-        return validationAdvices.isEmpty();
+        return validationAdvices.isEmpty() && executionErrors.isEmpty();
     }
 
     public boolean hasValidationAdvice() {
         return !validationAdvices.isEmpty();
     }
 
+    public boolean hasExecutionError() {
+        return !executionErrors.isEmpty();
+    }
+
     public void addValidationAdvice(ValidationAdvice validationAdvice) {
         Assert.notNull(validationAdvice, "ValidationAdvice cannot be null");
-        Assert.notNull(validationAdvice.getAdvice(), "Advice message cannot be null");
         validationAdvices.add(validationAdvice);
     }
 
@@ -46,8 +51,24 @@ public class ExecutionResult {
         });
     }
 
+    public void addExecutionError(ExecutionError executionError) {
+        Assert.notNull(executionError, "ExecutionError cannot be null");
+        executionErrors.add(executionError);
+    }
+
+    public void addExecutionErrors(Set<ExecutionError> executionErrors) {
+        Assert.notNull(executionErrors, "executionErrors cannot be null");
+        executionErrors.forEach(executionError -> {
+            addExecutionError(executionError);
+        });
+    }
+
     public Set<ValidationAdvice> getValidationAdvices() {
         return ImmutableSet.copyOf(validationAdvices);
+    }
+
+    public Set<ExecutionError> getExecutionErrors() {
+        return ImmutableSet.copyOf(executionErrors);
     }
 
     @Override

@@ -12,20 +12,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * For a given UserRecord, this service validates that there isn't already an existing user with the same
+ * credentials in Imani BillPay DB.
+ *
+ * This validation advice is directly applied automatically as part of all new UserRecord registration.
+ *
  * @author manyce400
  */
 @Order(2)
-@Service(UserRecordDuplicationValidationAdviceService.SPRING_BEAN)
-public class UserRecordDuplicationValidationAdviceService implements IUserRegistrationValidationAdviceService  {
+@Service(UserRecordDupeValidationAdviceService.SPRING_BEAN)
+public class UserRecordDupeValidationAdviceService implements IUserRegistrationValidationAdviceService  {
 
 
     @Autowired
     private IUserRecordRepository iUserRecordRepository;
 
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.validation.UserRecordDuplicationValidationAdviceService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.user.validation.UserRecordDupeValidationAdviceService";
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserRecordDuplicationValidationAdviceService.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserRecordDupeValidationAdviceService.class);
 
     @Override
     public Set<ValidationAdvice> getAdvice(UserRecord userRecord) {

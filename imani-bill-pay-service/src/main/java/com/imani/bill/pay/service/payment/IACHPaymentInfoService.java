@@ -17,7 +17,7 @@ public interface IACHPaymentInfoService {
 
     public void updateStripeBankAcct(BankAccount stripeBankAccount, ACHPaymentInfo achPaymentInfo);
 
-    public void updatePlaidBankAcct(PlaidBankAcct plaidBankAcct, ACHPaymentInfo achPaymentInfo);
+    public void updateAndSavePlaidBankAcct(PlaidBankAcct plaidBankAcct, ACHPaymentInfo achPaymentInfo);
 
     public void saveACHPaymentInfo(ACHPaymentInfo achPaymentInfo);
 

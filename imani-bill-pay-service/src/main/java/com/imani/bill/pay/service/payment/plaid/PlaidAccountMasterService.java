@@ -1,5 +1,8 @@
 package com.imani.bill.pay.service.payment.plaid;
 
+import com.imani.bill.pay.domain.execution.ExecutionError;
+import com.imani.bill.pay.domain.execution.ExecutionResult;
+import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.plaid.*;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -46,12 +50,17 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
     @Transactional
     @Override
-    public Optional<UserRecord> linkPlaidBankAcct(String plaidPublicToken, String plaidAccountID, UserRecord userRecord) {
+    public ExecutionResult linkPlaidBankAcct(String plaidPublicToken, UserRecord userRecord) {
         Assert.notNull(plaidPublicToken, "plaidPublicToken cannot be null");
-        Assert.notNull(plaidAccountID, "plaidAccountID cannot be null");
         Assert.notNull(userRecord, "userRecord cannot be null");
 
-        LOGGER.info("Attempting to create Imani PlaidBankAcct for linked plaidPublicToken:=> {} and plaidAccountID:=> {} for user:=> {}", plaidPublicToken, plaidAccountID, userRecord.getEmbeddedContactInfo().getEmail());
+        LOGGER.info("Attempting to create Imani PlaidBankAcct for linked plaidPublicToken:=> {} for user:=> {}", plaidPublicToken, userRecord.getEmbeddedContactInfo().getEmail());
+
+        // Create ExecutionResult and begin validating userRecord
+        ExecutionResult executionResult = new ExecutionResult();
+        if(StringUtils.isEmpty(plaidPublicToken)) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Required PlaidPublicToken was not provided"));
+        }
 
         // Load up actual user from DB.
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
@@ -81,24 +90,28 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
                     first.setPlaidAccessToken(accessTokenResponse.get().getAccessToken());
                     LOGGER.info("Linking Plaid Account completed, saving ACHPaymentInfo....");
                     ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(userRecord);
-                    iachPaymentInfoService.updatePlaidBankAcct(first, achPaymentInfo);
-                    iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
+                    iachPaymentInfoService.updateAndSavePlaidBankAcct(first, achPaymentInfo);
                 }
             }
+        } else {
+            LOGGER.warn("Required Plaid access token could not be retrieved, abandoning link operation.");
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to verify and link provided Bank account"));
         }
 
-        LOGGER.warn("Required Plaid access token could not be retrieved, abandoning link operation.");
-        return Optional.empty();
+
+        return executionResult;
     }
 
 
     @Transactional
     @Override
-    public Optional<ACHPaymentInfo> createStripeAcctForPrimaryPlaidAcct(UserRecord userRecord) {
+    public ExecutionResult createStripeAcctForPrimaryPlaidAcct(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
 
         LOGGER.info("Attempting to create Stripe and link Stripe BankAcct for primary payment for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+
+        ExecutionResult executionResult = new ExecutionResult();
 
         // Fetch user from DB for consistency and find primary ACHPayment Information
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
@@ -107,21 +120,26 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         if(achPaymentInfo != null) {
             // Verify that a Stripe Bank AcctID hasn't already been created and create.
             if(achPaymentInfo.getStripeBankAcct() == null
-                    || achPaymentInfo.getStripeBankAcct().getId() == null) {
+                    || achPaymentInfo.getStripeBankAcct().getBankAcctToken() == null) {
                 PlaidAPIRequest plaidStripeAcctCreateRequest = buildPlaidAPIRequestForStripeAccountCreate(achPaymentInfo);
                 Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(plaidStripeAcctCreateRequest, userRecord);
 
                 if(stripeBankAccountResponse.isPresent() && !stripeBankAccountResponse.get().hasError()) {
-                    LOGGER.info("Successfully created and linked Stripe Bank Account with ID:=> {}", stripeBankAccountResponse.get().getStripeBankAcctToken());
-                    achPaymentInfo.updateStripeBankAcctID(stripeBankAccountResponse.get().getStripeBankAcctToken());
+                    LOGGER.info("Successfully created and linked Stripe Bank Account generated Stripe Token:=> {}", stripeBankAccountResponse.get().getStripeBankAcctToken());
+                    achPaymentInfo.updateStripeBankAcctToken(stripeBankAccountResponse.get().getStripeBankAcctToken());
                     iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
-                    return Optional.of(achPaymentInfo);
+                    return executionResult;
+                } else {
+                    LOGGER.warn("Plaid call to create Stripe Bank Account token returned no results, check Plaid invocation results.");
+                    executionResult.addExecutionError(ExecutionError.of("Failed to retrieve required Stripe BankAccount token from Plaid"));
                 }
+            } else {
+                LOGGER.warn("Failed to find the primary ACHPaymentInfo for user, cannot create and link a Stripe Bank account.  This means no Plaid Account has been linked.");
+                executionResult.addExecutionError(ExecutionError.of("Failed to retrieve required Stripe BankAccount token from Plaid"));
             }
         }
 
-        LOGGER.warn("Failed to find the primary ACHPaymentInfo for user, cannot create and link a Stripe Bank account.");
-        return Optional.empty();
+        return executionResult;
     }
 
     PlaidAPIRequest buildPlaidAPIRequestForAccessToken(String plaidPublicToken) {

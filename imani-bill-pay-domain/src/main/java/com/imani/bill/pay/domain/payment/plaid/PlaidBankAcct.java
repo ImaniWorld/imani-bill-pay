@@ -3,7 +3,6 @@ package com.imani.bill.pay.domain.payment.plaid;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.imani.bill.pay.domain.payment.Balance;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
@@ -44,8 +43,10 @@ public class PlaidBankAcct {
     @Column(name="PlaidAccessToken", nullable=false, length=300)
     public String plaidAccessToken;
 
+    // Transient object because this will be returned as part of balance check calls independently to Plaid and will
+    // be saved as part of linking to ACHPaymentInfo
     @Transient
-    private Balance balances;
+    private PlaidBankAcctBalance balances;
 
 
     public PlaidBankAcct() {
@@ -100,11 +101,11 @@ public class PlaidBankAcct {
         this.plaidAccessToken = plaidAccessToken;
     }
 
-    public Balance getBalances() {
+    public PlaidBankAcctBalance getBalances() {
         return balances;
     }
 
-    public void setBalances(Balance balances) {
+    public void setBalances(PlaidBankAcctBalance balances) {
         this.balances = balances;
     }
 
@@ -155,7 +156,7 @@ public class PlaidBankAcct {
             return this;
         }
 
-        public Builder balances(Balance balances) {
+        public Builder balances(PlaidBankAcctBalance balances) {
             plaidBankAcct.balances =  balances;
             return this;
         }

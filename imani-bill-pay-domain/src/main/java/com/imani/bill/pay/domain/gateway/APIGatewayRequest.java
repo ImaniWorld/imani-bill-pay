@@ -15,9 +15,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class APIGatewayRequest {
 
 
+    // User for which this request is being executed.
     protected UserRecord onBehalfOf;
 
+    // This is an optional field to track the user requesting this execution.
+    // IF its the same as the onBehalfOf then this should not be set.
     protected UserRecord executingUser;
+
 
     public APIGatewayRequest() {
 
@@ -43,6 +47,7 @@ public class APIGatewayRequest {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("onBehalfOf", onBehalfOf)
+                .append("executingUser", executingUser)
                 .toString();
     }
 }

@@ -1,36 +1,77 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.payment.plaid;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
+import javax.persistence.*;
+
 /**
- * Tracks Bank account balances using Plaid integration model.
+ * Tracks Bank account balances of linked Plaid Bank Account's for ACH payment purposes.
  *
  * @author manyce400
  */
+@Entity
+@Table(name="PlaidBankAcctBalance")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Balance {
+public class PlaidBankAcctBalance extends AuditableRecord {
 
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="ID", nullable=false)
+    private Long id;
+
+
+    // Tracks the available balance on the account
+    @Column(name="Available", nullable=true)
     private Double available;
 
+
+    // Tracks the current balance on the account
+    @Column(name="Current", nullable=true)
     private Double current;
 
+
+    // Tracks the limit of the account
+    @Column(name="AcctLimit", nullable=true)
     private Double limit;
 
+
+    // Tracks the currency of the account, we dont expect this to change during the lifetime of the account
+    @Column(name="CurrencyCode", nullable=true)
     @JsonProperty("iso_currency_code")
     private String currencyCode;
 
+
+    // This should be the same as the Currency Code but expanded.
+    @Column(name="UnOfficialCurrency", nullable=true)
     @JsonProperty("unofficial_currency_code")
     private String unOfficialCurrency;
 
 
-    public Balance() {
+    // Tracks the ACHPaymentInfo/Plaid Bank account that this balance belongs to.  This should never be null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACHPaymentInfoID")
+    private ACHPaymentInfo achPaymentInfo;
 
+
+    public PlaidBankAcctBalance() {
+
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Double getAvailable() {
@@ -73,6 +114,14 @@ public class Balance {
         this.unOfficialCurrency = unOfficialCurrency;
     }
 
+    public ACHPaymentInfo getAchPaymentInfo() {
+        return achPaymentInfo;
+    }
+
+    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+        this.achPaymentInfo = achPaymentInfo;
+    }
+
     public boolean hasAvailableBalanceForPayment(Double paymentAmount) {
         Assert.notNull(paymentAmount, "paymentAmount cannot be null");
         Assert.isTrue(paymentAmount.doubleValue() > 0, "paymentAmount cannot be 0");
@@ -82,6 +131,7 @@ public class Balance {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("id", id)
                 .append("available", available)
                 .append("current", current)
                 .append("limit", limit)
@@ -96,35 +146,41 @@ public class Balance {
 
     public static class Builder {
 
-        private Balance balance = new Balance();
+        private PlaidBankAcctBalance plaidBankAcctBalance = new PlaidBankAcctBalance();
 
         public Builder available(Double available) {
-            balance.available = available;
+            plaidBankAcctBalance.available = available;
             return this;
         }
 
         public Builder current(Double current) {
-            balance.current = current;
+            plaidBankAcctBalance.current = current;
             return this;
         }
 
         public Builder limit(Double limit) {
-            balance.limit = limit;
+            plaidBankAcctBalance.limit = limit;
             return this;
         }
 
         public Builder currencyCode(String currencyCode) {
-            balance.currencyCode = currencyCode;
+            plaidBankAcctBalance.currencyCode = currencyCode;
             return this;
         }
 
         public Builder unOfficialCurrency(String unOfficialCurrency) {
-            balance.unOfficialCurrency = unOfficialCurrency;
+            plaidBankAcctBalance.unOfficialCurrency = unOfficialCurrency;
             return this;
         }
 
-        public Balance build() {
-            return balance;
+        public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+            plaidBankAcctBalance.achPaymentInfo = achPaymentInfo;
+            return this;
+        }
+
+        public PlaidBankAcctBalance build() {
+            return plaidBankAcctBalance;
         }
     }
+
 }

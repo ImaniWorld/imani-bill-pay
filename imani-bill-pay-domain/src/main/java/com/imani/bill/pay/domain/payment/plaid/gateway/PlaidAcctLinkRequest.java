@@ -2,7 +2,7 @@ package com.imani.bill.pay.domain.payment.plaid.gateway;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.imani.bill.pay.domain.gateway.GenericAPIGatewayRequest;
+import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PlaidAcctLinkRequest extends GenericAPIGatewayRequest {
+public class PlaidAcctLinkRequest extends APIGatewayRequest {
 
 
     private String plaidPublicToken;
@@ -23,7 +23,6 @@ public class PlaidAcctLinkRequest extends GenericAPIGatewayRequest {
     }
 
     public PlaidAcctLinkRequest(UserRecord execUserRecord, String plaidPublicToken, String plaidAccountID) {
-        super(execUserRecord);
         this.plaidPublicToken = plaidPublicToken;
         this.plaidAccountID = plaidAccountID;
     }
@@ -51,4 +50,5 @@ public class PlaidAcctLinkRequest extends GenericAPIGatewayRequest {
                 .append("plaidAccountID", plaidAccountID)
                 .toString();
     }
+
 }

@@ -1,8 +1,11 @@
 package com.imani.bill.pay.service.payment.plaid;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.imani.bill.pay.domain.payment.plaid.PlaidAPIInvocationStatistic;
 import com.imani.bill.pay.domain.payment.plaid.repository.IPlaidAPIInvocationStatisticRepository;
+import com.imani.bill.pay.service.concurrency.AppConcurrencyConfigurator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -12,6 +15,10 @@ import org.springframework.util.Assert;
 @Service(PlaidAPIInvocationStatisticService.SPRING_BEAN)
 public class PlaidAPIInvocationStatisticService implements IPlaidAPIInvocationStatisticService {
 
+
+    @Autowired
+    @Qualifier(AppConcurrencyConfigurator.SERVICE_THREAD_POOL)
+    private ListeningExecutorService listeningExecutorService;
 
     @Autowired
     private IPlaidAPIInvocationStatisticRepository iPlaidAPIInvocationStatisticRepository;
@@ -24,8 +31,13 @@ public class PlaidAPIInvocationStatisticService implements IPlaidAPIInvocationSt
     @Override
     public void save(PlaidAPIInvocationStatistic plaidAPIInvocationStatistic) {
         Assert.notNull(plaidAPIInvocationStatistic, "PlaidAPIInvocationStatistic cannot be null");
-        LOGGER.info("Saving plaidAPIInvocationStatistic:=> {}", plaidAPIInvocationStatistic);
-        iPlaidAPIInvocationStatisticRepository.save(plaidAPIInvocationStatistic);
+
+        Runnable runnable = () -> {
+            LOGGER.info("Saving plaidAPIInvocationStatistic:=> {}", plaidAPIInvocationStatistic);
+            iPlaidAPIInvocationStatisticRepository.save(plaidAPIInvocationStatistic);
+        };
+
+        listeningExecutorService.submit(runnable);
     }
 
 }

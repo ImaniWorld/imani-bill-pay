@@ -1,9 +1,12 @@
 package com.imani.bill.pay.service.payment.stripe;
 
+import com.imani.bill.pay.domain.execution.ExecutionError;
+import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
 import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
+import com.imani.bill.pay.domain.payment.stripe.CustomerObjFieldsE;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
@@ -80,8 +83,8 @@ public class StripeCustomerService implements IStripeCustomerService {
 
         Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-        Map<String, Object> params = new HashMap<>();
-        params.put(EMAIL_CUSTOMER_PARAM, userRecord.getEmbeddedContactInfo().getEmail());
+        Map<String, Object> params = CustomerObjFieldsE.getCustomerCreateParams(userRecord);
+        LOGGER.info("Params to be used in creating customer:=> {}", params);
 
         try {
             Customer customer = Customer.create(params);
@@ -139,8 +142,9 @@ public class StripeCustomerService implements IStripeCustomerService {
         return false;
     }
 
+    @Transactional
     @Override
-    public boolean updatePrimaryStripeCustomerBankAcct(UserRecord userRecord) {
+    public ExecutionResult updatePrimaryStripeCustomerBankAcct(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
 
         LOGGER.info("Attempting to update Stripe Customer bank account for user:=> {}");
@@ -148,6 +152,8 @@ public class StripeCustomerService implements IStripeCustomerService {
         // Fetch UserRecord from persistent store
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
         Optional<Customer> stripeCustomer = retrieveStripeCustomer(userRecord);
+
+        ExecutionResult executionResult = new ExecutionResult();
 
         if(stripeCustomer.isPresent()) {
             LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
@@ -157,23 +163,30 @@ public class StripeCustomerService implements IStripeCustomerService {
 
             if (achPaymentInfo != null) {
                 Map<String, Object> params = new HashMap<>();
-                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getId());
+                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getBankAcctToken());
                 try {
                     BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
                     iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
                     iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
-                    return true;
                 } catch (StripeException e) {
                     LOGGER.warn("Failed to update Stripe Bank account details for customer", e);
+                    executionResult.addExecutionError(ExecutionError.of("Failed to create and link Stripe Bank account to the Customer object"));
                 }
+            } else {
+                LOGGER.warn("No existing ACHPaymentInfo could be found for this user, abandoning Stripe bank account update.");
+                executionResult.addExecutionError(ExecutionError.of("Cannot create or find an existing Stripe Customer"));
             }
+        } else {
+            LOGGER.warn("Failed to create or find an existing linked Stripe Customer object, abandoning adding Stripe Bank information.");
+            executionResult.addExecutionError(ExecutionError.of("No existing ACHPaymentInfo found for user."));
         }
 
-        return false;
+        return executionResult;
     }
 
+    @Transactional
     @Override
-    public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord) {
+    public ExecutionResult createPlaidStripeCustomerBankAcct(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
         //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
@@ -182,6 +195,7 @@ public class StripeCustomerService implements IStripeCustomerService {
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
 
         Optional<Customer> stripeCustomer;
+        ExecutionResult executionResult = new ExecutionResult();
 
         if (userRecord.getStripeCustomerID() == null) {
             stripeCustomer = createStripeCustomer(userRecord);
@@ -197,20 +211,23 @@ public class StripeCustomerService implements IStripeCustomerService {
 
             if (achPaymentInfo != null) {
                 Map<String, Object> params = new HashMap<>();
-                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getId());
+                params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getBankAcctToken());
                 try {
                     BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
                     iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
                     iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
-                    return Optional.of(achPaymentInfo);
                 } catch (StripeException e) {
                     LOGGER.warn("Failed to update Stripe Bank account details for customer", e);
+                    executionResult.addExecutionError(ExecutionError.of("Failed to create and link Stripe Bank account to the Customer object"));
                 }
             }
+        } else {
+            LOGGER.warn("Failed to create or find an existing linked Stripe Customer object, abandoning adding Stripe Bank information.");
+            executionResult.addExecutionError(ExecutionError.of("Cannot create or find an existing Stripe Customer"));
         }
 
         LOGGER.info("Stripe Customer or ACHPaymentInfo could not be found");
-        return Optional.empty();
+        return executionResult;
     }
 
 

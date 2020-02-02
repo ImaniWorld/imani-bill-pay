@@ -2,6 +2,7 @@ package com.imani.bill.pay.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.imani.bill.pay.domain.payment.*;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
 import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -46,7 +47,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
 
 
     @Override
-    public Optional<Balance> getACHPaymentInfoBalances(UserRecord userRecord) {
+    public Optional<PlaidBankAcctBalance> getACHPaymentInfoBalances(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         LOGGER.info("Finding ACHPaymentInfo for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
         ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
@@ -54,7 +55,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
     }
 
     @Override
-    public Optional<Balance> getACHPaymentInfoBalances(ACHPaymentInfo achPaymentInfo) {
+    public Optional<PlaidBankAcctBalance> getACHPaymentInfoBalances(ACHPaymentInfo achPaymentInfo) {
         Assert.notNull(achPaymentInfo, "ACHPaymentInfo cannot be null");
 
         LOGGER.info("Executing Plaid request to check balance for acctID:=>  {}", achPaymentInfo.getPlaidBankAcct().getAccountID());
@@ -115,7 +116,7 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
 
         LOGGER.info("Executing Plaid request to check available balance on acctID:=>  {} for payment: {}", achPaymentInfo.getPlaidBankAcct().getAccountID(), paymentAmnt);
 
-        Optional<Balance> balance = getACHPaymentInfoBalances(achPaymentInfo);
+        Optional<PlaidBankAcctBalance> balance = getACHPaymentInfoBalances(achPaymentInfo);
         if(balance.isPresent()) {
             LOGGER.info("Current available balance on account is:=> {}", balance.get().getAvailable());
             return balance.get().getAvailable().doubleValue() >= paymentAmnt;

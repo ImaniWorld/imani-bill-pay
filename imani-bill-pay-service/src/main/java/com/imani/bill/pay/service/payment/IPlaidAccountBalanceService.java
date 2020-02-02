@@ -1,7 +1,7 @@
 package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import com.imani.bill.pay.domain.payment.Balance;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.user.UserRecord;
 
 import java.util.Optional;
@@ -11,9 +11,9 @@ import java.util.Optional;
  */
 public interface IPlaidAccountBalanceService {
 
-    public Optional<Balance> getACHPaymentInfoBalances(UserRecord userRecord);
+    public Optional<PlaidBankAcctBalance> getACHPaymentInfoBalances(UserRecord userRecord);
 
-    public Optional<Balance> getACHPaymentInfoBalances(ACHPaymentInfo achPaymentInfo);
+    public Optional<PlaidBankAcctBalance> getACHPaymentInfoBalances(ACHPaymentInfo achPaymentInfo);
 
     public boolean availableBalanceCoversPayment(UserRecord userRecord, Double paymentAmnt);
 

@@ -3,6 +3,7 @@ package com.imani.bill.pay.domain.execution;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.Assert;
 
 /**
  * ValidationAdvice is a direct result of validating any request or processes as part of Imani BillPay platform and is also directely
@@ -36,6 +37,7 @@ public class ValidationAdvice {
 
 
     public static ValidationAdvice newInstance(String advice) {
+        Assert.notNull(advice, "Advice cannot be null");
         return new ValidationAdvice(advice);
     }
 

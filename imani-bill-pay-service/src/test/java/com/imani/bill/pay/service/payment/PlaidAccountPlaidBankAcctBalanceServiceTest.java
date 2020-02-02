@@ -12,7 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * @author manyce400
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PlaidAccountBalanceServiceTest {
+public class PlaidAccountPlaidBankAcctBalanceServiceTest {
 
 
     @Mock

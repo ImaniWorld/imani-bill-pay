@@ -61,7 +61,6 @@ public class ContactInfoValidationAdviceService implements IUserRegistrationVali
     }
 
     void addPreferredContactTypeAdvice(EmbeddedContactInfo embeddedContactInfo, Set<ValidationAdvice> validationAdvices) {
-        // TODO add phone format validation to make sure it matches US/different country formats later
         if(embeddedContactInfo.getPreferredContactType() == null) {
             validationAdvices.add(ValidationAdvice.newInstance("Preffered contact type information is missing"));
         }

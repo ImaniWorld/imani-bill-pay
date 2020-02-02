@@ -2,6 +2,8 @@ package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
+import com.imani.bill.pay.domain.payment.plaid.repository.IPlaidBankAcctBalanceRepository;
 import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.payment.stripe.StripeAcctHolderTypeE;
 import com.imani.bill.pay.domain.payment.stripe.StripeBankAcct;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 /**
@@ -23,6 +26,9 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
 
     @Autowired
     private IACHPaymentInfoRepository iachPaymentInfoRepository;
+
+    @Autowired
+    private IPlaidBankAcctBalanceRepository iPlaidBankAcctBalanceRepository;
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.payment.ACHPaymentInfoService";
 
@@ -71,6 +77,7 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
                     .acctStatus(StripeBankAcctStatusE.getByStatus(bankAccount.getStatus()))
                     .build();
         } else {
+            stripeBankAcct.setId(bankAccount.getId());
             stripeBankAcct.setObject(bankAccount.getObject());
             stripeBankAcct.setAccountHolderName(bankAccount.getAccountHolderName());
             stripeBankAcct.setAccountHolderType(stripeAcctHolderTypeE);
@@ -85,14 +92,24 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
         achPaymentInfo.setStripeBankAcct(stripeBankAcct);
     }
 
+    @Transactional
     @Override
-    public void updatePlaidBankAcct(PlaidBankAcct plaidBankAcct, ACHPaymentInfo achPaymentInfo) {
+    public void updateAndSavePlaidBankAcct(PlaidBankAcct plaidBankAcct, ACHPaymentInfo achPaymentInfo) {
         Assert.notNull(plaidBankAcct, "stripeBankAccount cannot be null");
         Assert.notNull(achPaymentInfo, "achPaymentInfo cannot be null");
 
-        LOGGER.debug("Updating Plaid BankAcct details on ACHPaymentInfo with ID:=> {}", achPaymentInfo.getId());
+        LOGGER.info("Updating Plaid BankAcct details on ACHPaymentInfo with ID:=> {}", achPaymentInfo.getId());
 
         achPaymentInfo.setPlaidBankAcct(plaidBankAcct);
+        iachPaymentInfoRepository.save(achPaymentInfo);
+
+        // Update Balance information to link to ACHPaymentInfo if we have it
+        if(plaidBankAcct.getBalances() != null) {
+            LOGGER.info("Plaid bank account balance has been created for account, updating ACHPaymentInfo for persistence");
+            PlaidBankAcctBalance plaidBankAcctBalance = plaidBankAcct.getBalances();
+            plaidBankAcctBalance.setAchPaymentInfo(achPaymentInfo);
+            iPlaidBankAcctBalanceRepository.save(plaidBankAcctBalance);
+        }
     }
 
     @Override

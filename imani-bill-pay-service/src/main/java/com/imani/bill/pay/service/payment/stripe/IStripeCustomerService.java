@@ -1,6 +1,6 @@
 package com.imani.bill.pay.service.payment.stripe;
 
-import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.stripe.model.Customer;
 
@@ -21,8 +21,8 @@ public interface IStripeCustomerService {
 
     public boolean deleteStripeCustomer(UserRecord userRecord);
 
-    public boolean updatePrimaryStripeCustomerBankAcct(UserRecord userRecord);
+    public ExecutionResult updatePrimaryStripeCustomerBankAcct(UserRecord userRecord);
 
-    public Optional<ACHPaymentInfo> createPlaidStripeCustomerBankAcct(UserRecord userRecord);
+    public ExecutionResult createPlaidStripeCustomerBankAcct(UserRecord userRecord);
 
 }
