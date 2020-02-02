@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Domain object encapsulating the results of executing any requests, or processes as part of Imani BillPay platform.
+ *
  * @author manyce400
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

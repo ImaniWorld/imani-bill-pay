@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
+ * ValidationAdvice is a direct result of validating any request or processes as part of Imani BillPay platform and is also directely
+ * tied to an ExecutionRequest.
+ *
+ * @see ExecutionResult
  * @author manyce400
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
