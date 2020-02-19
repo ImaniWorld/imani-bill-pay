@@ -115,7 +115,7 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
         // Fetch user from DB for consistency and find primary ACHPayment Information
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
-        ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
+        ACHPaymentInfo achPaymentInfo = null; //iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
 
         if(achPaymentInfo != null) {
             // Verify that a Stripe Bank AcctID hasn't already been created and create.

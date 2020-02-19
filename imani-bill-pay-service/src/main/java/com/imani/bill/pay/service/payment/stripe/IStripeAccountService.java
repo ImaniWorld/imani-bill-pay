@@ -1,11 +1,8 @@
 package com.imani.bill.pay.service.payment.stripe;
 
-import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
+import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.property.PropertyOwner;
-
-import java.util.Optional;
 
 /**
  * @author manyce400
@@ -13,9 +10,8 @@ import java.util.Optional;
 public interface IStripeAccountService {
 
 
-    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyOwner propertyOwner, PlaidBankAcct plaidBankAcct);
+    public ExecutionResult createCustomStripeAccount(PropertyOwner propertyOwner);
 
-    public Optional<ACHPaymentInfo> createCustomStripeAccount(PropertyManager propertyManager, PlaidBankAcct plaidBankAcct);
+    public ExecutionResult createCustomStripeAccount(PropertyManager propertyManager);
 
-    public boolean deleteCustomStripeAccount(ACHPaymentInfo achPaymentInfo);
 }

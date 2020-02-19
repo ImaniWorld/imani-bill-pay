@@ -2,6 +2,7 @@ package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
+import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.stripe.model.BankAccount;
 
@@ -11,7 +12,9 @@ import com.stripe.model.BankAccount;
 public interface IACHPaymentInfoService {
 
 
-    public ACHPaymentInfo findUserPrimaryPamentInfo(UserRecord userRecord);
+    public ACHPaymentInfo findPrimaryPamentInfo(UserRecord userRecord);
+
+    public ACHPaymentInfo findPrimaryPamentInfo(PropertyManager propertyManager);
 
     public ACHPaymentInfo buildPrimaryACHPaymentInfo(UserRecord userRecord);
 

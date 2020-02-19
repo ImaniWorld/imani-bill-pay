@@ -2,11 +2,10 @@ package com.imani.bill.pay.domain.property;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
-import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.UserAuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -20,7 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name="PropertyManager")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PropertyManager extends AuditableRecord {
+public class PropertyManager extends UserAuditableRecord {
 
 
     @Id
@@ -29,12 +28,17 @@ public class PropertyManager extends AuditableRecord {
     private Long id;
 
 
-    @Column(name="name", nullable=false, length = 50)
+    @Column(name="Name", nullable=false, length = 50)
     private String name;
 
 
     @Embedded
     private EmbeddedContactInfo embeddedContactInfo;
+
+
+    // Represents Stripe Account ID for Institutions - PropertyManager, PropertyOwner etc
+    @Column(name="StripeAcctID", length=100)
+    public String stripeAcctID;
 
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -81,6 +85,14 @@ public class PropertyManager extends AuditableRecord {
         this.embeddedContactInfo = embeddedContactInfo;
     }
 
+    public String getStripeAcctID() {
+        return stripeAcctID;
+    }
+
+    public void setStripeAcctID(String stripeAcctID) {
+        this.stripeAcctID = stripeAcctID;
+    }
+
     public ACHPaymentInfo getAchPaymentInfo() {
         return achPaymentInfo;
     }
@@ -107,41 +119,18 @@ public class PropertyManager extends AuditableRecord {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PropertyManager that = (PropertyManager) o;
-
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .append(name, that.name)
-                .append(embeddedContactInfo, that.embeddedContactInfo)
-                .append(achPaymentInfo, that.achPaymentInfo)
-                .append(businessAddressInfo, that.businessAddressInfo)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(name)
-                .append(embeddedContactInfo)
-                .append(achPaymentInfo)
-                .append(businessAddressInfo)
-                .toHashCode();
-    }
-
-    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("name", name)
                 .append("embeddedContactInfo", embeddedContactInfo)
+                .append("stripeAcctID", stripeAcctID)
                 .append("achPaymentInfo", achPaymentInfo)
                 .append("businessAddressInfo", businessAddressInfo)
+                .append("portfolio", portfolio)
+                .append("createdBy", createdBy)
+                .append("createDate", createDate)
+                .append("modifyDate", modifyDate)
                 .toString();
     }
 
@@ -163,6 +152,11 @@ public class PropertyManager extends AuditableRecord {
             return this;
         }
 
+        public Builder stripeAcctID(String stripeAcctID) {
+            propertyManager.stripeAcctID = stripeAcctID;
+            return this;
+        }
+
         public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
             propertyManager.achPaymentInfo = achPaymentInfo;
             return this;
@@ -170,6 +164,11 @@ public class PropertyManager extends AuditableRecord {
 
         public Builder businessAddressInfo(Property businessAddressInfo) {
             propertyManager.businessAddressInfo = businessAddressInfo;
+            return this;
+        }
+
+        public Builder createdBy(UserRecord createdBy) {
+            propertyManager.createdBy = createdBy;
             return this;
         }
 

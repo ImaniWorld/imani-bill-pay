@@ -103,17 +103,18 @@ create table PropertyOwner (
 
 create table PropertyManager (
        ID bigint not null auto_increment,
-       name varchar(50) not null,
-        Email varchar(100),
-        MobilePhone bigint not null,
-        Phone bigint,
-        PreferredContactType varchar(10),
-        CreateDate datetime not null,
-        ModifyDate datetime,
-        ACHPaymentInfoID bigint,
-        PropertyInfoID bigint,
-        primary key (ID)
-    );
+       Name varchar(50) not null,
+       Email varchar(100),
+       MobilePhone bigint not null,
+       Phone bigint,
+       PreferredContactType varchar(10),
+       StripeAcctID varchar(100),
+       CreateDate datetime not null,
+       ModifyDate datetime,
+       ACHPaymentInfoID bigint,
+       PropertyInfoID bigint,
+       primary key (ID)
+    ) engine=MyISAM;
 
 
 create table MonthlyRentalBill (

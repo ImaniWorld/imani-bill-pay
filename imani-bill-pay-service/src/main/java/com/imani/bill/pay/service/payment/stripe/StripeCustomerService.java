@@ -3,18 +3,12 @@ package com.imani.bill.pay.service.payment.stripe;
 import com.imani.bill.pay.domain.execution.ExecutionError;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
 import com.imani.bill.pay.domain.payment.stripe.CustomerObjFieldsE;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
 import com.imani.bill.pay.service.payment.IACHPaymentInfoService;
-import com.imani.bill.pay.service.payment.plaid.IPlaidAPIService;
-import com.imani.bill.pay.service.payment.plaid.IPlaidAccountMasterService;
-import com.imani.bill.pay.service.payment.plaid.PlaidAPIService;
-import com.imani.bill.pay.service.payment.plaid.PlaidAccountMasterService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.BankAccount;
@@ -41,25 +35,12 @@ public class StripeCustomerService implements IStripeCustomerService {
     private StripeAPIConfig stripeAPIConfig;
 
     @Autowired
-    private PlaidAPIConfig plaidAPIConfig;
-
-    @Autowired
     private IUserRecordRepository iUserRecordRepository;
-
-    @Autowired
-    @Qualifier(PlaidAPIService.SPRING_BEAN)
-    private IPlaidAPIService iPlaidAPIService;
 
     @Autowired
     @Qualifier(ACHPaymentInfoService.SPRING_BEAN)
     private IACHPaymentInfoService iachPaymentInfoService;
 
-    @Autowired
-    @Qualifier(PlaidAccountMasterService.SPRING_BEAN)
-    private IPlaidAccountMasterService iPlaidAccountMasterService;
-
-
-    private static final String EMAIL_CUSTOMER_PARAM = "email";
 
     private static final String BANK_ACCT_SOURCE_CUSTOMER_PARAM = "source";
 
@@ -159,7 +140,7 @@ public class StripeCustomerService implements IStripeCustomerService {
             LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
             Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
+            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
             if (achPaymentInfo != null) {
                 Map<String, Object> params = new HashMap<>();
@@ -207,7 +188,7 @@ public class StripeCustomerService implements IStripeCustomerService {
             LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
             Stripe.apiKey = stripeAPIConfig.getApiKey();
 
-            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
+            ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
             if (achPaymentInfo != null) {
                 Map<String, Object> params = new HashMap<>();
@@ -230,15 +211,6 @@ public class StripeCustomerService implements IStripeCustomerService {
         return executionResult;
     }
 
-
-    PlaidAPIRequest buildPlaidAPIRequestForItemBankAccounts(String accessToken) {
-        PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()
-                .secret(plaidAPIConfig.getSecret())
-                .clientID(plaidAPIConfig.getClientID())
-                .accessToken(accessToken)
-                .build();
-        return plaidAPIRequest;
-    }
 
     @PostConstruct
     void postConstruct() {

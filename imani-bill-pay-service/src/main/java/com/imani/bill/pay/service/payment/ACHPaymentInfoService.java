@@ -8,6 +8,7 @@ import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.payment.stripe.StripeAcctHolderTypeE;
 import com.imani.bill.pay.domain.payment.stripe.StripeBankAcct;
 import com.imani.bill.pay.domain.payment.stripe.StripeBankAcctStatusE;
+import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.stripe.model.BankAccount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
 
 
     @Override
-    public ACHPaymentInfo findUserPrimaryPamentInfo(UserRecord userRecord) {
+    public ACHPaymentInfo findPrimaryPamentInfo(UserRecord userRecord) {
         Assert.notNull(userRecord, "userRecord cannot be null");
         LOGGER.info("Finding primary ACHPaymentInfo for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
         return iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
@@ -50,6 +51,13 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
                 .isPrimary(true)
                 .build();
         return achPaymentInfo;
+    }
+
+    @Override
+    public ACHPaymentInfo findPrimaryPamentInfo(PropertyManager propertyManager) {
+        Assert.notNull(propertyManager, "PropertyManager cannot be null");
+        LOGGER.info("Finding primary ACHPaymentInfo for propertyManager:=> {}", propertyManager.getName());
+        return null;
     }
 
     @Override
