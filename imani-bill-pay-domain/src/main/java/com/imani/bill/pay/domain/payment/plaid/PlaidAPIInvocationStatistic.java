@@ -2,6 +2,7 @@ package com.imani.bill.pay.domain.payment.plaid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
@@ -39,6 +40,12 @@ public class PlaidAPIInvocationStatistic {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserRecordID", nullable = true)
     private UserRecord userRecord;
+
+
+    // PropertyManager that the API Invocation was made on behalf of
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PropertyManagerID", nullable = true)
+    private PropertyManager propertyManager;
 
 
     // Tracks the ACHPaymentInfo that Plaid API call was made against
@@ -104,6 +111,14 @@ public class PlaidAPIInvocationStatistic {
         this.userRecord = userRecord;
     }
 
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
+    }
+
+    public void setPropertyManager(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
+    }
+
     public ACHPaymentInfo getAchPaymentInfo() {
         return achPaymentInfo;
     }
@@ -159,6 +174,7 @@ public class PlaidAPIInvocationStatistic {
                 .append("plaidProductE", plaidProductE)
                 .append("plaidAPIInvocationE", plaidAPIInvocationE)
                 .append("userRecord", userRecord)
+                .append("propertyManager", propertyManager)
                 .append("achPaymentInfo", achPaymentInfo)
                 .append("plaidAPIRequest", plaidAPIRequest)
                 .append("plaidAPIResponse", plaidAPIResponse)
@@ -188,6 +204,11 @@ public class PlaidAPIInvocationStatistic {
 
         public Builder userRecord(UserRecord userRecord) {
             plaidAPIInvocationStatistic.userRecord = userRecord;
+            return this;
+        }
+
+        public Builder propertyManager(PropertyManager propertyManager) {
+            plaidAPIInvocationStatistic.propertyManager = propertyManager;
             return this;
         }
 

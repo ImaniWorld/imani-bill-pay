@@ -1,6 +1,7 @@
 package com.imani.bill.pay.service.payment;
 
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.payment.plaid.repository.IPlaidBankAcctBalanceRepository;
@@ -43,15 +44,23 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
         return iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
     }
 
+
     @Override
-    public ACHPaymentInfo buildPrimaryACHPaymentInfo(UserRecord userRecord) {
-        Assert.notNull(userRecord, "userRecord cannot be null");
+    public ACHPaymentInfo buildPrimaryACHPaymentInfo(IHasPaymentInfo iHasPaymentInfo) {
+        Assert.notNull(iHasPaymentInfo, "IHasPaymentInfo cannot be null");
         ACHPaymentInfo achPaymentInfo = ACHPaymentInfo.builder()
-                .userRecord(userRecord)
                 .isPrimary(true)
                 .build();
+
+        if(iHasPaymentInfo instanceof UserRecord) {
+            achPaymentInfo.setUserRecord((UserRecord) iHasPaymentInfo);
+        } else if(iHasPaymentInfo instanceof PropertyManager) {
+            achPaymentInfo.setPropertyManager((PropertyManager) iHasPaymentInfo);
+        }
+
         return achPaymentInfo;
     }
+
 
     @Override
     public ACHPaymentInfo findPrimaryPamentInfo(PropertyManager propertyManager) {

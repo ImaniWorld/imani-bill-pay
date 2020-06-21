@@ -4,12 +4,16 @@ import com.imani.bill.pay.domain.execution.ExecutionError;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
 import com.imani.bill.pay.domain.payment.plaid.*;
+import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
 import com.imani.bill.pay.service.payment.IACHPaymentInfoService;
+import com.imani.bill.pay.service.property.manager.IPropertyManagerService;
+import com.imani.bill.pay.service.property.manager.PropertyManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,7 @@ import java.util.Optional;
 public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
 
+
     @Autowired
     private PlaidAPIConfig plaidAPIConfig;
 
@@ -35,8 +40,13 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
     @Qualifier(PlaidAPIService.SPRING_BEAN)
     private IPlaidAPIService iPlaidAPIService;
 
+    // TODO always inject service beans
     @Autowired
     private IUserRecordRepository iUserRecordRepository;
+
+    @Autowired
+    @Qualifier(PropertyManagerService.SPRING_BEAN)
+    private IPropertyManagerService iPropertyManagerService;
 
     @Autowired
     @Qualifier(ACHPaymentInfoService.SPRING_BEAN)
@@ -62,43 +72,26 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("Required PlaidPublicToken was not provided"));
         }
 
-        // Load up actual user from DB.
+        // Load up actual UserRecord from DB and complete the link operation
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+        completeStripeAcctLink(plaidPublicToken, userRecord, executionResult);
+        return executionResult;
+    }
 
-        // 1: In order to access Plaid API's for this account, we will first need to request an access token which should be stored.
-        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, userRecord);
-        if(accessTokenResponse.isPresent() && !accessTokenResponse.get().hasError()) {
-            LOGGER.info("Access token for account has been succesfully retrieved:=> {}", accessTokenResponse.get().getAccessToken());
+    @Transactional
+    @Override
+    public ExecutionResult linkPlaidBankAcct(String plaidPublicToken, PropertyManager propertyManager) {
+        Assert.notNull(plaidPublicToken, "Plaid Public Token cannot be null");
+        Assert.notNull(propertyManager, "PropertyManager cannot be null");
 
-            // 2: Using access token we can now request all the details for this Plaid linked account
-            PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(accessTokenResponse.get().getAccessToken());
-            Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest, userRecord);
-
-            if(plaidItemAccountsResponse.isPresent() && !plaidItemAccountsResponse.get().hasError()) {
-                LOGGER.info("Successfully retrieved Plaid Account details");
-                System.out.println("plaidItemAccountsResponse.get().getPlaidItemInfo() = " + plaidItemAccountsResponse.get().getPlaidItemInfo());
-
-                // Get all accounts found internally
-                List<PlaidBankAcct> accounts = plaidItemAccountsResponse.get().getAccounts();
-                System.out.println("Total Size of accounts.size() = " + accounts.size());
-
-                // Get the first account and display details
-                PlaidBankAcct first = accounts.get(0);
-                System.out.println("first = " + first);
-
-                if (first != null) {
-                    first.setPlaidAccessToken(accessTokenResponse.get().getAccessToken());
-                    LOGGER.info("Linking Plaid Account completed, saving ACHPaymentInfo....");
-                    ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(userRecord);
-                    iachPaymentInfoService.updateAndSavePlaidBankAcct(first, achPaymentInfo);
-                }
-            }
-        } else {
-            LOGGER.warn("Required Plaid access token could not be retrieved, abandoning link operation.");
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to verify and link provided Bank account"));
-        }
+        LOGGER.info("Attempting to create Imani PlaidBankAcct for linked plaidPublicToken:=> {} for propertyManager:=> {}", plaidPublicToken, propertyManager.getName());
 
 
+        ExecutionResult executionResult = new ExecutionResult();
+
+        // Load up actual PropertyManager from DB and complete the link operation
+        propertyManager = iPropertyManagerService.findByEmail(propertyManager.getEmbeddedContactInfo().getEmail());
+        completeStripeAcctLink(plaidPublicToken, propertyManager, executionResult);
         return executionResult;
     }
 
@@ -142,14 +135,38 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
         return executionResult;
     }
 
-    PlaidAPIRequest buildPlaidAPIRequestForAccessToken(String plaidPublicToken) {
-        PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()
-                .secret(plaidAPIConfig.getSecret())
-                .clientID(plaidAPIConfig.getClientID())
-                .publicToken(plaidPublicToken)
-                .build();
-        return plaidAPIRequest;
+
+    void completeStripeAcctLink(String plaidPublicToken, IHasPaymentInfo iHasPaymentInfo, ExecutionResult executionResult) {
+        // Step 1: In order to access Plaid API's for this account, we will first need to request an access token which should be stored with ACHPaymentInfo
+        Optional<PlaidAccessTokenResponse> accessTokenResponse = iPlaidAPIService.exchangePublicTokenForAccess(plaidPublicToken, iHasPaymentInfo);
+
+        if(accessTokenResponse.isPresent() && !accessTokenResponse.get().hasError()) {
+            LOGGER.info("Plaid Secure access token for account has been successfully retrieved, attempting to retrieve account details...");
+
+            // 2: Using access token we can now request all the details for this Plaid linked account
+            PlaidAPIRequest plaidAPIRequest = buildPlaidAPIRequestForItemBankAccounts(accessTokenResponse.get().getAccessToken());
+            Optional<PlaidItemAccountsResponse> plaidItemAccountsResponse = iPlaidAPIService.getPlaidItemAccounts(plaidAPIRequest, iHasPaymentInfo);
+
+            if(plaidItemAccountsResponse.isPresent() && !plaidItemAccountsResponse.get().hasError()) {
+                LOGGER.info("Successfully retrieved Plaid Account details");
+
+                // By default our Plaid Link integration should allow the selection of only one account so safe to get first.
+                List<PlaidBankAcct> accounts = plaidItemAccountsResponse.get().getAccounts();
+                PlaidBankAcct selectedPlaidBankAcct = accounts.get(0);
+
+                if (selectedPlaidBankAcct != null) {
+                    selectedPlaidBankAcct.setPlaidAccessToken(accessTokenResponse.get().getAccessToken());
+                    LOGGER.info("Linking Plaid Account completed, saving ACHPaymentInfo....");
+                    ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.buildPrimaryACHPaymentInfo(iHasPaymentInfo);
+                    iachPaymentInfoService.updateAndSavePlaidBankAcct(selectedPlaidBankAcct, achPaymentInfo);
+                }
+            }
+        } else {
+            LOGGER.warn("Required Plaid access token could not be retrieved, abandoning link operation.");
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to verify and link provided Bank account"));
+        }
     }
+
 
     PlaidAPIRequest buildPlaidAPIRequestForStripeAccountCreate(ACHPaymentInfo achPaymentInfo) {
         PlaidAPIRequest plaidAPIRequest = PlaidAPIRequest.builder()

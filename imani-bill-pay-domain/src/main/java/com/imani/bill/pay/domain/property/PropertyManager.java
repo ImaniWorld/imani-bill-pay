@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.UserAuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Entity
 @Table(name="PropertyManager")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PropertyManager extends UserAuditableRecord {
+public class PropertyManager extends UserAuditableRecord implements IHasPaymentInfo {
 
 
     @Id

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
@@ -21,7 +23,7 @@ import javax.persistence.*;
 @Entity
 @Table(name="UserRecord")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserRecord extends AuditableRecord {
+public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
 
 
     @Id
@@ -43,11 +45,6 @@ public class UserRecord extends AuditableRecord {
     //@JsonIgnore
     @Column(name="Password", nullable=false, length = 200)
     private String password;
-
-
-    // Represents Stripe Account ID for Institutions - PropertyManager, PropertyOwner etc
-    @Column(name="StripeAcctID", nullable=false, length=100)
-    public String stripeAcctID;
 
 
     // Represents a Stripe Customer ID if this entry is for an End-User Customer(UserRecord)
@@ -103,15 +100,21 @@ public class UserRecord extends AuditableRecord {
     // Track and update the last time this user logged out
     // For security reasons, this field will not be returned in JSON of this object.
     @JsonIgnore
-    @Column(name = "LastLogoutDate", nullable = true)
+    @Column(name = "LastLogoutDate")
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime lastLogoutDate;
 
 
     // Populated Only IF this user is a PropertyManager user.  This will identify the PropertyManager that the user can execute transactions on behalf of.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PropertyManagerID", nullable = true)
+    @JoinColumn(name = "PropertyManagerID")
     private PropertyManager propertyManager;
+
+
+    // Populated if this user has successfully setup a method of payment
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ACHPaymentInfoID")
+    private ACHPaymentInfo achPaymentInfo;
 
 
     public UserRecord() {
@@ -164,14 +167,6 @@ public class UserRecord extends AuditableRecord {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getStripeAcctID() {
-        return stripeAcctID;
-    }
-
-    public void setStripeAcctID(String stripeAcctID) {
-        this.stripeAcctID = stripeAcctID;
     }
 
     public String getStripeCustomerID() {
@@ -246,6 +241,21 @@ public class UserRecord extends AuditableRecord {
         this.lastLogoutDate = lastLogoutDate;
     }
 
+    public PropertyManager getPropertyManager() {
+        return propertyManager;
+    }
+
+    public void setPropertyManager(PropertyManager propertyManager) {
+        this.propertyManager = propertyManager;
+    }
+
+    public ACHPaymentInfo getAchPaymentInfo() {
+        return achPaymentInfo;
+    }
+
+    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+        this.achPaymentInfo = achPaymentInfo;
+    }
 
     public void updateSafeFieldsWherePresent(UserRecord userRecordToCopy) {
         Assert.notNull(userRecordToCopy, "userRecordToCopy cannot be null");
@@ -272,7 +282,6 @@ public class UserRecord extends AuditableRecord {
                 .append("lastName", lastName)
                 .append("embeddedContactInfo", embeddedContactInfo)
                 .append("password", password)
-                .append("stripeAcctID", stripeAcctID)
                 .append("stripeCustomerID", stripeCustomerID)
                 .append("userRecordTypeE", userRecordTypeE)
                 .append("unsuccessfulLoginAttempts", unsuccessfulLoginAttempts)
@@ -283,13 +292,10 @@ public class UserRecord extends AuditableRecord {
                 .append("lastLoginDate", lastLoginDate)
                 .append("lastLogoutDate", lastLogoutDate)
                 .append("propertyManager", propertyManager)
+                .append("achPaymentInfo", achPaymentInfo)
                 .toString();
     }
 
-//    public static void getAPISafeVersion(UserRecord userRecord) {
-//        Assert.notNull(userRecord, "UserRecord cannot be null");
-//        userRecord.setPassword(null);
-//    }
 
     public static Builder builder() {
         return new Builder();
@@ -316,11 +322,6 @@ public class UserRecord extends AuditableRecord {
 
         public Builder password(String password) {
             userRecord.password = password;
-            return this;
-        }
-
-        public Builder stripeAcctID(String stripeAcctID) {
-            userRecord.stripeAcctID = stripeAcctID;
             return this;
         }
 
@@ -371,6 +372,11 @@ public class UserRecord extends AuditableRecord {
 
         public Builder propertyManager(PropertyManager propertyManager) {
             userRecord.propertyManager = propertyManager;
+            return this;
+        }
+
+        public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
+            userRecord.achPaymentInfo = achPaymentInfo;
             return this;
         }
 

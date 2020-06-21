@@ -3,13 +3,10 @@ package com.imani.bill.pay.service.payment.stripe;
 import com.imani.bill.pay.domain.execution.ExecutionError;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
-import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
-import com.imani.bill.pay.domain.payment.stripe.CustomerObjFieldsE;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
 import com.imani.bill.pay.service.payment.IACHPaymentInfoService;
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.BankAccount;
 import com.stripe.model.Customer;
@@ -17,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +29,8 @@ public class StripeCustomerService implements IStripeCustomerService {
 
 
     @Autowired
-    private StripeAPIConfig stripeAPIConfig;
+    @Qualifier(StripeCustomerAPIFacade.SPRING_BEAN)
+    private IStripeCustomerAPIFacade iStripeCustomerAPIFacade;
 
     @Autowired
     private IUserRecordRepository iUserRecordRepository;
@@ -49,79 +47,6 @@ public class StripeCustomerService implements IStripeCustomerService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(StripeCustomerService.class);
 
-    /**
-     * Create and return a Stripe Customer
-     * @param userRecord
-     * @return
-     */
-    @Override
-    @Transactional
-    public Optional<Customer> createStripeCustomer(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
-        Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
-        LOGGER.info("Creating Stripe Customer object reference for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-
-        Stripe.apiKey = stripeAPIConfig.getApiKey();
-
-        Map<String, Object> params = CustomerObjFieldsE.getCustomerCreateParams(userRecord);
-        LOGGER.info("Params to be used in creating customer:=> {}", params);
-
-        try {
-            Customer customer = Customer.create(params);
-            LOGGER.info("Successfully Created Stripe Customer, updating UserRecord with Id:=> {}", customer.getId());
-            userRecord.setStripeCustomerID(customer.getId());
-            iUserRecordRepository.save(userRecord);
-            return Optional.of(customer);
-        } catch (StripeException e) {
-            LOGGER.warn("Failed to create Stripe Customer object reference, user will not be able to make payments", e);
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Customer> retrieveStripeCustomer(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
-
-        Stripe.apiKey = stripeAPIConfig.getApiKey();
-
-        LOGGER.info("Attempting to retrieve existing Stripe Customer object for for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-
-        try {
-            Customer stripeCustomer = Customer.retrieve(userRecord.getStripeCustomerID());
-            return Optional.of(stripeCustomer);
-        } catch (StripeException e) {
-            LOGGER.warn("Failed to retrieve Stripe Customer for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-        }
-
-        return Optional.empty();
-    }
-
-
-    @Override
-    public boolean deleteStripeCustomer(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-
-        Stripe.apiKey = stripeAPIConfig.getApiKey();
-
-        LOGGER.info("Attempting to delete existing Stripe Customer object for for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-
-        // First retrieve the Stripe Customer object for this UserRecord
-        Optional<Customer> stripeCustomer = retrieveStripeCustomer(userRecord);
-
-        if(stripeCustomer.isPresent()) {
-            try {
-                stripeCustomer.get().delete();
-                return true;
-            } catch (StripeException e) {
-                LOGGER.warn("Exception occurred while trying to delete existing Stripe Customer", e);
-            }
-        }
-
-        return false;
-    }
 
     @Transactional
     @Override
@@ -132,13 +57,13 @@ public class StripeCustomerService implements IStripeCustomerService {
 
         // Fetch UserRecord from persistent store
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
-        Optional<Customer> stripeCustomer = retrieveStripeCustomer(userRecord);
+        Optional<Customer> stripeCustomer = iStripeCustomerAPIFacade.retrieveStripeCustomer(userRecord);
 
         ExecutionResult executionResult = new ExecutionResult();
 
         if(stripeCustomer.isPresent()) {
             LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
-            Stripe.apiKey = stripeAPIConfig.getApiKey();
+//            Stripe.apiKey = stripeAPIConfig.getApiKey();
 
             ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
@@ -165,12 +90,16 @@ public class StripeCustomerService implements IStripeCustomerService {
         return executionResult;
     }
 
+    /**
+     * Final step in creating an Imani BillPay user payment Stripe account.  This step should only be called after we have successfully validated
+     * user's bank account details using our Plaid integration.  This step will hand over the validated Plaid Bank account to be linked with a newly created
+     * Stripe Customer account.
+     */
     @Transactional
     @Override
     public ExecutionResult createPlaidStripeCustomerBankAcct(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         Assert.notNull(userRecord.getEmbeddedContactInfo(), "EmbeddedContactInfo cannot be null");
-        //Assert.isTrue(userRecord.getUserRecordTypeE().isEndUser(), "Stripe Customer can only be created for End Users only.");
 
         // Fetch UserRecord from persistent store
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
@@ -178,27 +107,35 @@ public class StripeCustomerService implements IStripeCustomerService {
         Optional<Customer> stripeCustomer;
         ExecutionResult executionResult = new ExecutionResult();
 
-        if (userRecord.getStripeCustomerID() == null) {
-            stripeCustomer = createStripeCustomer(userRecord);
+        if (StringUtils.isEmpty(userRecord.getStripeCustomerID() )) {
+            stripeCustomer = iStripeCustomerAPIFacade.createStripeCustomer(userRecord);
         } else {
-            stripeCustomer = retrieveStripeCustomer(userRecord);
+            stripeCustomer = iStripeCustomerAPIFacade.retrieveStripeCustomer(userRecord);
         }
 
         if(stripeCustomer.isPresent()) {
-            LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
-            Stripe.apiKey = stripeAPIConfig.getApiKey();
+
+            if(StringUtils.isEmpty(userRecord.getStripeCustomerID())) {
+                // IF Stripe CustomerID has not been set, do so and save
+                userRecord.setStripeCustomerID(stripeCustomer.get().getId());
+                iUserRecordRepository.save(userRecord);
+            }
+
+            LOGGER.info("Proceeding to update bank account information on Stripe Customer account ....");
 
             ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
-            if (achPaymentInfo != null) {
+            if (achPaymentInfo != null
+                    && achPaymentInfo.getStripeBankAcct() != null
+                    && !StringUtils.isEmpty(achPaymentInfo.getStripeBankAcct().getBankAcctToken())) {
                 Map<String, Object> params = new HashMap<>();
                 params.put(BANK_ACCT_SOURCE_CUSTOMER_PARAM, achPaymentInfo.getStripeBankAcct().getBankAcctToken());
-                try {
-                    BankAccount bankAccount = (BankAccount) stripeCustomer.get().getSources().create(params);
-                    iachPaymentInfoService.updateStripeBankAcct(bankAccount, achPaymentInfo);
+                Optional<BankAccount> bankAccount = iStripeCustomerAPIFacade.createBankAccount(stripeCustomer.get(), params);
+
+                if(bankAccount.isPresent()) {
+                    iachPaymentInfoService.updateStripeBankAcct(bankAccount.get(), achPaymentInfo);
                     iachPaymentInfoService.saveACHPaymentInfo(achPaymentInfo);
-                } catch (StripeException e) {
-                    LOGGER.warn("Failed to update Stripe Bank account details for customer", e);
+                } else {
                     executionResult.addExecutionError(ExecutionError.of("Failed to create and link Stripe Bank account to the Customer object"));
                 }
             }
@@ -212,10 +149,10 @@ public class StripeCustomerService implements IStripeCustomerService {
     }
 
 
-    @PostConstruct
-    void postConstruct() {
-        LOGGER.info("===================  Running Stripe API with configuration =======================");
-        LOGGER.info("{}", stripeAPIConfig);
-        LOGGER.info("=================================================================================");
-    }
+//    @PostConstruct
+//    void postConstruct() {
+//        LOGGER.info("===================  Running Stripe API with configuration =======================");
+//        LOGGER.info("{}", stripeAPIConfig);
+//        LOGGER.info("=================================================================================");
+//    }
 }
