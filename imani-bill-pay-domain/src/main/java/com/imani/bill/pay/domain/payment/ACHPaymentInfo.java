@@ -10,6 +10,7 @@ import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 
@@ -136,6 +137,10 @@ public class ACHPaymentInfo extends AuditableRecord {
         }
 
         stripeBankAcct.setBankAcctToken(bankAcctToken);
+    }
+
+    public boolean hasStripeBankAcct() {
+        return stripeBankAcct != null && !StringUtils.isEmpty(stripeBankAcct.getBankAcctToken());
     }
 
     @Override

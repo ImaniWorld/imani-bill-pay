@@ -108,12 +108,11 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
         // Fetch user from DB for consistency and find primary ACHPayment Information
         userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
-        ACHPaymentInfo achPaymentInfo = null; //iachPaymentInfoService.findUserPrimaryPamentInfo(userRecord);
+        ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
         if(achPaymentInfo != null) {
             // Verify that a Stripe Bank AcctID hasn't already been created and create.
-            if(achPaymentInfo.getStripeBankAcct() == null
-                    || achPaymentInfo.getStripeBankAcct().getBankAcctToken() == null) {
+            if(!achPaymentInfo.hasStripeBankAcct()) {
                 PlaidAPIRequest plaidStripeAcctCreateRequest = buildPlaidAPIRequestForStripeAccountCreate(achPaymentInfo);
                 Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(plaidStripeAcctCreateRequest, userRecord);
 

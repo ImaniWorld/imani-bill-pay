@@ -42,4 +42,22 @@ public class StripeBankAccountResponse extends PlaidAPIResponse {
                 .append("suggestedAction", suggestedAction)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private StripeBankAccountResponse stripeBankAccountResponse = new StripeBankAccountResponse();
+
+        public Builder stripeBankAcctToken(String stripeBankAcctToken) {
+            stripeBankAccountResponse.stripeBankAcctToken = stripeBankAcctToken;
+            return this;
+        }
+
+        public StripeBankAccountResponse build() {
+            return stripeBankAccountResponse;
+        }
+    }
+
 }

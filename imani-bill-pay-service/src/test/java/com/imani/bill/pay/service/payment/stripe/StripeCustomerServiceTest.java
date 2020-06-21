@@ -51,7 +51,7 @@ public class StripeCustomerServiceTest implements IMockUserRecordTestBuilder, IM
     public void beforeTest() {
         // Mock out all calls to return default objects
         userRecord = buildUserRecord();
-        achPaymentInfo = buildACHPaymentInfo(userRecord, "btok_3748SYDNEY4EVA");
+        achPaymentInfo = buildACHPaymentInfoStripe(userRecord, "btok_3748SYDNEY4EVA");
         Mockito.when(iUserRecordRepository.findByUserEmail(Mockito.anyString())).thenReturn(userRecord);
         Mockito.when(iachPaymentInfoService.findPrimaryPamentInfo(userRecord)).thenReturn(achPaymentInfo);
     }
@@ -73,7 +73,6 @@ public class StripeCustomerServiceTest implements IMockUserRecordTestBuilder, IM
         Assert.assertEquals("xycd-1234", userRecord.getStripeCustomerID());
         Assert.assertTrue(executionResult.isExecutionSuccessful());
         Assert.assertEquals(0, executionResult.getValidationAdvices().size());
-        System.out.println("executionResult = " + executionResult);
     }
 
 

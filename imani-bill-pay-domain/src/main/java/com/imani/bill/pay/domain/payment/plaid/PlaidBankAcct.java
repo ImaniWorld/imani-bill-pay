@@ -122,6 +122,11 @@ public class PlaidBankAcct {
                 .toString();
     }
 
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder {
 
         private PlaidBankAcct plaidBankAcct = new PlaidBankAcct();

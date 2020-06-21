@@ -3,6 +3,8 @@ package com.imani.bill.pay.zgateway.user.payment.account.crud;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
+import com.imani.bill.pay.service.payment.plaid.IPlaidAccountMasterService;
+import com.imani.bill.pay.service.payment.plaid.PlaidAccountMasterService;
 import com.imani.bill.pay.service.payment.stripe.IStripeCustomerService;
 import com.imani.bill.pay.service.payment.stripe.StripeCustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,19 @@ public class UserPaymentAcctController {
     @Qualifier(StripeCustomerService.SPRING_BEAN)
     private IStripeCustomerService iStripeCustomerService;
 
+    @Autowired
+    @Qualifier(PlaidAccountMasterService.SPRING_BEAN)
+    private IPlaidAccountMasterService iPlaidAccountMasterService;
+
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserPaymentAcctController.class);
+
+
+    @PostMapping("/link/plaid/stripe")
+    public APIGatewayResponse linkPlaidAccount(@RequestBody APIGatewayRequest apiGatewayRequest) {
+        LOGGER.info("Attempting to link Stripe account for user in request:=> {}", apiGatewayRequest);
+        ExecutionResult executionResult = iPlaidAccountMasterService.createStripeAcctForPrimaryPlaidAcct(apiGatewayRequest.getOnBehalfOf());
+        return APIGatewayResponse.fromExecutionResult(executionResult);
+    }
 
 
     /**
