@@ -32,6 +32,9 @@ public class UserPaymentAcctController {
     /**
      * Create Stripe Customer account for Imani BillPay user. Stripe Customer account will be used for all payments made by user.
      *
+     * Expectations, this API should only be called once we have used Plaid to validate a user's bank account after they have entered credentials
+     * and a valid Plaid Stripe bank account token has been captured and properly saved in ACHPaymentInfo
+     *
      * @param apiGatewayRequest
      * @return
      */
