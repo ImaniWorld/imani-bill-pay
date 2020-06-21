@@ -63,7 +63,6 @@ public class StripeCustomerService implements IStripeCustomerService {
 
         if(stripeCustomer.isPresent()) {
             LOGGER.info("Existing Stripe customer found, proceeding to update bank accounts....");
-//            Stripe.apiKey = stripeAPIConfig.getApiKey();
 
             ACHPaymentInfo achPaymentInfo = iachPaymentInfoService.findPrimaryPamentInfo(userRecord);
 
