@@ -3,8 +3,7 @@ package com.imani.bill.pay.service.payment.plaid;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
-import com.imani.bill.pay.domain.payment.plaid.PlaidAPIRequest;
-import com.imani.bill.pay.domain.payment.plaid.StripeBankAccountResponse;
+import com.imani.bill.pay.domain.payment.plaid.*;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.mock.IMockACHPaymentInfoTestBuilder;
@@ -78,6 +77,28 @@ public class PlaidAccountMasterServiceTest implements IMockUserRecordTestBuilder
         Assert.assertEquals("bktok_MOCK_TEST_ACCT", achPaymentInfo.getStripeBankAcct().getBankAcctToken());
         Assert.assertTrue(executionResult.isExecutionSuccessful());
         Assert.assertEquals(0, executionResult.getValidationAdvices().size());
+    }
+
+    @Test
+    public void testLinkPlaidBankAcctUserRecord() {
+        PlaidAccessTokenResponse plaidAccessTokenResponse = PlaidAccessTokenResponse.builder()
+                .accessToken("access-development-457777940YY")
+                .build();
+        Mockito.when(iPlaidAPIService.exchangePublicTokenForAccess(Mockito.any(), Mockito.any())).thenReturn(Optional.of(plaidAccessTokenResponse));
+
+        PlaidBankAcct plaidBankAcct = PlaidBankAcct.builder()
+                .accountID("Txyxi08480w9md")
+                .name("Dummy Test Acct")
+                .officialName("Official Test Acct")
+                .build();
+        PlaidItemAccountsResponse plaidItemAccountsResponse = PlaidItemAccountsResponse.builder()
+                .plaidItemInfo(new PlaidItemInfo())
+                .plaidBankAcct(plaidBankAcct)
+                .build();
+        Mockito.when(iPlaidAPIService.getPlaidItemAccounts(Mockito.any(), Mockito.any())).thenReturn(Optional.of(plaidItemAccountsResponse));
+
+        ExecutionResult executionResult = plaidAccountMasterService.linkPlaidBankAcct("beta_env_337737", userRecord);
+        System.out.println("executionResult = " + executionResult);
     }
 
 }

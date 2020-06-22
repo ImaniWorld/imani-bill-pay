@@ -41,4 +41,21 @@ public class PlaidAccessTokenResponse extends PlaidAPIResponse {
                 .append("suggestedAction", suggestedAction)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final PlaidAccessTokenResponse plaidAccessTokenResponse = new PlaidAccessTokenResponse();
+
+        public Builder accessToken(String accessToken) {
+            plaidAccessTokenResponse.accessToken = accessToken;
+            return this;
+        }
+
+        public PlaidAccessTokenResponse build() {
+            return plaidAccessTokenResponse;
+        }
+    }
 }

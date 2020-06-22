@@ -9,6 +9,9 @@ import com.imani.bill.pay.domain.user.UserRecord;
  */
 public interface IPlaidAccountMasterService {
 
+
+    public ExecutionResult linkPlaidBankAcct(String plaidPublicToken, String userID);
+
     /**
      * On successful retrieval of a Plaid public token for a UserRecord's bank account, this API will link that Plaid Account on our records for this user.
      *

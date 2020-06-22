@@ -54,4 +54,26 @@ public class PlaidItemAccountsResponse extends PlaidAPIResponse {
                 .append("accounts", accounts)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final PlaidItemAccountsResponse plaidItemAccountsResponse = new PlaidItemAccountsResponse();
+
+        public Builder plaidItemInfo(PlaidItemInfo plaidItemInfo) {
+            plaidItemAccountsResponse.plaidItemInfo = plaidItemInfo;
+            return this;
+        }
+
+        public Builder plaidBankAcct(PlaidBankAcct plaidBankAcct) {
+            plaidItemAccountsResponse.accounts.add(plaidBankAcct);
+            return this;
+        }
+
+        public PlaidItemAccountsResponse build() {
+            return plaidItemAccountsResponse;
+        }
+    }
 }

@@ -60,6 +60,14 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
 
     @Transactional
     @Override
+    public ExecutionResult linkPlaidBankAcct(String plaidPublicToken, String userID) {
+        // TODO find a way where user doesnt have to be loaded 2x
+        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userID);
+        return linkPlaidBankAcct(plaidPublicToken, userRecord);
+    }
+
+    @Transactional
+    @Override
     public ExecutionResult linkPlaidBankAcct(String plaidPublicToken, UserRecord userRecord) {
         Assert.notNull(plaidPublicToken, "plaidPublicToken cannot be null");
         Assert.notNull(userRecord, "userRecord cannot be null");
@@ -114,6 +122,8 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
             // Verify that a Stripe Bank AcctID hasn't already been created and create.
             if(!achPaymentInfo.hasStripeBankAcct()) {
                 PlaidAPIRequest plaidStripeAcctCreateRequest = buildPlaidAPIRequestForStripeAccountCreate(achPaymentInfo);
+
+                // Invoke Plaid APIs to create and link a Stripe Bank account token.  This token can then be used to create and associate a Stripe Customer in future step
                 Optional<StripeBankAccountResponse> stripeBankAccountResponse = iPlaidAPIService.createStripeBankAccount(plaidStripeAcctCreateRequest, userRecord);
 
                 if(stripeBankAccountResponse.isPresent() && !stripeBankAccountResponse.get().hasError()) {
@@ -126,8 +136,8 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
                     executionResult.addExecutionError(ExecutionError.of("Failed to retrieve required Stripe BankAccount token from Plaid"));
                 }
             } else {
-                LOGGER.warn("Failed to find the primary ACHPaymentInfo for user, cannot create and link a Stripe Bank account.  This means no Plaid Account has been linked.");
-                executionResult.addExecutionError(ExecutionError.of("Failed to retrieve required Stripe BankAccount token from Plaid"));
+                LOGGER.warn("Failed to find the primary ACHPaymentInfo for user, cannot create and link a Stripe Bank account.  This means no Plaid Account has been created for user");
+                executionResult.addExecutionError(ExecutionError.of("User has not successfully validated their Plaid Bank Account"));
             }
         }
 
