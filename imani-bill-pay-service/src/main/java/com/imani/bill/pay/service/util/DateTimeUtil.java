@@ -20,6 +20,18 @@ public class DateTimeUtil implements IDateTimeUtil {
 
 
     @Override
+    public DateTime getDateTimeAtStartOfCurrentDay() {
+        DateTime dateTime = DateTime.now().withTimeAtStartOfDay();
+        return dateTime;
+    }
+
+    @Override
+    public DateTime getDateTimeAtEndOfCurrentDay() {
+        DateTime dateTime = DateTime.now().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+        return dateTime;
+    }
+
+    @Override
     public DateTime getDateTimeAtStartOfMonth(DateTime dateTime) {
         Assert.notNull(dateTime, "DateTime cannot be null");
 

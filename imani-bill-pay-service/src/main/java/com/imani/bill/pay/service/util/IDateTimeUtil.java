@@ -7,6 +7,9 @@ import org.joda.time.DateTime;
  */
 public interface IDateTimeUtil {
 
+    public DateTime getDateTimeAtStartOfCurrentDay();
+
+    public DateTime getDateTimeAtEndOfCurrentDay();
 
     public DateTime getDateTimeAtStartOfMonth(DateTime dateTime);
 

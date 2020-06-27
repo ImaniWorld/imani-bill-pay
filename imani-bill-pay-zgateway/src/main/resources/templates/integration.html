@@ -49,7 +49,7 @@ function sendPlaidDataToBackendServer(public_token, account_id) {
     console.log("Sending Plaid Acct Data to Server with Public-Token:> " + public_token + " and Acct-ID:> "+ account_id);
 
     $.ajax({ type: 'GET',
-                     url: '/register/plaid/account/' + public_token + '/' + account_id,
+                     url: '/user/payment/account/register/plaid/' + public_token + '/' + account_id + '/austin.addy@gmail.com',
                      datatype: 'json',
                      success : function()
                      {

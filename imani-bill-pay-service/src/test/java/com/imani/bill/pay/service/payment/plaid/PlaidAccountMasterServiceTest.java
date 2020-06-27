@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.payment.plaid;
 
+import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.config.PlaidAPIConfig;
@@ -9,6 +10,7 @@ import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.mock.IMockACHPaymentInfoTestBuilder;
 import com.imani.bill.pay.service.mock.IMockUserRecordTestBuilder;
 import com.imani.bill.pay.service.payment.IACHPaymentInfoService;
+import com.imani.bill.pay.service.payment.security.PlaidAccessTokenSecurityAdviseService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +44,9 @@ public class PlaidAccountMasterServiceTest implements IMockUserRecordTestBuilder
 
     @Mock
     private IACHPaymentInfoService iachPaymentInfoService;
+
+    @Mock
+    private PlaidAccessTokenSecurityAdviseService plaidAccessTokenSecurityAdviseService;
 
     @InjectMocks
     private PlaidAccountMasterService plaidAccountMasterService;
@@ -85,6 +90,8 @@ public class PlaidAccountMasterServiceTest implements IMockUserRecordTestBuilder
                 .accessToken("access-development-457777940YY")
                 .build();
         Mockito.when(iPlaidAPIService.exchangePublicTokenForAccess(Mockito.any(), Mockito.any())).thenReturn(Optional.of(plaidAccessTokenResponse));
+
+        Mockito.when(plaidAccessTokenSecurityAdviseService.getAdvice(Mockito.any())).thenReturn(ImmutableSet.of());
 
         PlaidBankAcct plaidBankAcct = PlaidBankAcct.builder()
                 .accountID("Txyxi08480w9md")

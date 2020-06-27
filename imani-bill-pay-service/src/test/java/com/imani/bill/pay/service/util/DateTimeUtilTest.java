@@ -21,7 +21,20 @@ public class DateTimeUtilTest {
 
     public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
-    
+
+    @Test
+    public void testGetDateTimeAtStartOfCurrentDay() {
+        DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfCurrentDay();
+        System.out.println("dateTime = " + dateTime);
+    }
+
+    @Test
+    public void testGetDateTimeAtEndOfCurrentDay() {
+        DateTime dateTime = dateTimeUtil.getDateTimeAtEndOfCurrentDay();
+        System.out.println("dateTime = " + dateTime);
+    }
+
+
     @Test
     public void testGetDateTimeAtStartOfMonth() {
         DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfMonth(DateTime.parse("2019-09-03 09:00:00", DEFAULT_FORMATTER));
