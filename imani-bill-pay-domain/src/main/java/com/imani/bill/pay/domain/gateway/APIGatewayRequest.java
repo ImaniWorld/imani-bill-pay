@@ -9,6 +9,7 @@ import com.imani.bill.pay.domain.contact.ContactTypeE;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -30,6 +31,8 @@ public class APIGatewayRequest<O> {
     // This is an optional field to track the user requesting this execution.
     // IF its the same as the onBehalfOf then this should not be set.
     protected UserRecord requestedBy;
+
+    protected UserRecordLite userRecordLite;
 
 
     public APIGatewayRequest() {
@@ -68,15 +71,23 @@ public class APIGatewayRequest<O> {
         this.requestedBy = requestedBy;
     }
 
+    public UserRecordLite getUserRecordLite() {
+        return userRecordLite;
+    }
+
+    public void setUserRecordLite(UserRecordLite userRecordLite) {
+        this.userRecordLite = userRecordLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("requestObject", requestObject)
                 .append("onBehalfOf", onBehalfOf)
                 .append("requestedBy", requestedBy)
+                .append("userRecordLite", userRecordLite)
                 .toString();
     }
-
 
     public static void main(String[] args) {
         ObjectMapper objectMapper = new ObjectMapper();

@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.property.Apartment;
-import com.imani.bill.pay.domain.property.LeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.property.PropertyService;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.springframework.util.Assert;
@@ -51,8 +49,8 @@ public class UserResidence extends AuditableRecord {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LeaseAgreementID", nullable = true)
-    private LeaseAgreement leaseAgreement;
+    @JoinColumn(name = "PropertyLeaseAgreementID", nullable = true)
+    private PropertyLeaseAgreement propertyLeaseAgreement;
 
 
     @Column(name="IsPrimaryResidence", nullable = true, columnDefinition = "TINYINT", length = 1)
@@ -102,12 +100,12 @@ public class UserResidence extends AuditableRecord {
         this.apartment = apartment;
     }
 
-    public LeaseAgreement getLeaseAgreement() {
-        return leaseAgreement;
+    public PropertyLeaseAgreement getPropertyLeaseAgreement() {
+        return propertyLeaseAgreement;
     }
 
-    public void setLeaseAgreement(LeaseAgreement leaseAgreement) {
-        this.leaseAgreement = leaseAgreement;
+    public void setPropertyLeaseAgreement(PropertyLeaseAgreement propertyLeaseAgreement) {
+        this.propertyLeaseAgreement = propertyLeaseAgreement;
     }
 
     public boolean isPrimaryResidence() {
@@ -132,37 +130,6 @@ public class UserResidence extends AuditableRecord {
         userResidencePropertyServices.add(userResidencePropertyService);
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UserResidence that = (UserResidence) o;
-
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .append(userRecord, that.userRecord)
-                .append(property, that.property)
-                .append(apartment, that.apartment)
-                .append(leaseAgreement, that.leaseAgreement)
-                .append(primaryResidence, that.primaryResidence)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(userRecord)
-                .append(property)
-                .append(apartment)
-                .append(leaseAgreement)
-                .append(primaryResidence)
-                .toHashCode();
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -170,7 +137,7 @@ public class UserResidence extends AuditableRecord {
                 .append("userRecord", userRecord)
                 .append("property", property)
                 .append("apartment", apartment)
-                .append("leaseAgreement", leaseAgreement)
+                .append("propertyLeaseAgreement", propertyLeaseAgreement)
                 .append("primaryResidence", primaryResidence)
                 .toString();
     }
@@ -203,8 +170,8 @@ public class UserResidence extends AuditableRecord {
             return this;
         }
 
-        public Builder leaseAgreement(LeaseAgreement leaseAgreement) {
-            userResidence.leaseAgreement = leaseAgreement;
+        public Builder propertyLeaseAgreement(PropertyLeaseAgreement propertyLeaseAgreement) {
+            userResidence.propertyLeaseAgreement = propertyLeaseAgreement;
             return this;
         }
 

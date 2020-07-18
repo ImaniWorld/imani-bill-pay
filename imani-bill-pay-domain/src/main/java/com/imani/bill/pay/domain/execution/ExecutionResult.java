@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -16,8 +17,9 @@ import java.util.Set;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExecutionResult {
+public class ExecutionResult<O> {
 
+    private O result;
 
     private Set<ValidationAdvice> validationAdvices = new HashSet<>();
 
@@ -25,6 +27,14 @@ public class ExecutionResult {
 
     public ExecutionResult() {
 
+    }
+
+    public Optional<O> getResult() {
+        return result == null ? Optional.empty() : Optional.of(result);
+    }
+
+    public void setResult(O result) {
+        this.result = result;
     }
 
     public boolean isExecutionSuccessful() {
@@ -74,9 +84,20 @@ public class ExecutionResult {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("executionSuccessful", isExecutionSuccessful())
-                .append("validationAdvice", validationAdvices)
+                .append("result", result)
+                .append("validationAdvices", validationAdvices)
+                .append("executionErrors", executionErrors)
                 .toString();
+    }
+
+    public static <O> ExecutionResult<O> withValidationAdvice(String ...advices){
+        ExecutionResult executionResult = new ExecutionResult();
+
+        for(String advice : advices) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance(advice));
+        }
+
+        return executionResult;
     }
 
     public static Builder builder() {
@@ -87,8 +108,19 @@ public class ExecutionResult {
 
         private ExecutionResult executionResult = new ExecutionResult();
 
+        public <O> Builder result(O result) {
+            executionResult.result = result;
+            return this;
+        }
+
         public Builder addValidationAdvice(ValidationAdvice validationAdvice) {
             executionResult.addValidationAdvice(validationAdvice);
+            return this;
+        }
+
+        public Builder addValidationAdvice(String advice) {
+            Assert.notNull(advice, "advice cannot be null");
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance(advice));
             return this;
         }
 

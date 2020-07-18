@@ -61,7 +61,7 @@ public class UserResidenceService implements IUserResidenceService {
         UserResidence userResidence =  UserResidence.builder()
                 .userRecord(userRecord)
                 .property(property)
-                .leaseAgreement(leaseAgreement)
+//                .leaseAgreement(leaseAgreement)
                 .primaryResidence(primaryResidence)
                 .build();
 
@@ -102,7 +102,7 @@ public class UserResidenceService implements IUserResidenceService {
         UserResidence userResidence =  UserResidence.builder()
                 .userRecord(userRecord)
                 .apartment(apartment)
-                .leaseAgreement(leaseAgreement)
+//                .leaseAgreement(leaseAgreement)
                 .primaryResidence(primaryResidence)
                 .build();
 

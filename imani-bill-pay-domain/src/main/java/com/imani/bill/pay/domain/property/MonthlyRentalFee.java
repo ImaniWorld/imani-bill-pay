@@ -2,8 +2,8 @@ package com.imani.bill.pay.domain.property;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
-import com.imani.bill.pay.domain.payment.FeePaymentChargeTypeE;
-import com.imani.bill.pay.domain.payment.IFeePaymentModel;
+import com.imani.bill.pay.domain.billing.FeePaymentChargeTypeE;
+import com.imani.bill.pay.domain.billing.IFeePaymentModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 

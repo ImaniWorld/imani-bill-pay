@@ -47,10 +47,11 @@ public class MonthlyRentalFeeService implements IMonthlyRentalFeeService {
         LOGGER.info("Attempting to apply rental fee's to monthlyRentalBill month: {} for user: {}", monthlyRentalBill.getRentalMonth(), userRecord.getEmbeddedContactInfo().getEmail());
 
         // Apply late fee charge if this bill is currently late
-        boolean isCurrentMonthPaymentLate = isCurrentMonthPaymentLate(userResidence.getProperty(), monthlyRentalBill);
+        Property leaseProperty = userResidence.getApartment().getFloor().getProperty();
+        boolean isCurrentMonthPaymentLate = isCurrentMonthPaymentLate(leaseProperty, monthlyRentalBill);
 
         if(isCurrentMonthPaymentLate) {
-            MonthlyRentalFee lateRentalFee = iMonthlyRentalFeeRepository.findPropertyMonthlyRentalFeeByType(userResidence.getProperty(), RentalFeeTypeE.LATE_FEE);
+            MonthlyRentalFee lateRentalFee = iMonthlyRentalFeeRepository.findPropertyMonthlyRentalFeeByType(leaseProperty, RentalFeeTypeE.LATE_FEE);
 
             if(lateRentalFee != null) {
                 LOGGER.info("Adding lateRentalFee:=> {} to monthly bill", lateRentalFee);
@@ -65,7 +66,7 @@ public class MonthlyRentalFeeService implements IMonthlyRentalFeeService {
                         .build();
                 return Optional.of(ImmutableList.of(lateMonthlyRentalFeeExplained));
             } else {
-                throw new RuntimeException("Cannot apply late rental fee to monthly rental fee, none found for property");
+                throw new RuntimeException("Cannot apply late fee to monthly rental amount, no configured fee found for property");
             }
         }
 
@@ -73,12 +74,13 @@ public class MonthlyRentalFeeService implements IMonthlyRentalFeeService {
     }
 
     boolean isCurrentMonthPaymentLate(Property property, MonthlyRentalBill monthlyRentalBill) {
+        System.out.println("Passed from call to compute property = " + property);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
         DateTime dateTimeAtStartOfMonth = monthlyRentalBill.getRentalMonth();
 
         // Calculate number of days between the start of the rental month and today's date and compare that to property grace period
         Integer daysBetween = iDateTimeUtil.getDaysBetweenDates(dateTimeAtStartOfMonth, now);
-        LOGGER.info("Property payment grace period #days=>  #days-late", property.getMthlyNumberOfDaysPaymentLate(), daysBetween);
+        LOGGER.info("Property number of days late:=> {} daysBetween:=> {}", property.getMthlyNumberOfDaysPaymentLate(), daysBetween);
         return daysBetween > property.getMthlyNumberOfDaysPaymentLate();
     }
 }

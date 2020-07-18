@@ -15,6 +15,8 @@ public interface IMonthlyRentalBillDescService {
 
     public Optional<MonthlyRentalBillExplained> getCurrentMonthRentalBill(UserRecord userRecord);
 
+    public Optional<MonthlyRentalBillExplained> explainCurrentMonthRentalBill(UserRecord userRecord);
+
     public Double calculateTotalAmountDue(MonthlyRentalBill monthlyRentalBill, Set<UserResidencePropertyService> userResidencePropertyServices);
 
 }

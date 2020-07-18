@@ -5,6 +5,7 @@ import com.imani.bill.pay.domain.property.repository.IMonthlyRentalBillRepositor
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.UserResidencePropertyService;
+import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.domain.user.repository.IUserResidenceRepository;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -33,6 +34,9 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
     private IDateTimeUtil iDateTimeUtil;
 
     @Autowired
+    private IUserRecordRepository iUserRecordRepository;
+
+    @Autowired
     private IMonthlyRentalBillRepository iMonthlyRentalBillRepository;
 
     @Autowired
@@ -57,9 +61,12 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
     public Optional<MonthlyRentalBillExplained> getCurrentMonthRentalBill(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
 
+        // Lookup user information from DB to sync Hibernate session
+        userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+
         // Find the UserResidence and other relevant info to generate current month bill
         UserResidence userResidence = iUserResidenceRepository.findUserResidence(userRecord);
-        LeaseAgreement leaseAgreement = userResidence.getLeaseAgreement();
+        LeaseAgreement leaseAgreement = null;//userResidence.getLeaseAgreement();
 
         if (leaseAgreement != null && leaseAgreement.isAgreementInEffect()) {
             // Current Month DateTime should start at the start of the month.  All bills are due 1'st day of month
@@ -93,9 +100,40 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
                 iMonthlyRentalBillRepository.save(monthlyRentalBill);
                 return Optional.of(monthlyRentalBillExplained);
             } else {
-                LOGGER.warn("Cannot generate new monthly bill.  LeaseAgreement is currently not in effect for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+                Optional<List<MonthlyRentalFeeExplained>> monthlyRentalFeeExplainedList = iMonthlyRentalFeeService.applyMonthlyRentalFees(userResidence, existingMonthlyRentalBill);
+                Optional<List<PropertyServiceChargeExplained>> propertyServiceChargeExplainedList = iMonthlyPropertySvcChargeService.applyMonthlyPropertyServiceCharge(userResidence, existingMonthlyRentalBill);
+                MonthlyRentalBillExplained monthlyRentalBillExplained = getMonthlyRentalBillExplained(userResidence, monthlyRentalFeeExplainedList, propertyServiceChargeExplainedList);
+                return Optional.of(monthlyRentalBillExplained);
             }
         }
+
+        LOGGER.warn("Cannot generate new monthly bill.  LeaseAgreement is currently not in effect for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+        return Optional.empty();
+    }
+
+
+    @Override
+    public Optional<MonthlyRentalBillExplained> explainCurrentMonthRentalBill(UserRecord userRecord) {
+        Assert.notNull(userRecord, "UserRecord cannot be null");
+
+        // Lookup user information from DB to sync Hibernate session
+        userRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+        DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+        LOGGER.info("Explaining rental bill for current month:=> {} for user: {}", dateTimeAtStartOfMonth, userRecord.getEmbeddedContactInfo().getEmail());
+
+        // Find the UserResidence and other relevant info to generate current month bill
+        UserResidence userResidence = iUserResidenceRepository.findUserResidence(userRecord);
+        LeaseAgreement leaseAgreement = null;//userResidence.getLeaseAgreement();
+
+        if (leaseAgreement != null && leaseAgreement.isAgreementInEffect()) {
+            MonthlyRentalBill existingMonthlyRentalBill = iMonthlyRentalBillRepository.getUserMonthlyRentalBill(userRecord, dateTimeAtStartOfMonth);
+            LOGGER.info("Found existingMonthlyRentalBill: {}", existingMonthlyRentalBill);
+
+            if(existingMonthlyRentalBill != null) {
+                MonthlyRentalBillExplained monthlyRentalBillExplained = getMonthlyRentalBillExplained(userResidence, existingMonthlyRentalBill);
+            }
+        }
+
 
         return Optional.empty();
     }
@@ -128,17 +166,33 @@ public class MonthlyRentalBillDescService implements IMonthlyRentalBillDescServi
     }
 
     MonthlyRentalBillExplained getMonthlyRentalBillExplained(UserResidence userResidence, Optional<List<MonthlyRentalFeeExplained>> monthlyRentalFeeExplainedList, Optional<List<PropertyServiceChargeExplained>> propertyServiceChargeExplainedList) {
-        MonthlyRentalBillExplained monthlyRentalBillExplained = MonthlyRentalBillExplained.builder()
-                .monthlyRentalCost(userResidence.getLeaseAgreement().getMonthlyRentalCost())
-                .amtPaid(0.0)
-                .totalAmtDue(userResidence.getLeaseAgreement().getMonthlyRentalCost()) // initialize total amount due to monthly rental cost from LeaseAgreement
-                .userResidence(userResidence)
-                .build();
+//        MonthlyRentalBillExplained monthlyRentalBillExplained = MonthlyRentalBillExplained.builder()
+//                .monthlyRentalCost(userResidence.getLeaseAgreement().getMonthlyRentalCost())
+//                .amtPaid(0.0)
+//                .totalAmtDue(userResidence.getLeaseAgreement().getMonthlyRentalCost()) // initialize total amount due to monthly rental cost from LeaseAgreement
+////                .userResidence(userResidence)
+//                .build();
+//
+//        // Figure out total fees
+//        applyTotalRentalFeesCharged(monthlyRentalBillExplained, monthlyRentalFeeExplainedList);
+//        applyTotalPropertyServiceCostCharged(monthlyRentalBillExplained, propertyServiceChargeExplainedList);
+//        return monthlyRentalBillExplained;
+        return null;
+    }
+
+
+    MonthlyRentalBillExplained getMonthlyRentalBillExplained(UserResidence userResidence, MonthlyRentalBill existingMonthlyRentalBill) {
+//        MonthlyRentalBillExplained monthlyRentalBillExplained = MonthlyRentalBillExplained.builder()
+//                .monthlyRentalCost(userResidence.getLeaseAgreement().getMonthlyRentalCost())
+//                .amtPaid(existingMonthlyRentalBill.getAmountPaid())
+//                .totalAmtDue(userResidence.getLeaseAgreement().getMonthlyRentalCost()) // initialize total amount due to monthly rental cost from LeaseAgreement
+////                .userResidence(userResidence)
+//                .build();
 
         // Figure out total fees
-        applyTotalRentalFeesCharged(monthlyRentalBillExplained, monthlyRentalFeeExplainedList);
-        applyTotalPropertyServiceCostCharged(monthlyRentalBillExplained, propertyServiceChargeExplainedList);
-        return monthlyRentalBillExplained;
+//        applyTotalRentalFeesCharged(monthlyRentalBillExplained, monthlyRentalFeeExplainedList);
+//        applyTotalPropertyServiceCostCharged(monthlyRentalBillExplained, propertyServiceChargeExplainedList);
+        return null;
     }
 
 

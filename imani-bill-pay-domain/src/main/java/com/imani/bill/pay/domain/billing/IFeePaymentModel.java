@@ -1,4 +1,4 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.billing;
 
 /**
  * @author manyce400
@@ -11,7 +11,6 @@ public interface IFeePaymentModel {
     public Double getOptionalFlatRate();
 
     public FeePaymentChargeTypeE getFeePaymentChargeTypeE();
-
 
     public default double calculatFeeCharge(double originalPaymentAmt) {
         FeePaymentChargeTypeE feePaymentChargeTypeE = getFeePaymentChargeTypeE();

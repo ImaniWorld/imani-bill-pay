@@ -21,6 +21,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class APIGatewayResponse {
 
+    protected Object executionResult;
 
     protected HttpStatus httpStatus;
 
@@ -30,6 +31,14 @@ public class APIGatewayResponse {
 
     public APIGatewayResponse() {
 
+    }
+
+    public Object getExecutionResult() {
+        return executionResult;
+    }
+
+    public void setExecutionResult(Object executionResult) {
+        this.executionResult = executionResult;
     }
 
     public HttpStatus getHttpStatus() {
@@ -60,6 +69,7 @@ public class APIGatewayResponse {
     public static APIGatewayResponse fromExecutionResult(ExecutionResult executionResult) {
         Assert.notNull(executionResult, "ExecutionResult cannot be null");
         APIGatewayResponse apiGatewayResponse = new APIGatewayResponse();
+        apiGatewayResponse.executionResult = executionResult.getResult().get();
 
         if(executionResult.isExecutionSuccessful()) {
             apiGatewayResponse.httpStatus = HttpStatus.OK;

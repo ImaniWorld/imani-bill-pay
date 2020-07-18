@@ -2,6 +2,7 @@ package com.imani.bill.pay.domain.property;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
@@ -270,6 +271,18 @@ public class LeaseAgreement extends AuditableRecord {
 
     public void setApartment(Apartment apartment) {
         this.apartment = apartment;
+    }
+
+    public LeaseAgreementLite toLeaseAgreementLite() {
+        LeaseAgreementLite leaseAgreementLite = LeaseAgreementLite.builder()
+                .id(id)
+                .fixedCost(monthlyRentalCost)
+                .effectiveDate(effectiveDate)
+                .terminationDate(terminationDate)
+                .agreementInForce(agreementInEffect)
+                .billScheduleTypeE(BillScheduleTypeE.MONTHLY)
+                .build();
+        return leaseAgreementLite;
     }
 
     @Override

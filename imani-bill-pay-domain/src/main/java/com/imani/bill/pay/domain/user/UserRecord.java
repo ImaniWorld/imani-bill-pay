@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
-import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.property.PropertyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -109,12 +108,6 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PropertyManagerID")
     private PropertyManager propertyManager;
-
-
-    // Populated if this user has successfully setup a method of payment
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ACHPaymentInfoID")
-    private ACHPaymentInfo achPaymentInfo;
 
 
     public UserRecord() {
@@ -249,14 +242,6 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
         this.propertyManager = propertyManager;
     }
 
-    public ACHPaymentInfo getAchPaymentInfo() {
-        return achPaymentInfo;
-    }
-
-    public void setAchPaymentInfo(ACHPaymentInfo achPaymentInfo) {
-        this.achPaymentInfo = achPaymentInfo;
-    }
-
     public void updateSafeFieldsWherePresent(UserRecord userRecordToCopy) {
         Assert.notNull(userRecordToCopy, "userRecordToCopy cannot be null");
 
@@ -271,6 +256,15 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
         if(userRecordToCopy.getEmbeddedContactInfo().getPhone() != null) {
             this.getEmbeddedContactInfo().setPhone(userRecordToCopy.getEmbeddedContactInfo().getPhone());
         }
+    }
+
+    public UserRecordLite toUserRecordLite() {
+        UserRecordLite userRecordLite = UserRecordLite.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(embeddedContactInfo.getEmail())
+                .build();
+        return userRecordLite;
     }
 
 
@@ -292,7 +286,6 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
                 .append("lastLoginDate", lastLoginDate)
                 .append("lastLogoutDate", lastLogoutDate)
                 .append("propertyManager", propertyManager)
-                .append("achPaymentInfo", achPaymentInfo)
                 .toString();
     }
 
@@ -372,11 +365,6 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
 
         public Builder propertyManager(PropertyManager propertyManager) {
             userRecord.propertyManager = propertyManager;
-            return this;
-        }
-
-        public Builder achPaymentInfo(ACHPaymentInfo achPaymentInfo) {
-            userRecord.achPaymentInfo = achPaymentInfo;
             return this;
         }
 

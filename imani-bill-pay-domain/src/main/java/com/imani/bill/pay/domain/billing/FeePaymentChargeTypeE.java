@@ -1,4 +1,4 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.billing;
 
 /**
  * Identifies the types of fee payment charges that can be applied in Imani platform.

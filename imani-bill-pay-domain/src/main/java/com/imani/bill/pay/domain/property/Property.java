@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.geographical.Borough;
-import com.imani.bill.pay.domain.geographical.City;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -80,9 +79,9 @@ public class Property extends AuditableRecord {
     private Borough borough;
 
     // Based on the location of the property, this could be directly in a City.
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "CityID")
-    private City city;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "CityID")
+//    private City city;
 
 
     // Maps to optional PropertyManagement firm responsible for managing the property
@@ -199,13 +198,13 @@ public class Property extends AuditableRecord {
         this.borough = borough;
     }
 
-    public City getCity() {
-        return city;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
-    }
+//    public City getCity() {
+//        return city;
+//    }
+//
+//    public void setCity(City city) {
+//        this.city = city;
+//    }
 
     public PropertyManager getPropertyManager() {
         return propertyManager;
@@ -247,7 +246,7 @@ public class Property extends AuditableRecord {
                 .append(streetName).append(" ")
                 .append(borough.getName()).append(" ")
                 .append(borough.getCity().getName()).append(" ")
-                .append(borough.getCity().getState().getName()).append("")
+                .append(borough.getCity().getState().getName()).append(" ")
                 .append(zipCode);
         return sb.toString();
     }
@@ -297,7 +296,7 @@ public class Property extends AuditableRecord {
                 .append(longitude, property.longitude)
                 .append(propertyTypeE, property.propertyTypeE)
                 .append(borough, property.borough)
-                .append(city, property.city)
+//                .append(city, property.city)
                 .append(propertyManager, property.propertyManager)
                 .append(propertyOwner, property.propertyOwner)
                 .append(mthlyNumberOfDaysPaymentLate, property.mthlyNumberOfDaysPaymentLate)
@@ -318,7 +317,7 @@ public class Property extends AuditableRecord {
                 .append(longitude)
                 .append(propertyTypeE)
                 .append(borough)
-                .append(city)
+//                .append(city)
                 .append(propertyManager)
                 .append(propertyOwner)
                 .append(mthlyNumberOfDaysPaymentLate)
@@ -339,7 +338,7 @@ public class Property extends AuditableRecord {
                 .append("longitude", longitude)
                 .append("propertyTypeE", propertyTypeE)
                 .append("borough", borough)
-                .append("city", city)
+//                .append("city", city)
                 .append("propertyManager", propertyManager)
                 .append("propertyOwner", propertyOwner)
                 .append("mthlyNumberOfDaysPaymentLate", mthlyNumberOfDaysPaymentLate)
@@ -405,10 +404,10 @@ public class Property extends AuditableRecord {
             return this;
         }
 
-        public Builder city(City city) {
-            property.city = city;
-            return this;
-        }
+//        public Builder city(City city) {
+//            property.city = city;
+//            return this;
+//        }
 
         public Builder propertyManager(PropertyManager propertyManager) {
             property.propertyManager = propertyManager;

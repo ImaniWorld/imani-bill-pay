@@ -26,6 +26,13 @@
             <version>${version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.imani.bill.pay</groupId>
+            <artifactId>imani-bill-pay-svschedule</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

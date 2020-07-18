@@ -34,12 +34,6 @@ public class PlaidStripeController {
 
 
 
-    @GetMapping("/register/plaid/account/{publicToken}/{acctID}")
-    public void registerAuthenticatedPlaidAccount(@PathVariable("publicToken") String publicToken, @PathVariable("acctID") String accountID) {
-        LOGGER.info("Received call to register new Plaid Bank account with PublicToken:=> {} accountID :=> {}", publicToken, accountID);
-    }
-
-
     @PostMapping("/link/plaid/account")
     public APIGatewayResponse linkPlaidAccount(@RequestBody PlaidAcctLinkRequest plaidAcctLinkRequest) {
         LOGGER.info("Attempting to link Plaid account to existing user=> {}", plaidAcctLinkRequest);

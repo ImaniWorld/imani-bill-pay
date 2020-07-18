@@ -40,11 +40,13 @@ public abstract class AbstractMonthlyRentalBillingTest {
 
         // Build actual apartment that the user resides in.
         Apartment apartment = buildApartment();
+        apartment.getFloor().setProperty(property);
+        leaseAgreement.setApartment(apartment);
 
         userResidence = UserResidence.builder()
                 .userRecord(userRecord)
                 .property(property)
-                .leaseAgreement(leaseAgreement)
+//                .leaseAgreement(leaseAgreement)
                 .primaryResidence(true)
                 .apartment(apartment)
                 .build();

@@ -7,6 +7,6 @@ package com.imani.bill.pay.domain.payment;
  */
 public interface IHasPaymentInfo {
 
-    public ACHPaymentInfo getAchPaymentInfo();
+    //public ACHPaymentInfo getAchPaymentInfo();
 
 }

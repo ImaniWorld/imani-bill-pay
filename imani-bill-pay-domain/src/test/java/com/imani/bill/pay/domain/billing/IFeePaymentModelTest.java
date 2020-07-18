@@ -1,4 +1,4 @@
-package com.imani.bill.pay.domain.payment;
+package com.imani.bill.pay.domain.billing;
 
 import org.junit.Assert;
 import org.junit.Test;

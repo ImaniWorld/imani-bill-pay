@@ -1,7 +1,6 @@
 package com.imani.bill.pay.domain.property.repository;
 
 import com.imani.bill.pay.domain.geographical.Borough;
-import com.imani.bill.pay.domain.geographical.City;
 import com.imani.bill.pay.domain.property.Property;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +30,7 @@ public interface IPropertyRepository extends JpaRepository<Property, Long> {
     @Query("Select property From Property property Where property.propertyNumber =?1 and property.streetName =?2 and property.zipCode =?3 and property.borough =?4")
     public List<Property> findUniqueProperties(String propertyNumber, String streetName, String zipCode, Borough borough);
 
-    @Query("Select property From Property property Where property.propertyNumber =?1 and property.streetName =?2 and property.zipCode =?3 and property.city =?4")
-    public List<Property> findUniqueProperties(String propertyNumber, String streetName, String zipCode, City city);
+//    @Query("Select property From Property property Where property.propertyNumber =?1 and property.streetName =?2 and property.zipCode =?3 and property.city =?4")
+//    public List<Property> findUniqueProperties(String propertyNumber, String streetName, String zipCode, City city);
 
 }
