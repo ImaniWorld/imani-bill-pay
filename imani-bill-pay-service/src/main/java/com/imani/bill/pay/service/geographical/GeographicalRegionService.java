@@ -17,12 +17,17 @@ import com.imani.bill.pay.domain.property.repository.IPropertyRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
+import com.imani.bill.pay.service.billing.IImaniBillService;
+import com.imani.bill.pay.service.billing.ImaniBillService;
+import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
+import com.imani.bill.pay.service.payment.IACHPaymentInfoService;
+import com.imani.bill.pay.service.payment.IPlaidAccountBalanceService;
+import com.imani.bill.pay.service.payment.PlaidAccountBalanceService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author manyce400
@@ -59,6 +64,18 @@ public class GeographicalRegionService implements IGeographicalRegionService {
     @Autowired
     private IBillGenerationService iBillGenerationService;
 
+    @Autowired
+    @Qualifier(ImaniBillService.SPRING_BEAN)
+    private IImaniBillService imaniBillService;
+    
+    @Autowired
+    @Qualifier(ACHPaymentInfoService.SPRING_BEAN)
+    private IACHPaymentInfoService iachPaymentInfoService;
+
+    @Autowired
+    @Qualifier(PlaidAccountBalanceService.SPRING_BEAN)
+    private IPlaidAccountBalanceService iPlaidAccountBalanceService;
+
 
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.geographical.GeographicalRegionService";
@@ -72,11 +89,22 @@ public class GeographicalRegionService implements IGeographicalRegionService {
     }
 
 
-    @PostConstruct
+//    @PostConstruct
     public void runPostConstruct() {
 //        generateBill();
 //        saveBillPayFee();
+//        Optional<ImaniBill> imaniBill = imaniBillService.findByID(1L);
+//        System.out.println("\nimaniBill = " + imaniBill.get().getId() + "\n");
+
+//        Optional<ACHPaymentInfo> achPaymentInfo = iachPaymentInfoService.findByID(1L);
+//        if(achPaymentInfo.isPresent()) {
+//            System.out.println("Checking balance on account...");
+//            Optional<PlaidBankAcctBalance> plaidBankAcctBalance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(achPaymentInfo.get());
+//            System.out.println("plaidBankAcctBalance = " + plaidBankAcctBalance);
+//        }
     }
+    
+    
 
 
     public void generateBill() {

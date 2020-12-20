@@ -1,5 +1,7 @@
 package com.imani.bill.pay.svschedule.auto.billing;
 
+import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.user.UserRecordTypeE;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.PropertyLeaseBillGenerationService;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author manyce400
@@ -32,18 +36,18 @@ public class UserBillGenerationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//        LOGGER.info("Running automated Imani BillPay generation.....");
-//
-//        List<UserRecord> leaseUsers = iUserRecordRepository.findAllUsersByType(UserRecordTypeE.Tenant);
-//
-//        for(UserRecord userRecord : leaseUsers) {
-//            try {
-//                iBillGenerationService.generateImaniBill(userRecord);
-//            } catch (Exception e) {
-//                LOGGER.warn("Failed to generate bill for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
-//                e.printStackTrace();
-//            }
-//        }
+        LOGGER.info("Running automated Imani BillPay generation.....");
+
+        List<UserRecord> leaseUsers = iUserRecordRepository.findAllUsersByType(UserRecordTypeE.Tenant);
+
+        for(UserRecord userRecord : leaseUsers) {
+            try {
+                iBillGenerationService.generateImaniBill(userRecord);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to generate bill for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());
+                e.printStackTrace();
+            }
+        }
     }
 
     @Bean(UserBillGenerationJob.JOB_DETAIL)
