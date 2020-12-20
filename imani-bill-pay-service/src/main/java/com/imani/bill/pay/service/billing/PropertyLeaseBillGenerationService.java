@@ -3,11 +3,9 @@ package com.imani.bill.pay.service.billing;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
-import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.domain.user.repository.IUserResidenceRepository;
@@ -94,26 +92,6 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
         }
 
         return false;
-    }
-
-    @Transactional
-    @Override
-    public Optional<ImaniBillExplained> genCurrentBillExplanation(UserRecordLite userRecordLite) {
-        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
-        return genCurrentBillExplanation(userRecord);
-    }
-
-    //@Override
-    public Optional<ImaniBillExplained> genCurrentBillExplanation(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        LOGGER.info("Attempting to generate lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());
-
-        Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
-        if(imaniBill.isPresent()) {
-            return Optional.of(imaniBill.get().toImaniBillExplained());
-        }
-
-        return Optional.empty();
     }
 
     Property getLeaseProperty(PropertyLeaseAgreement propertyLeaseAgreement) {

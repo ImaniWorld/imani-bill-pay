@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.daycare.ChildCareAgreement;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
+import com.imani.bill.pay.domain.payment.EmbeddedPayment;
+import com.imani.bill.pay.domain.payment.record.ImaniBillPayRecord;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
@@ -80,6 +82,10 @@ public class ImaniBill extends AuditableRecord {
     // Tracks all additional fees that should be applied to this bill
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "imaniBill")
     private Set<ImaniBillToFee> imaniBillToFees = new HashSet<>();
+
+    // Tracks all bill payment records. Anytime a user attempts a payment a record is kept
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "imaniBill")
+    private Set<ImaniBillPayRecord> imaniBillPayRecords = new HashSet<>();
 
 
     public ImaniBill() {
@@ -192,12 +198,22 @@ public class ImaniBill extends AuditableRecord {
         imaniBillToFees.add(imaniBillToFee);
     }
 
+
     public Set<ImaniBillToFee> getImaniBillFees() {
         return ImmutableSet.copyOf(imaniBillToFees);
     }
 
     public boolean hasFees() {
         return getImaniBillFees().size() > 0;
+    }
+
+    public void addImaniBillPayRecord(ImaniBillPayRecord imaniBillPayRecord) {
+        Assert.notNull(imaniBillPayRecord, "ImaniBillPayRecord cannot be null");
+        imaniBillPayRecords.add(imaniBillPayRecord);
+    }
+
+    public Set<ImaniBillPayRecord> getImaniBillPayRecords() {
+        return ImmutableSet.copyOf(imaniBillPayRecords);
     }
 
     public Set<ImaniBillToFee> getBillPayFeesByFeeTypeE(FeeTypeE feeTypeE) {
@@ -229,6 +245,12 @@ public class ImaniBill extends AuditableRecord {
             BillPayFeeExplained billPayFeeExplained = imaniBillToFee.toBillPayFeeExplained();
             imaniBillExplained.addBillPayFeeExplained(billPayFeeExplained);
         }
+
+        // Add all payment attempts made from records
+        imaniBillPayRecords.forEach(imaniBillPayRecord -> {
+            EmbeddedPayment embeddedPayment = imaniBillPayRecord.getEmbeddedPayment();
+            imaniBillExplained.addEmbeddedPayment(embeddedPayment);
+        });
 
         return imaniBillExplained;
     }

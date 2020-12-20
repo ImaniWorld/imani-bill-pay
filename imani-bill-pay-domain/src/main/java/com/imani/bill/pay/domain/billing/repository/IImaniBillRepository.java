@@ -20,4 +20,7 @@ public interface IImaniBillRepository extends JpaRepository<ImaniBill, Long> {
     @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.billedUser = ?1 and imaniBill.billScheduleDate = ?2 and imaniBill.billScheduleTypeE = ?3 and imaniBill.billServiceRenderedTypeE = ?4")
     public Optional<ImaniBill> getImaniBill(UserRecord userRecord, DateTime dateTime, BillScheduleTypeE billScheduleTypeE, BillServiceRenderedTypeE billServiceRenderedTypeE);
 
+    @Query("Select imaniBill From ImaniBill imaniBill JOIN FETCH imaniBill.imaniBillPayRecords Where imaniBill.billedUser = ?1 and imaniBill.billScheduleDate = ?2 and imaniBill.billScheduleTypeE = ?3 and imaniBill.billServiceRenderedTypeE = ?4")
+    public Optional<ImaniBill> getImaniBillFetchRecords(UserRecord userRecord, DateTime dateTime, BillScheduleTypeE billScheduleTypeE, BillServiceRenderedTypeE billServiceRenderedTypeE);
+
 }
