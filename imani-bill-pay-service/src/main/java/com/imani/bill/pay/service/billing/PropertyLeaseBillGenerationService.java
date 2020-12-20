@@ -85,6 +85,10 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
                     iBillPayFeeGenerationService.addImaniBillFees(userRecord, propertyLeaseAgreement, imaniBill);
                     imaniBillService.save(imaniBill);
                     return true;
+                } else {
+                    // Execute late fee check logic and apply fee if necessary
+                    iBillPayFeeGenerationService.addImaniBillFees(userRecord, propertyLeaseAgreement, optionalImaniBill.get());
+                    imaniBillService.save(optionalImaniBill.get());
                 }
             }
         }
@@ -114,7 +118,6 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
 
     Property getLeaseProperty(PropertyLeaseAgreement propertyLeaseAgreement) {
         if(propertyLeaseAgreement.getLeasedApartment() != null) {
-            LOGGER.info("Found lease agreement on apartment");
             return propertyLeaseAgreement.getLeasedApartment().getFloor().getProperty();
         } else {
             return propertyLeaseAgreement.getLeasedProperty();

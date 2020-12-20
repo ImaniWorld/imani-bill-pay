@@ -50,7 +50,7 @@ public class ImaniBillService implements IImaniBillService {
         DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
         String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
 
-        LOGGER.info("Finding current month: {} residential lease bill for user: {}", userRecord.getEmbeddedContactInfo().getEmail(),  dateString);
+        LOGGER.info("Finding current month: {} residential lease bill for user: {}", dateString, userRecord.getEmbeddedContactInfo().getEmail());
         Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBill(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
         return imaniBill;
     }
