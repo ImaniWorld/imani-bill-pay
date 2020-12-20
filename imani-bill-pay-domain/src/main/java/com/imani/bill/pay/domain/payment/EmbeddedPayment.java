@@ -1,12 +1,12 @@
 package com.imani.bill.pay.domain.payment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -36,16 +36,16 @@ public class EmbeddedPayment {
 
 
     // Date the payment was made on
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "PaymentDate", nullable = false, updatable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @CreatedDate
     private DateTime paymentDate;
 
 
     // Date the payment actually posted. Useful for settling payments against example Bank accounts which might not post immidiately
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "PaymentPostDate", nullable = true, updatable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @CreatedDate
     private DateTime paymentPostDate;
 
 
