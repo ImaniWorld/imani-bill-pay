@@ -4,7 +4,6 @@ import com.imani.bill.pay.domain.payment.config.StripeAPIConfig;
 import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,10 +47,11 @@ public class StripeChargeService implements IStripeChargeService {
             params.put("customer", userRecord.getStripeCustomerID());
 
             try {
-                Charge charge = Charge.create(params);
+                // TODO invoke the real charge
+                Charge charge = new Charge(); //Charge.create(params);
                 //charge.getStatus()
                 return Optional.of(charge);
-            } catch (StripeException e) {
+            } catch (Exception e) {
                 LOGGER.warn("Failed to create UserRecord Customer Stripe charge", e);
             }
         }

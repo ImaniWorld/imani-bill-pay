@@ -3,6 +3,8 @@ package com.imani.bill.pay.service.util;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.MutableDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -13,6 +15,9 @@ import org.springframework.util.Assert;
 public class DateTimeUtil implements IDateTimeUtil {
 
 
+    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static final DateTimeFormatter DISPLAY_FRIENDLY_NO_TIME = DateTimeFormat.forPattern("MM/dd/yyyy");
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(DateTimeUtil.class);
 
@@ -39,8 +44,12 @@ public class DateTimeUtil implements IDateTimeUtil {
 
         MutableDateTime mutableDateTime = new MutableDateTime(dateTime);
         mutableDateTime.setDayOfMonth(1);
-        mutableDateTime.setMillisOfDay(0);
-        return mutableDateTime.toDateTime().withTimeAtStartOfDay();
+        mutableDateTime.setHourOfDay(0);
+        mutableDateTime.setMinuteOfHour(0);
+        mutableDateTime.setSecondOfMinute(0);
+        mutableDateTime.setMillisOfSecond(0);
+        return mutableDateTime.toDateTime();
+//        return dateTime.withDayOfMonth(1).withTimeAtStartOfDay();
     }
 
     @Override
@@ -57,4 +66,25 @@ public class DateTimeUtil implements IDateTimeUtil {
         Assert.notNull(end, "end cannot be null");
         return Days.daysBetween(start, end).getDays();
     }
+
+    public String toDisplayFriendlyNoTime(DateTime dateTime) {
+        Assert.notNull(dateTime,  "dateTime cannot be null");
+        return dateTime.toString(DISPLAY_FRIENDLY_NO_TIME);
+    }
+
+    public String toDisplayDefault(DateTime dateTime) {
+        Assert.notNull(dateTime,  "dateTime cannot be null");
+        return dateTime.toString(DEFAULT_FORMATTER);
+    }
+
+
+    public static void main(String[] args) {
+        DateTimeUtil dateTimeUtil = new DateTimeUtil();
+        DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+        System.out.println("dateTime = " + dateTime);
+        String str = dateTimeUtil.toDisplayDefault(dateTime);
+        System.out.println("str = " + str);
+    }
+
+    
 }

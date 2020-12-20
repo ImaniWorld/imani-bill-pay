@@ -1,5 +1,9 @@
 package com.imani.bill.pay.service.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -8,6 +12,8 @@ import org.springframework.stereotype.Service;
 public class RestUtil implements IRestUtil {
 
 
+    @Autowired
+    private ObjectMapper mapper;
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.util.RestUtil";
 
@@ -21,4 +27,12 @@ public class RestUtil implements IRestUtil {
         return headers;
     }
 
+    @Override
+    public HttpEntity<String> getObjectAsRequest(Object o) throws JsonProcessingException {
+        HttpHeaders headers = getRestJSONHeader();
+        String jsonRequest = mapper.writeValueAsString(o);
+        LOGGER.info("JSON Request:=> {}", jsonRequest);
+        HttpEntity<String> request = new HttpEntity<>(jsonRequest, headers);
+        return request;
+    }
 }

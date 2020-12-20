@@ -16,10 +16,11 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PlaidItemInfo {
+public class PlaidItem {
 
 
-    private String error;
+    @JsonProperty("error")
+    private PlaidAPIError error;
 
     @JsonProperty("institution_id")
     private String institutionID;
@@ -37,15 +38,15 @@ public class PlaidItemInfo {
     private List<String> billedProducts = new ArrayList<>();
 
 
-    public PlaidItemInfo() {
+    public PlaidItem() {
 
     }
 
-    public String getError() {
+    public PlaidAPIError getError() {
         return error;
     }
 
-    public void setError(String error) {
+    public void setError(PlaidAPIError error) {
         this.error = error;
     }
 

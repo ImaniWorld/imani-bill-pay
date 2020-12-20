@@ -18,7 +18,7 @@ public class PlaidItemAccountsResponse extends PlaidAPIResponse {
 
 
     @JsonProperty("item")
-    private PlaidItemInfo plaidItemInfo;
+    private PlaidItem plaidItem;
 
     private List<PlaidBankAcct> accounts = new ArrayList<>();
 
@@ -27,12 +27,12 @@ public class PlaidItemAccountsResponse extends PlaidAPIResponse {
 
     }
 
-    public PlaidItemInfo getPlaidItemInfo() {
-        return plaidItemInfo;
+    public PlaidItem getPlaidItem() {
+        return plaidItem;
     }
 
-    public void setPlaidItemInfo(PlaidItemInfo plaidItemInfo) {
-        this.plaidItemInfo = plaidItemInfo;
+    public void setPlaidItem(PlaidItem plaidItem) {
+        this.plaidItem = plaidItem;
     }
 
     public List<PlaidBankAcct> getAccounts() {
@@ -50,7 +50,7 @@ public class PlaidItemAccountsResponse extends PlaidAPIResponse {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("plaidItemInfo", plaidItemInfo)
+                .append("plaidItemInfo", plaidItem)
                 .append("accounts", accounts)
                 .toString();
     }
@@ -62,8 +62,8 @@ public class PlaidItemAccountsResponse extends PlaidAPIResponse {
     public static class Builder {
         private final PlaidItemAccountsResponse plaidItemAccountsResponse = new PlaidItemAccountsResponse();
 
-        public Builder plaidItemInfo(PlaidItemInfo plaidItemInfo) {
-            plaidItemAccountsResponse.plaidItemInfo = plaidItemInfo;
+        public Builder plaidItemInfo(PlaidItem plaidItem) {
+            plaidItemAccountsResponse.plaidItem = plaidItem;
             return this;
         }
 

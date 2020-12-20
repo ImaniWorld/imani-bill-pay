@@ -99,7 +99,7 @@ public class PlaidAccountMasterServiceTest implements IMockUserRecordTestBuilder
                 .officialName("Official Test Acct")
                 .build();
         PlaidItemAccountsResponse plaidItemAccountsResponse = PlaidItemAccountsResponse.builder()
-                .plaidItemInfo(new PlaidItemInfo())
+                .plaidItemInfo(new PlaidItem())
                 .plaidBankAcct(plaidBankAcct)
                 .build();
         Mockito.when(iPlaidAPIService.getPlaidItemAccounts(Mockito.any(), Mockito.any())).thenReturn(Optional.of(plaidItemAccountsResponse));

@@ -17,4 +17,8 @@ public interface IDateTimeUtil {
 
     public Integer getDaysBetweenDates(DateTime start, DateTime end);
 
+    public String toDisplayFriendlyNoTime(DateTime dateTime);
+
+    public String toDisplayDefault(DateTime dateTime);
+
 }

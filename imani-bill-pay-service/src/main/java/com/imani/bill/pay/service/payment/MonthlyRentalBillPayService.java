@@ -1,24 +1,21 @@
 package com.imani.bill.pay.service.payment;
 
-import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.payment.PaymentStatusE;
+import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
 import com.imani.bill.pay.domain.property.MonthlyRentalBill;
 import com.imani.bill.pay.domain.property.MonthlyRentalBillExplained;
 import com.imani.bill.pay.domain.property.RentalBillPayResult;
 import com.imani.bill.pay.domain.property.repository.IMonthlyRentalBillRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserResidence;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.payment.stripe.IStripeChargeService;
 import com.imani.bill.pay.service.payment.stripe.StripeChargeService;
 import com.imani.bill.pay.service.property.IMonthlyRentalBillDescService;
 import com.imani.bill.pay.service.property.MonthlyRentalBillDescService;
-import com.stripe.model.Charge;
 import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
@@ -45,9 +42,9 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
     @Qualifier(MonthlyRentalBillDescService.SPRING_BEAN)
     private IMonthlyRentalBillDescService iMonthlyRentalBillDescService;
 
-    @Autowired
-    @Qualifier(RentalPaymentHistoryService.SPRING_BEAN)
-    private IRentalPaymentHistoryService iRentalPaymentHistoryService;
+//    @Autowired
+//    @Qualifier(ImaniBillPayRecordService.SPRING_BEAN)
+//    private IImaniBillPayHistoryService IImaniBillPayHistoryService;
 
     @Autowired
     @Qualifier(PlaidAccountBalanceService.SPRING_BEAN)
@@ -61,52 +58,53 @@ public class MonthlyRentalBillPayService implements IMonthlyRentalBillPayService
     @Transactional
     @Override
     public RentalBillPayResult payMonthlyRental(MonthlyRentalBillExplained monthlyRentalBillExplained) {
-        Assert.notNull(monthlyRentalBillExplained, "monthlyRentalBillExplained cannot be null");
-
-        UserResidence userResidence = monthlyRentalBillExplained.getUserResidence();
-        UserRecord userRecord = userResidence.getUserRecord();
-
-        // Find the current user's monthly rental bill
-        MonthlyRentalBill jpaMonthlyRentalBill = iMonthlyRentalBillRepository.getUserMonthlyRentalBill(userRecord, monthlyRentalBillExplained.getRentalMonth());
-
-        // IF there are any pending payments that have not yet posted for this current month then dont allow the user to submit a new payment
-        if(iRentalPaymentHistoryService.hasPendingUserRentalPaymentForCurrentMonth(userRecord)) {
-            LOGGER.warn("User: {} already has pending payment for current month.  Payment should post before new payments can be submitted", userRecord.getEmbeddedContactInfo().getEmail());
-            return getRentalBillPayResultOnPendingPayments(jpaMonthlyRentalBill, monthlyRentalBillExplained);
-        }
-
-
-        if (jpaMonthlyRentalBill != null && !jpaMonthlyRentalBill.isBillClosed()) {
-            // Refresh all the user details from persistent store
-            UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
-            LOGGER.info("Executing rental payment request for user: {}", jpaUserRecord.getEmbeddedContactInfo().getEmail());
-
-            // Prevent double payment, make sure that this bill has not been fully paid or is currently closed.
-            Double computedTotalAmtDue = iMonthlyRentalBillDescService.calculateTotalAmountDue(jpaMonthlyRentalBill, userResidence.getUserResidencePropertyServices());
-            boolean canMakePaymentOnBill = canMakePaymentOnBill(jpaMonthlyRentalBill, computedTotalAmtDue, monthlyRentalBillExplained.getAmtBeingPaid());
-
-            if(canMakePaymentOnBill) {
-                // Now validate real-time using Plaid that this user has enough funds in their available account balance to make this payment and execute.
-                Optional<PlaidBankAcctBalance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
-
-                if(balance.isPresent() && !balance.get().hasAvailableBalanceForPayment(monthlyRentalBillExplained.getAmtBeingPaid())) {
-                    return getRentalBillPayResultOnInsufficientFunds(balance, monthlyRentalBillExplained);
-                } else {
-                    // TODO in this scenario, if we cant find balance information we process payment.  Evaluate if this is the best step to proceed.
-                    // TODO submit Stripe charge for ACH Bill Payment here
-                    // We can now safely post this payment to user's bank account since balance has been verified and return a completed payment result
-                    LOGGER.info("Submitting ACH bill payment for User:=> {} and Rental Month:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), monthlyRentalBillExplained.getRentalMonth());
-                    Optional<Charge> charge = iStripeChargeService.createCustomerACHCharge(userRecord, monthlyRentalBillExplained.getAmtBeingPaid());
-
-                    if (charge.isPresent()) {
-                        // Create a RentalPaymentHistory to capture this payment
-                        iRentalPaymentHistoryService.createRentalPaymentHistory(jpaMonthlyRentalBill, monthlyRentalBillExplained);
-                    }
-                }
-            }
-        }
-
-        return getRentalBillPayResultOnIncorrectBill(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+//        Assert.notNull(monthlyRentalBillExplained, "monthlyRentalBillExplained cannot be null");
+//
+//        UserResidence userResidence = monthlyRentalBillExplained.getUserResidence();
+//        UserRecord userRecord = userResidence.getUserRecord();
+//
+//        // Find the current user's monthly rental bill
+//        MonthlyRentalBill jpaMonthlyRentalBill = iMonthlyRentalBillRepository.getUserMonthlyRentalBill(userRecord, monthlyRentalBillExplained.getRentalMonth());
+//
+//        // IF there are any pending payments that have not yet posted for this current month then dont allow the user to submit a new payment
+//        if(IImaniBillPayHistoryService.hasPendingUserRentalPaymentForCurrentMonth(userRecord)) {
+//            LOGGER.warn("User: {} already has pending payment for current month.  Payment should post before new payments can be submitted", userRecord.getEmbeddedContactInfo().getEmail());
+//            return getRentalBillPayResultOnPendingPayments(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+//        }
+//
+//
+//        if (jpaMonthlyRentalBill != null && !jpaMonthlyRentalBill.isBillClosed()) {
+//            // Refresh all the user details from persistent store
+//            UserRecord jpaUserRecord = iUserRecordRepository.findByUserEmail(userRecord.getEmbeddedContactInfo().getEmail());
+//            LOGGER.info("Executing rental payment request for user: {}", jpaUserRecord.getEmbeddedContactInfo().getEmail());
+//
+//            // Prevent double payment, make sure that this bill has not been fully paid or is currently closed.
+//            Double computedTotalAmtDue = iMonthlyRentalBillDescService.calculateTotalAmountDue(jpaMonthlyRentalBill, userResidence.getUserResidencePropertyServices());
+//            boolean canMakePaymentOnBill = canMakePaymentOnBill(jpaMonthlyRentalBill, computedTotalAmtDue, monthlyRentalBillExplained.getAmtBeingPaid());
+//
+//            if(canMakePaymentOnBill) {
+//                // Now validate real-time using Plaid that this user has enough funds in their available account balance to make this payment and execute.
+//                Optional<PlaidBankAcctBalance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
+//
+//                if(balance.isPresent() && !balance.get().hasAvailableBalanceForPayment(monthlyRentalBillExplained.getAmtBeingPaid())) {
+//                    return getRentalBillPayResultOnInsufficientFunds(balance, monthlyRentalBillExplained);
+//                } else {
+//                    // TODO in this scenario, if we cant find balance information we process payment.  Evaluate if this is the best step to proceed.
+//                    // TODO submit Stripe charge for ACH Bill Payment here
+//                    // We can now safely post this payment to user's bank account since balance has been verified and return a completed payment result
+//                    LOGGER.info("Submitting ACH bill payment for User:=> {} and Rental Month:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), monthlyRentalBillExplained.getRentalMonth());
+//                    Optional<Charge> charge = iStripeChargeService.createCustomerACHCharge(userRecord, monthlyRentalBillExplained.getAmtBeingPaid());
+//
+//                    if (charge.isPresent()) {
+//                        // Create a RentalPaymentHistory to capture this payment
+//                        IImaniBillPayHistoryService.createRentalPaymentHistory(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+//                    }
+//                }
+//            }
+//        }
+//
+//        return getRentalBillPayResultOnIncorrectBill(jpaMonthlyRentalBill, monthlyRentalBillExplained);
+        return null;
     }
 
 

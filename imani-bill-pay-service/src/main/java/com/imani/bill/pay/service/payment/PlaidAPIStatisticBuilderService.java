@@ -69,7 +69,7 @@ public class PlaidAPIStatisticBuilderService implements IPlaidAPIStatisticBuilde
             Assert.notNull(apiInvocationStartDate, "apiInvocationStartDate cannot be null");
             Assert.notNull(apiInvocationEndDate, "apiInvocationEndDate cannot be null");
 
-            LOGGER.debug("Building PlaidAPIStatistic on failed balance call for achPaymentInfo:=> {}", achPaymentInfo);
+            LOGGER.info("Saving PlaidAPIStatistic on failed balance call for AchPaymentInfo with id: {}", achPaymentInfo.getId());
 
             PlaidAPIStatistic plaidAPIStatistic = PlaidAPIStatistic.builder()
                     .achPaymentInfo(achPaymentInfo)
@@ -79,6 +79,7 @@ public class PlaidAPIStatisticBuilderService implements IPlaidAPIStatisticBuilde
                     .paymentAPIExecResultE(PaymentAPIExecResultE.Failed)
                     .apiExecError(apiExecError)
                     .build();
+
             iPlaidAPIStatisticRepository.save(plaidAPIStatistic);
         };
 

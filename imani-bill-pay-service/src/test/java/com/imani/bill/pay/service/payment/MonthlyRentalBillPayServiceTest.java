@@ -36,8 +36,8 @@ public class MonthlyRentalBillPayServiceTest extends AbstractMonthlyRentalBillin
     @Mock
     private IMonthlyRentalBillDescService iMonthlyRentalBillDescService;
 
-    @Mock
-    private IRentalPaymentHistoryService iRentalPaymentHistoryService;
+//    @Mock
+//    private IImaniBillPayHistoryService IImaniBillPayHistoryService;
 
     @Mock
     private IPlaidAccountBalanceService iPlaidAccountBalanceService;

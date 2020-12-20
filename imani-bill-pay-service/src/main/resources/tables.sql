@@ -205,3 +205,19 @@ create table PropertyService (
           ModifyDate datetime,
           primary key (ID)
       );
+
+
+  create table ImaniBillPayHistory (
+         ID bigint not null auto_increment,
+          Currency varchar(3),
+          PaymentAmount double precision not null,
+          PaymentDate datetime not null,
+          PaymentPostDate datetime,
+          PaymentStatusE varchar(20) not null,
+          PlaidErrorType integer,
+          PlaidErrorCode integer,
+          PlaidErrorMessage varchar(500),
+          ACHPaymentInfoID bigint,
+          ImaniBillID bigint,
+          primary key (ID)
+      )

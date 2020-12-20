@@ -38,6 +38,13 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
 
 
     @Override
+    public Optional<ACHPaymentInfo> findByID(Long id) {
+        Assert.notNull(id, "Id cannot be null");
+        LOGGER.debug("Finding ACHPaymentInfo by id:=> {}", id);
+        return iachPaymentInfoRepository.findById(id);
+    }
+
+    @Override
     public ACHPaymentInfo findPrimaryPamentInfo(UserRecord userRecord) {
         Assert.notNull(userRecord, "userRecord cannot be null");
         LOGGER.info("Finding primary ACHPaymentInfo for user:=> {}", userRecord.getEmbeddedContactInfo().getEmail());

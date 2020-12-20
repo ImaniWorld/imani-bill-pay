@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.payment;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,6 +17,7 @@ import javax.persistence.Enumerated;
  * @author manyce400
  */
 @Embeddable
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EmbeddedPayment {
 
 
@@ -28,7 +30,7 @@ public class EmbeddedPayment {
     private String currency;
 
 
-    @Column(name="PropertyTypeE", nullable=false, length=20)
+    @Column(name="PaymentStatusE", nullable=false, length=20)
     @Enumerated(EnumType.STRING)
     private PaymentStatusE paymentStatusE;
 
@@ -40,7 +42,7 @@ public class EmbeddedPayment {
     private DateTime paymentDate;
 
 
-    // Date the payment actually posted against the Property Managers Receivable account.
+    // Date the payment actually posted. Useful for settling payments against example Bank accounts which might not post immidiately
     @Column(name = "PaymentPostDate", nullable = true, updatable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @CreatedDate

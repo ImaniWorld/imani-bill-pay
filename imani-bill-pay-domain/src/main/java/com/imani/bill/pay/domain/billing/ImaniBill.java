@@ -60,7 +60,7 @@ public class ImaniBill extends AuditableRecord {
 
 
     // Tracks the user that this bill was generated for
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UserRecordID", nullable = false)
     private UserRecord billedUser;
 
@@ -160,6 +160,14 @@ public class ImaniBill extends AuditableRecord {
 
     public boolean isPaidInFull() {
         return amountOwed.equals(amountPaid);
+    }
+
+    public boolean isValidPaymentAmount(double amountToBePaid) {
+        return amountToBePaid <= getTotalStillOwed();
+    }
+
+    public double getTotalStillOwed() {
+        return amountOwed - amountPaid;
     }
 
     public void addImaniBillToFee(BillPayFee billPayFee) {

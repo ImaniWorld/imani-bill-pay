@@ -2,6 +2,8 @@ package com.imani.bill.pay.domain.billing;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
@@ -47,6 +49,30 @@ public class BillPayFeeExplained {
 
     public void setFeeAppliedDate(DateTime feeAppliedDate) {
         this.feeAppliedDate = feeAppliedDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BillPayFeeExplained that = (BillPayFeeExplained) o;
+
+        return new EqualsBuilder()
+                .append(feeName, that.feeName)
+                .append(feeCharge, that.feeCharge)
+                .append(feeAppliedDate, that.feeAppliedDate)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(feeName)
+                .append(feeCharge)
+                .append(feeAppliedDate)
+                .toHashCode();
     }
 
     @Override

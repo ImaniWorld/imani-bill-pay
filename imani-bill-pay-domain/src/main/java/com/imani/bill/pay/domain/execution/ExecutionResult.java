@@ -3,6 +3,7 @@ package com.imani.bill.pay.domain.execution;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
+import com.imani.bill.pay.domain.platform.PlatformActionRequiredE;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -25,8 +26,14 @@ public class ExecutionResult<O> {
 
     private Set<ExecutionError> executionErrors = new HashSet<>();
 
+    private Set<PlatformActionRequiredE> platformActionRequiredSet = new HashSet<>();
+
     public ExecutionResult() {
 
+    }
+
+    public ExecutionResult(O result) {
+        this.result = result;
     }
 
     public Optional<O> getResult() {
@@ -81,12 +88,29 @@ public class ExecutionResult<O> {
         return ImmutableSet.copyOf(executionErrors);
     }
 
+    public void addPlatformActionRequiredE(PlatformActionRequiredE platformActionRequiredE) {
+        Assert.notNull(platformActionRequiredE, "PlatformActionRequiredE cannot be null");
+        platformActionRequiredSet.add(platformActionRequiredE);
+    }
+
+    public void addPlatformActionRequiredESet(Set<PlatformActionRequiredE> input) {
+        Assert.notNull(platformActionRequiredSet, "platformActionRequiredSet cannot be null");
+        input.forEach(platformActionRequiredE -> {
+            addPlatformActionRequiredE(platformActionRequiredE);
+        });
+    }
+
+    public Set<PlatformActionRequiredE> getPlatformActionRequiredSet() {
+        return ImmutableSet.copyOf(platformActionRequiredSet);
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("result", result)
                 .append("validationAdvices", validationAdvices)
                 .append("executionErrors", executionErrors)
+                .append("platformActionRequiredSet", platformActionRequiredSet)
                 .toString();
     }
 
@@ -121,6 +145,11 @@ public class ExecutionResult<O> {
         public Builder addValidationAdvice(String advice) {
             Assert.notNull(advice, "advice cannot be null");
             executionResult.addValidationAdvice(ValidationAdvice.newInstance(advice));
+            return this;
+        }
+
+        public Builder addPlatformActionRequiredE(PlatformActionRequiredE platformActionRequiredE) {
+            executionResult.addPlatformActionRequiredE(platformActionRequiredE);
             return this;
         }
 

@@ -3,6 +3,8 @@ package com.imani.bill.pay.domain.billing;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
+import com.imani.bill.pay.domain.payment.EmbeddedPayment;
+import com.imani.bill.pay.domain.payment.PaymentStatusE;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
@@ -39,6 +41,8 @@ public class ImaniBillExplained {
     // Collection of additional fees applied against this rental bill
     private Set<BillPayFeeExplained> billPayFeeExplainedSet = new HashSet<>();
 
+    private Set<EmbeddedPayment> embeddedPayments = new HashSet<>();
+
 
     public ImaniBillExplained() {
 
@@ -62,10 +66,6 @@ public class ImaniBillExplained {
 
     public Double getAmountPaid() {
         return amountPaid;
-    }
-
-    public void setAmountPaid(Double amountPaid) {
-        this.amountPaid = amountPaid;
     }
 
     public Double getAmtBeingPaid() {
@@ -115,6 +115,28 @@ public class ImaniBillExplained {
     public void addBillPayFeeExplained(BillPayFeeExplained billPayFeeExplained) {
         Assert.notNull(billPayFeeExplained, "BillPayFeeExplained cannot be null");
         billPayFeeExplainedSet.add(billPayFeeExplained);
+    }
+
+    public Set<EmbeddedPayment> getEmbeddedPayments() {
+        return ImmutableSet.copyOf(embeddedPayments);
+    }
+
+    public void addEmbeddedPayment(EmbeddedPayment embeddedPayment) {
+        Assert.notNull(embeddedPayment, "EmbeddedPayment cannot be null");
+        embeddedPayments.add(embeddedPayment);
+        computeProcessedPayments();
+    }
+
+    private void computeProcessedPayments() {
+        // Update amounts paid
+        double computedPayments = 0;
+        for(EmbeddedPayment embeddedPayment : embeddedPayments) {
+            if(embeddedPayment.getPaymentStatusE() == PaymentStatusE.Success) {
+                computedPayments = computedPayments +embeddedPayment.getPaymentAmount().doubleValue();
+            }
+        }
+
+        amountPaid = computedPayments;
     }
 
     @Override

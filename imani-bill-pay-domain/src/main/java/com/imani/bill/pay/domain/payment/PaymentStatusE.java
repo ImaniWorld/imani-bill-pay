@@ -12,6 +12,8 @@ public enum PaymentStatusE {
 
     Failed,
 
+    Balance_Validation_Fail,
+
     InsufficientFunds,
 
     CannotProcess

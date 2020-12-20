@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -224,11 +223,11 @@ public class PlaidAccountMasterService implements IPlaidAccountMasterService {
     }
 
 
-    @PostConstruct
-    void postConstruct() {
-        LOGGER.info("===================  Running Plaid API with configuration =======================");
-        LOGGER.info("{}", plaidAPIConfig);
-        LOGGER.info("=================================================================================");
-    }
+//    @PostConstruct
+//    void postConstruct() {
+//        LOGGER.info("===================  Running Plaid API with configuration =======================");
+//        LOGGER.info("{}", plaidAPIConfig);
+//        LOGGER.info("=================================================================================");
+//    }
 
 }

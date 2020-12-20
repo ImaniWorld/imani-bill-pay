@@ -4,7 +4,6 @@ import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
-import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -32,6 +31,7 @@ import java.util.Optional;
 public class PropertyLeaseBillGenerationService implements IBillGenerationService {
 
 
+
     @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
@@ -40,7 +40,8 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
     private IUserRecordRepository iUserRecordRepository;
 
     @Autowired
-    private IImaniBillRepository imaniBillRepository;
+    @Qualifier(ImaniBillService.SPRING_BEAN)
+    private IImaniBillService imaniBillService;
 
     @Autowired
     private IUserResidenceRepository iUserResidenceRepository;
@@ -72,21 +73,20 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
 
             if(propertyLeaseAgreement.getEmbeddedAgreement().isAgreementInForce()) {
                 DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+                String dateString = iDateTimeUtil.toDisplayDefault(dateTimeAtStartOfMonth);
                 LOGGER.info("User lease agreement found @ property: {}. ", property.getPrintableAddress());
 
                 // Check to see if a lease bill has been generated already for the current month
-                ImaniBill imaniBill = imaniBillRepository.getImaniBillForScheduleDate(userRecord, dateTimeAtStartOfMonth);
-                if(imaniBill == null) {
-                    LOGGER.info("Generating new property-lease-agreement Imani Bill Month: {}", dateTimeAtStartOfMonth.monthOfYear().getAsText());
-                    imaniBill = createLeaseImaniBill(userRecord, propertyLeaseAgreement, dateTimeAtStartOfMonth);
+                Optional<ImaniBill> optionalImaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
+
+                if(!optionalImaniBill.isPresent()) {
+                    LOGGER.info("Generating new property-lease-agreement Imani Bill for date: {}", dateString);
+                    ImaniBill imaniBill = createLeaseImaniBill(userRecord, propertyLeaseAgreement, dateTimeAtStartOfMonth);
+                    iBillPayFeeGenerationService.addImaniBillFees(userRecord, propertyLeaseAgreement, imaniBill);
+                    imaniBillService.save(imaniBill);
+                    return true;
                 }
-
-                // Apply all required fees on Imani Bill.
-                iBillPayFeeGenerationService.addImaniBillFees(userRecord, propertyLeaseAgreement, imaniBill);
-                imaniBillRepository.save(imaniBill);
-                return true;
             }
-
         }
 
         return false;
@@ -102,12 +102,11 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
     //@Override
     public Optional<ImaniBillExplained> genCurrentBillExplanation(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
-        LOGGER.info("Generating lease agreement bill for user: {} for current month: {}", userRecord.getEmbeddedContactInfo().getEmail(), dateTimeAtStartOfMonth.monthOfYear().getAsShortText());
+        LOGGER.info("Attempting to generate lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());
 
-        ImaniBill imaniBill = imaniBillRepository.getImaniBillForScheduleDate(userRecord, dateTimeAtStartOfMonth);
-        if(imaniBill != null) {
-            return Optional.of(imaniBill.toImaniBillExplained());
+        Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
+        if(imaniBill.isPresent()) {
+            return Optional.of(imaniBill.get().toImaniBillExplained());
         }
 
         return Optional.empty();

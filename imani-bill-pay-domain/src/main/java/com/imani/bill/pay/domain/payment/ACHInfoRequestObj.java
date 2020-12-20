@@ -19,8 +19,8 @@ public class ACHInfoRequestObj {
     @JsonProperty("access_token")
     private String accessToken;
 
-    @JsonProperty("options")
-    private ACHInfoAcctOptions achInfoAcctOptions = new ACHInfoAcctOptions();
+//    @JsonProperty("options")
+//    private ACHInfoAcctOptions achInfoAcctOptions = new ACHInfoAcctOptions();
 
 
     public ACHInfoRequestObj() {
@@ -51,9 +51,9 @@ public class ACHInfoRequestObj {
         this.accessToken = accessToken;
     }
 
-    public ACHInfoAcctOptions getAchInfoAcctOptions() {
-        return achInfoAcctOptions;
-    }
+//    public ACHInfoAcctOptions getAchInfoAcctOptions() {
+//        return achInfoAcctOptions;
+//    }
 
 
     @Override
@@ -62,7 +62,7 @@ public class ACHInfoRequestObj {
                 .append("clientID", clientID)
                 .append("secret", secret)
                 .append("accessToken", accessToken)
-                .append("achInfoAcctOptions", achInfoAcctOptions)
+//                .append("achInfoAcctOptions", achInfoAcctOptions)
                 .toString();
     }
 
@@ -89,10 +89,10 @@ public class ACHInfoRequestObj {
             return this;
         }
 
-        public Builder accountID(String accountID) {
-            achInfoRequestObj.achInfoAcctOptions.addAccountID(accountID);
-            return this;
-        }
+//        public Builder accountID(String accountID) {
+//            achInfoRequestObj.achInfoAcctOptions.addAccountID(accountID);
+//            return this;
+//        }
 
         public ACHInfoRequestObj build() {
             return achInfoRequestObj;

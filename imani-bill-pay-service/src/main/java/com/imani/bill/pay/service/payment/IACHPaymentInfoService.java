@@ -7,11 +7,15 @@ import com.imani.bill.pay.domain.property.PropertyManager;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.stripe.model.BankAccount;
 
+import java.util.Optional;
+
 /**
  * @author manyce400
  */
 public interface IACHPaymentInfoService {
 
+
+    public Optional<ACHPaymentInfo> findByID(Long id);
 
     public ACHPaymentInfo findPrimaryPamentInfo(UserRecord userRecord);
 

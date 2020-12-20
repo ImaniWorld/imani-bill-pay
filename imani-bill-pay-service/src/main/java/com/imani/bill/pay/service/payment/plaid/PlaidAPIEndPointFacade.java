@@ -67,7 +67,7 @@ public class PlaidAPIEndPointFacade implements IPlaidAPIEndPointFacade {
                 } else if(responseObj instanceof PlaidItemAccountsResponse) {
                     PlaidItemAccountsResponse plaidItemAccountsResponse = restTemplate.postForObject(apiURL, request.get(), PlaidItemAccountsResponse.class);
                     System.out.println("plaidItemAccountsResponse = " + plaidItemAccountsResponse);
-                    ((PlaidItemAccountsResponse) responseObj).setPlaidItemInfo(plaidItemAccountsResponse.getPlaidItemInfo());
+                    ((PlaidItemAccountsResponse) responseObj).setPlaidItem(plaidItemAccountsResponse.getPlaidItem());
                     ((PlaidItemAccountsResponse) responseObj).setAccounts(plaidItemAccountsResponse.getAccounts());
                 } else if(responseObj instanceof StripeBankAccountResponse) {
                     StripeBankAccountResponse stripeBankAccountResponse = restTemplate.postForObject(apiURL, request.get(), StripeBankAccountResponse.class);

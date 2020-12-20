@@ -1,18 +1,15 @@
 package com.imani.bill.pay.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.imani.bill.pay.domain.payment.*;
-import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcctBalance;
-import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
+import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
+import com.imani.bill.pay.domain.payment.plaid.*;
 import com.imani.bill.pay.domain.payment.repository.IACHPaymentInfoRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.service.payment.plaid.IPlaidItemService;
+import com.imani.bill.pay.service.payment.plaid.PlaidItemServiceImpl;
 import com.imani.bill.pay.service.rest.RestTemplateConfigurator;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -33,6 +30,10 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
     @Autowired
     @Qualifier(RestTemplateConfigurator.SERVICE_REST_TEMPLATE)
     private RestTemplate restTemplate;
+
+    @Autowired
+    @Qualifier(PlaidItemServiceImpl.SPRING_BEAN)
+    private IPlaidItemService iPlaidItemService;
 
     @Autowired
     private IACHPaymentInfoRepository iachPaymentInfoRepository;
@@ -60,40 +61,46 @@ public class PlaidAccountBalanceService implements IPlaidAccountBalanceService {
 
         LOGGER.info("Executing Plaid request to check balance for acctID:=>  {}", achPaymentInfo.getPlaidBankAcct().getAccountID());
 
-        ACHInfoRequestObj achInfoRequestObj = ACHInfoRequestObj.builder()
-                .clientID("5cf09bb96590ed001352c26f")
-                .secret("e0cd2b5363f8864089a2cf23d2e1de")
-                .accessToken("access-sandbox-41e7c7bf-4eee-41cb-bfea-b4c2ec227a7b")
-                .accountID(achPaymentInfo.getPlaidBankAcct().getAccountID())
-                //.accountID("m1ELdBMPLAHBGR7eDGaktknLRNaN8VHLe663j")
-                .build();
 
-        // Build HTTP Headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        // First check to see if this ITEM has any errors
+        Optional<PlaidItemDetail> plaidItemDetail = iPlaidItemService.getPlaidItemDetail(achPaymentInfo);
 
-        DateTime apiInvocationStartDate = null;
-        DateTime apiInvocationEndDate = null;
 
-        try {
-            String jsonRequest = mapper.writeValueAsString(achInfoRequestObj);
-            HttpEntity<String> request = new HttpEntity<>(jsonRequest, headers);
 
-            apiInvocationStartDate = DateTime.now();
-            BankAccountList bankAccountList = restTemplate.postForObject("https://sandbox.plaid.com/accounts/balance/get", request, BankAccountList.class);
-            apiInvocationEndDate = DateTime.now();
-
-            // Capture and record metrics for succesful API call.
-            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnSuccess(achPaymentInfo, apiInvocationStartDate, apiInvocationEndDate);
-
-            // We expect only 1 bank account back in the list returned always return first in the list
-            PlaidBankAcct plaidBankAcct = bankAccountList.getAccounts().get(0);
-            return Optional.of(plaidBankAcct.getBalances());
-        } catch (Exception e) {
-            // Capture and record metrics for succesful API call.
-            LOGGER.error("Failed to execute Plaid API balance call", e);
-            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnFailure(achPaymentInfo, e.getMessage(), apiInvocationStartDate, apiInvocationEndDate);
-        }
+//        ACHInfoRequestObj achInfoRequestObj = ACHInfoRequestObj.builder()
+//                .clientID("5cf09bb96590ed001352c26f")
+//                .secret("e0cd2b5363f8864089a2cf23d2e1de")
+//                .accessToken("access-sandbox-41e7c7bf-4eee-41cb-bfea-b4c2ec227a7b")
+//                .accountID(achPaymentInfo.getPlaidBankAcct().getAccountID())
+//                //.accountID("m1ELdBMPLAHBGR7eDGaktknLRNaN8VHLe663j")
+//                .build();
+//
+//        // Build HTTP Headers
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//        DateTime apiInvocationStartDate = null;
+//        DateTime apiInvocationEndDate = null;
+//
+//        try {
+//            String jsonRequest = mapper.writeValueAsString(achInfoRequestObj);
+//            HttpEntity<String> request = new HttpEntity<>(jsonRequest, headers);
+//
+//            apiInvocationStartDate = DateTime.now();
+//            BankAccountList bankAccountList = restTemplate.postForObject("https://development.plaid.com/accounts/balance/get", request, BankAccountList.class);
+//            apiInvocationEndDate = DateTime.now();
+//
+//            // Capture and record metrics for succesful API call.
+//            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnSuccess(achPaymentInfo, apiInvocationStartDate, apiInvocationEndDate);
+//
+//            // We expect only 1 bank account back in the list returned always return first in the list
+//            PlaidBankAcct plaidBankAcct = bankAccountList.getAccounts().get(0);
+//            return Optional.of(plaidBankAcct.getBalances());
+//        } catch (Exception e) {
+//            // Capture and record metrics for succesful API call.
+//            LOGGER.error("Failed to execute Plaid API balance call", e);
+//            iPlaidAPIStatisticBuilderService.buildBalancePlaidAPIExecMetricOnFailure(achPaymentInfo, e.getMessage(), apiInvocationStartDate, DateTime.now());
+//        }
         
         return Optional.empty();
     }
