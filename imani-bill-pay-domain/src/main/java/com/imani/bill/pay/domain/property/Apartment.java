@@ -40,7 +40,7 @@ public class Apartment extends AuditableRecord {
 
 
     // Tracks the floor that this apartment is on
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "FloorID", nullable = true)
     private Floor floor;
 
@@ -107,6 +107,13 @@ public class Apartment extends AuditableRecord {
     public void addToBedrooms(Bedroom bedroom) {
         Assert.notNull(bedroom, "bedroom cannot be null");
         this.bedrooms.add(bedroom);
+    }
+
+    public String getDescriptiveLocation() {
+        StringBuffer sb = new StringBuffer(apartmentNumber)
+                .append(" - Floor: ").append(floor.getFloorNumber())
+                .append(" - Property: ").append(floor.getProperty().getPrintableAddress());
+        return sb.toString();
     }
 
     @Override

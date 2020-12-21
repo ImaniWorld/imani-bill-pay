@@ -4,7 +4,6 @@ import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
-import com.imani.bill.pay.domain.property.LeaseAgreementLite;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillExplanationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class BillingExplainedController {
 
 
     @PostMapping("/lease/current")
-    public APIGatewayResponse getCurrentResidentialLeaseBill(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
+    public APIGatewayResponse getCurrentResidentialLeaseBill(@RequestBody APIGatewayRequest apiGatewayRequest) {
         LOGGER.info("Generating current month lease agreement bill for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
         ExecutionResult<ImaniBillExplained> executionResult = iBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
         return APIGatewayResponse.fromExecutionResult(executionResult);
@@ -41,7 +40,7 @@ public class BillingExplainedController {
 
 
     @PostMapping("/lease/ytd")
-    public APIGatewayResponse getYTDResidentialLeaseBills(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
+    public APIGatewayResponse getYTDResidentialLeaseBills(@RequestBody APIGatewayRequest apiGatewayRequest) {
         LOGGER.info("Generating all YTD residential property lease agreement bills for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
         ExecutionResult<List<ImaniBillExplained>> executionResult = iBillExplanationService.getYTDBillsExplanation(apiGatewayRequest.getUserRecordLite());
         return APIGatewayResponse.fromExecutionResult(executionResult);

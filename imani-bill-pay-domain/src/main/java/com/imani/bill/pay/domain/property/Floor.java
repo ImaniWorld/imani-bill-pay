@@ -37,7 +37,7 @@ public class Floor extends AuditableRecord {
 
 
     // Tracks the Property that this floor is on.
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "PropertyID", nullable = true)
     private Property property;
 
