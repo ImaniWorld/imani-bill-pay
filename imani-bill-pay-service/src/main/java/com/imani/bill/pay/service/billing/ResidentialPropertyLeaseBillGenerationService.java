@@ -25,8 +25,8 @@ import java.util.Optional;
  *
  * @author manyce400
  */
-@Service(PropertyLeaseBillGenerationService.SPRING_BEAN)
-public class PropertyLeaseBillGenerationService implements IBillGenerationService {
+@Service(ResidentialPropertyLeaseBillGenerationService.SPRING_BEAN)
+public class ResidentialPropertyLeaseBillGenerationService implements IBillGenerationService {
 
 
 
@@ -45,13 +45,13 @@ public class PropertyLeaseBillGenerationService implements IBillGenerationServic
     private IUserResidenceRepository iUserResidenceRepository;
 
     @Autowired
-    @Qualifier(PropertyLeaseFeeGenerationService.SPRING_BEAN)
+    @Qualifier(ResidentialPropertyLeaseFeeGenerationService.SPRING_BEAN)
     private IBillPayFeeGenerationService iBillPayFeeGenerationService;
 
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.LeaseBillGenerationService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillGenerationService";
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(PropertyLeaseBillGenerationService.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ResidentialPropertyLeaseBillGenerationService.class);
 
 
     @Transactional

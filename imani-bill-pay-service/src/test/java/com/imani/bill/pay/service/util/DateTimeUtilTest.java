@@ -51,6 +51,14 @@ public class DateTimeUtilTest {
     }
 
     @Test
+    public void testGetDateTimeAtStartOfYear() {
+        DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfYear(DateTime.parse("2019-09-03 09:00:00", DEFAULT_FORMATTER));
+        String dateTimeAtStartOfYear = DEFAULT_FORMATTER.print(dateTime);
+        System.out.println("dateTimeAtStartOfYear = " + dateTimeAtStartOfYear);
+        Assert.assertEquals("2019-01-01 00:00:00", dateTimeAtStartOfYear);
+    }
+
+    @Test
     public void testGetDaysBetweenDates() {
         DateTime start = DateTime.parse("2019-09-03 09:00:00", DEFAULT_FORMATTER);
         DateTime end = DateTime.parse("2019-09-05 09:00:00", DEFAULT_FORMATTER);

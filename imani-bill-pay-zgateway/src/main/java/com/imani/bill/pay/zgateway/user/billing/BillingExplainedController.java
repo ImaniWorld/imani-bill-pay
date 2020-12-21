@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,7 +35,7 @@ public class BillingExplainedController {
 
 
     @PostMapping("/lease/current")
-    public APIGatewayResponse getUserLeaseAgreementBill(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
+    public APIGatewayResponse getCurrentResidentialLeaseBill(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
         LOGGER.info("Generating current month lease agreement bill for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
 
         Optional<ImaniBillExplained> imaniBillExplained = iBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
@@ -49,6 +50,12 @@ public class BillingExplainedController {
     }
 
 
+    @PostMapping("/lease/ytd")
+    public APIGatewayResponse getYTDResidentialLeaseBills(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
+        LOGGER.info("Generating all YTD residential property lease agreement bills for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
+        ExecutionResult<List<ImaniBillExplained>> executionResult = iBillExplanationService.getYTDBillsExplanation(apiGatewayRequest.getUserRecordLite());
+        return APIGatewayResponse.fromExecutionResult(executionResult);
+    }
 
 
 }

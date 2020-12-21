@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author manyce400
@@ -54,6 +55,21 @@ public class ImaniBillService implements IImaniBillService {
         LOGGER.info("Finding current month: {} residential lease bill for user: {}", dateString, userRecord.getEmbeddedContactInfo().getEmail());
         Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
         return imaniBill;
+    }
+
+    @Override
+    public Set<ImaniBill> findYTDResidentialPropertyLeaseBills(UserRecord userRecord) {
+        Assert.notNull(userRecord, "userRecord cannot be null");
+
+        DateTime atStartOfYear = iDateTimeUtil.getDateTimeAtStartOfYear(DateTime.now());
+        DateTime dateTimeAtStartOfCurrentMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+
+        String start = iDateTimeUtil.toDisplayFriendlyNoTime(atStartOfYear);
+        String end = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfCurrentMonth);
+
+        LOGGER.info("Finding entire YTD residential property lease bills for User: {} between [{} - {}]", userRecord.getEmbeddedContactInfo().getEmail(), start, end);
+        Set<ImaniBill> imaniBills = imaniBillRepository.getYTDImaniBillsFetchRecords(userRecord, atStartOfYear, dateTimeAtStartOfCurrentMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
+        return imaniBills;
     }
 
     @Override

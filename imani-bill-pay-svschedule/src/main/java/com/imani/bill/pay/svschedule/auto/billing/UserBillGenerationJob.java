@@ -2,7 +2,7 @@ package com.imani.bill.pay.svschedule.auto.billing;
 
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
-import com.imani.bill.pay.service.billing.PropertyLeaseBillGenerationService;
+import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillGenerationService;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +20,7 @@ public class UserBillGenerationJob implements Job {
     private IUserRecordRepository iUserRecordRepository;
 
     @Autowired
-    @Qualifier(PropertyLeaseBillGenerationService.SPRING_BEAN)
+    @Qualifier(ResidentialPropertyLeaseBillGenerationService.SPRING_BEAN)
     private IBillGenerationService iBillGenerationService;
 
     private static final String JOB_DETAIL = "USER-BILL-GENERATION-";

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface IImaniBillRepository extends JpaRepository<ImaniBill, Long> {
@@ -22,5 +23,8 @@ public interface IImaniBillRepository extends JpaRepository<ImaniBill, Long> {
 
     @Query("Select imaniBill From ImaniBill imaniBill JOIN FETCH imaniBill.imaniBillPayRecords Where imaniBill.billedUser = ?1 and imaniBill.billScheduleDate = ?2 and imaniBill.billScheduleTypeE = ?3 and imaniBill.billServiceRenderedTypeE = ?4")
     public Optional<ImaniBill> getImaniBillFetchRecords(UserRecord userRecord, DateTime dateTime, BillScheduleTypeE billScheduleTypeE, BillServiceRenderedTypeE billServiceRenderedTypeE);
+
+    @Query("Select imaniBill From ImaniBill imaniBill LEFT JOIN FETCH imaniBill.imaniBillPayRecords Where imaniBill.billedUser = ?1 and imaniBill.billScheduleDate >= ?2 and imaniBill.billScheduleDate <= ?3 and imaniBill.billScheduleTypeE = ?4 and imaniBill.billServiceRenderedTypeE = ?5")
+    public Set<ImaniBill> getYTDImaniBillsFetchRecords(UserRecord userRecord, DateTime start, DateTime end, BillScheduleTypeE billScheduleTypeE, BillServiceRenderedTypeE billServiceRenderedTypeE);
 
 }

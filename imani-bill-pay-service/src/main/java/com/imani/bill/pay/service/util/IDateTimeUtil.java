@@ -15,6 +15,8 @@ public interface IDateTimeUtil {
 
     public DateTime getDateTimeAtEndOfMonth(DateTime dateTime);
 
+    public DateTime getDateTimeAtStartOfYear(DateTime dateTime);
+
     public Integer getDaysBetweenDates(DateTime start, DateTime end);
 
     public String toDisplayFriendlyNoTime(DateTime dateTime);

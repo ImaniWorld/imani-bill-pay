@@ -61,6 +61,22 @@ public class DateTimeUtil implements IDateTimeUtil {
     }
 
     @Override
+    public DateTime getDateTimeAtStartOfYear(DateTime dateTime) {
+        Assert.notNull(dateTime, "DateTime cannot be null");
+
+        LOGGER.debug("Creating new date at start of year for dateTime: {}", dateTime);
+
+        MutableDateTime mutableDateTime = new MutableDateTime(dateTime);
+        mutableDateTime.setMonthOfYear(1);
+        mutableDateTime.setDayOfMonth(1);
+        mutableDateTime.setHourOfDay(0);
+        mutableDateTime.setMinuteOfHour(0);
+        mutableDateTime.setSecondOfMinute(0);
+        mutableDateTime.setMillisOfSecond(0);
+        return mutableDateTime.toDateTime();
+    }
+
+    @Override
     public Integer getDaysBetweenDates(DateTime start, DateTime end) {
         Assert.notNull(start, "start cannot be null");
         Assert.notNull(end, "end cannot be null");
