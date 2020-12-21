@@ -2,7 +2,6 @@ package com.imani.bill.pay.zgateway.user.billing;
 
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
 import com.imani.bill.pay.domain.property.LeaseAgreementLite;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author manyce400
@@ -37,15 +35,7 @@ public class BillingExplainedController {
     @PostMapping("/lease/current")
     public APIGatewayResponse getCurrentResidentialLeaseBill(@RequestBody APIGatewayRequest<LeaseAgreementLite> apiGatewayRequest) {
         LOGGER.info("Generating current month lease agreement bill for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
-
-        Optional<ImaniBillExplained> imaniBillExplained = iBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
-        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
-        if(!imaniBillExplained.isPresent()) {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No lease agreement bill found for user"));
-        } else {
-            executionResult.setResult(imaniBillExplained.get());
-        }
-
+        ExecutionResult<ImaniBillExplained> executionResult = iBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

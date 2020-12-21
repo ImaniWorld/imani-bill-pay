@@ -39,20 +39,25 @@ public class ResidentialPropertyLeaseBillExplanationService implements IBillExpl
 
 
     @Override
-    public Optional<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
+    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
-        LOGGER.info("Attempting to generate lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());
+        LOGGER.info("Attempting to generate residential property lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());
 
+        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
         Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
+
         if(imaniBill.isPresent()) {
-            return Optional.of(imaniBill.get().toImaniBillExplained());
+            ImaniBillExplained imaniBillExplained = imaniBill.get().toImaniBillExplained();
+            executionResult.setResult(imaniBillExplained);
+        } else {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No lease agreement bill found for user"));
         }
 
-        return Optional.empty();
+        return executionResult;
     }
 
     @Override
-    public Optional<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
+    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
         Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
         UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
         return getCurrentBillExplanation(userRecord);
