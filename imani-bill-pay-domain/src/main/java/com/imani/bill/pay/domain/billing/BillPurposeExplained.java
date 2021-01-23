@@ -23,6 +23,8 @@ public class BillPurposeExplained {
 
     private BillScheduleTypeE billScheduleTypeE;
 
+    private Double fixedCost;
+
     public BillPurposeExplained() {
 
     }
@@ -67,6 +69,14 @@ public class BillPurposeExplained {
         this.billScheduleTypeE = billScheduleTypeE;
     }
 
+    public Double getFixedCost() {
+        return fixedCost;
+    }
+
+    public void setFixedCost(Double fixedCost) {
+        this.fixedCost = fixedCost;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -75,6 +85,7 @@ public class BillPurposeExplained {
                 .append("property", property)
                 .append("billScheduleDate", billScheduleDate)
                 .append("billScheduleTypeE", billScheduleTypeE)
+                .append("fixedCost", fixedCost)
                 .toString();
     }
 
@@ -108,6 +119,11 @@ public class BillPurposeExplained {
 
         public Builder billScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
             billPurposeExplained.billScheduleTypeE = billScheduleTypeE;
+            return this;
+        }
+
+        public Builder fixedCost(Double fixedCost) {
+            billPurposeExplained.fixedCost = fixedCost;
             return this;
         }
 

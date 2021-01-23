@@ -54,6 +54,7 @@ public class TuitionBillExplanationService implements IBillExplanationService {
         if(billExplained.isPresent()) {
             TuitionAgreement tuitionAgreement = imaniBill.get().getTuitionAgreement();
             billExplained.get().getBillPurposeExplained().setStudent(tuitionAgreement.getStudent().getFullName());
+            billExplained.get().getBillPurposeExplained().setFixedCost(tuitionAgreement.getEmbeddedAgreement().getFixedCost());
             executionResult.setResult(billExplained.get());
         } else {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("No TuitionAgreement bill found for user"));
@@ -78,4 +79,5 @@ public class TuitionBillExplanationService implements IBillExplanationService {
     public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
         return null;
     }
+
 }
