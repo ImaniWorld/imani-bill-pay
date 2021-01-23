@@ -9,5 +9,7 @@ public enum BusinessTypeE {
 
     CHILD_CARE,
 
+    School,
+
     RETAIL;
 }

@@ -1,22 +1,17 @@
 package com.imani.bill.pay.service.geographical;
 
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
-import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
-import com.imani.bill.pay.domain.billing.FeePaymentChargeTypeE;
-import com.imani.bill.pay.domain.billing.FeeTypeE;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
 import com.imani.bill.pay.domain.geographical.GeographicalRegion;
 import com.imani.bill.pay.domain.geographical.repository.IGeographicalRegionRepository;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.leasemanagement.repository.IPropertyLeaseAgreementRepository;
 import com.imani.bill.pay.domain.property.Apartment;
-import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.property.repository.IApartmentRepository;
 import com.imani.bill.pay.domain.property.repository.IPropertyRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
-import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.payment.ACHPaymentInfoService;
@@ -61,8 +56,8 @@ public class GeographicalRegionService implements IGeographicalRegionService {
     private IPropertyLeaseAgreementRepository iPropertyLeaseAgreementRepository;
 
 
-    @Autowired
-    private IBillGenerationService iBillGenerationService;
+//    @Autowired
+//    private IBillGenerationService iBillGenerationService;
 
     @Autowired
     @Qualifier(ImaniBillService.SPRING_BEAN)
@@ -107,22 +102,22 @@ public class GeographicalRegionService implements IGeographicalRegionService {
     
 
 
-    public void generateBill() {
-        UserRecord userRecord = iUserRecordRepository.getOne(2L);
-        iBillGenerationService.generateImaniBill(userRecord);
-    }
+//    public void generateBill() {
+//        UserRecord userRecord = iUserRecordRepository.getOne(2L);
+//        iBillGenerationService.generateImaniBill(userRecord);
+//    }
 
-    public void saveBillPayFee() {
-        Property property = iPropertyRepository.getOne(32253L);
-        BillPayFee billPayFee = new  BillPayFee();
-        billPayFee.setProperty(property);
-        billPayFee.setFeeName("Property Late Fee");
-        billPayFee.setFeeDescription("Applied monthly whenever late");
-        billPayFee.setFeePaymentChargeTypeE(FeePaymentChargeTypeE.FLAT_AMOUNT_FEE);
-        billPayFee.setOptionalFlatAmount(15.00);
-        billPayFee.setFeeTypeE(FeeTypeE.LATE_FEE);
-        iBillPayFeeRepository.save(billPayFee);
-    }
+//    public void saveBillPayFee() {
+//        Property property = iPropertyRepository.getOne(32253L);
+//        BillPayFee billPayFee = new  BillPayFee();
+//        billPayFee.setBusiness(property);
+//        billPayFee.setFeeName("Property Late Fee");
+//        billPayFee.setFeeDescription("Applied monthly whenever late");
+//        billPayFee.setFeePaymentChargeTypeE(FeePaymentChargeTypeE.FLAT_AMOUNT_FEE);
+//        billPayFee.setOptionalFlatAmount(15.00);
+//        billPayFee.setFeeTypeE(FeeTypeE.LATE_FEE);
+//        iBillPayFeeRepository.save(billPayFee);
+//    }
 
 
     public void savePropertyLeaseAgreement() {

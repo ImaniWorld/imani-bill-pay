@@ -6,6 +6,7 @@ import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillExplanationService;
+import com.imani.bill.pay.service.billing.education.TuitionBillExplanationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,11 @@ public class BillingExplainedController {
 
     @Autowired
     @Qualifier(ResidentialPropertyLeaseBillExplanationService.SPRING_BEAN)
-    private IBillExplanationService iBillExplanationService;
+    private IBillExplanationService residentialBillExplanationService;
+
+    @Autowired
+    @Qualifier(TuitionBillExplanationService.SPRING_BEAN)
+    private IBillExplanationService tuitionBillExplanationService;
 
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingExplainedController.class);
@@ -34,7 +39,13 @@ public class BillingExplainedController {
     @PostMapping("/lease/current")
     public APIGatewayResponse getCurrentResidentialLeaseBill(@RequestBody APIGatewayRequest apiGatewayRequest) {
         LOGGER.info("Generating current month lease agreement bill for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
-        ExecutionResult<ImaniBillExplained> executionResult = iBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
+        ExecutionResult<ImaniBillExplained> executionResult = residentialBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
+        return APIGatewayResponse.fromExecutionResult(executionResult);
+    }
+
+    @PostMapping("/tuition/current")
+    public APIGatewayResponse getCurrentTuitionBill(@RequestBody APIGatewayRequest apiGatewayRequest) {
+        ExecutionResult<ImaniBillExplained> executionResult = tuitionBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 
@@ -42,7 +53,7 @@ public class BillingExplainedController {
     @PostMapping("/lease/ytd")
     public APIGatewayResponse getYTDResidentialLeaseBills(@RequestBody APIGatewayRequest apiGatewayRequest) {
         LOGGER.info("Generating all YTD residential property lease agreement bills for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
-        ExecutionResult<List<ImaniBillExplained>> executionResult = iBillExplanationService.getYTDBillsExplanation(apiGatewayRequest.getUserRecordLite());
+        ExecutionResult<List<ImaniBillExplained>> executionResult = residentialBillExplanationService.getYTDBillsExplanation(apiGatewayRequest.getUserRecordLite());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

@@ -21,7 +21,7 @@ public class EmbeddedContactInfo implements IContactInfo {
 
 
 
-    @Column(name="MobilePhone", nullable=false, length=50)
+    @Column(name="MobilePhone", nullable=true, length=50)
     private Long mobilePhone;
 
     @Column(name="Phone", nullable=true, length=50)

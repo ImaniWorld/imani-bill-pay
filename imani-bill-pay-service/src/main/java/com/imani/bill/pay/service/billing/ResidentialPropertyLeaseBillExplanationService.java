@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.billing;
 
+import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
@@ -44,7 +45,7 @@ public class ResidentialPropertyLeaseBillExplanationService implements IBillExpl
         LOGGER.info("Attempting to generate residential property lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());
 
         ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
-        Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
+        Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthBill(userRecord, BillServiceRenderedTypeE.Residential_Lease);
 
         if(imaniBill.isPresent()) {
             ImaniBillExplained imaniBillExplained = imaniBill.get().toImaniBillExplained();

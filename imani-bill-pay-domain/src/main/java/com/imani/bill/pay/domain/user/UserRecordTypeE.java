@@ -7,7 +7,13 @@ public enum UserRecordTypeE {
 
     APIUser,
 
-    AdminUser,
+    BillPayer,
+
+    Student,
+
+    BusinessUser,
+
+    BusinessAdmin,
 
     PropertyOwner,
 
@@ -19,6 +25,7 @@ public enum UserRecordTypeE {
 
     HOAMember,
 
+    PlatformSupport,
     ;
 
 

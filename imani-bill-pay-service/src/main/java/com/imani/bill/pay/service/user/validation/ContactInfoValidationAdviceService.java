@@ -3,6 +3,7 @@ package com.imani.bill.pay.service.user.validation;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.user.UserRecordTypeE;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -38,8 +39,11 @@ public class ContactInfoValidationAdviceService implements IUserRegistrationVali
             validationAdvices.add(ValidationAdvice.newInstance("Contact information for user is missing"));
         } else {
             addEmailAdvice(userRecord.getEmbeddedContactInfo(), validationAdvices);
-            addMobilePhoneAdvice(userRecord.getEmbeddedContactInfo(), validationAdvices);
-            addPreferredContactTypeAdvice(userRecord.getEmbeddedContactInfo(), validationAdvices);
+            if (userRecord.getUserRecordTypeE() != UserRecordTypeE.Student) {
+                LOGGER.debug("User is not a Student user, validating mobile and preffered contact details");
+                addMobilePhoneAdvice(userRecord.getEmbeddedContactInfo(), validationAdvices);
+                addPreferredContactTypeAdvice(userRecord.getEmbeddedContactInfo(), validationAdvices);
+            }
         }
 
 

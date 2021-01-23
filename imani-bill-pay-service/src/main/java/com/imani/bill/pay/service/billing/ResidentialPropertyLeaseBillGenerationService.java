@@ -75,7 +75,7 @@ public class ResidentialPropertyLeaseBillGenerationService implements IBillGener
                 LOGGER.info("User lease agreement found @ property: {}. ", property.getPrintableAddress());
 
                 // Check to see if a lease bill has been generated already for the current month
-                Optional<ImaniBill> optionalImaniBill = imaniBillService.findByUserCurrentMonthResidentialLease(userRecord);
+                Optional<ImaniBill> optionalImaniBill = imaniBillService.findByUserCurrentMonthBill(userRecord, BillServiceRenderedTypeE.Commercial_Lease);
 
                 if(!optionalImaniBill.isPresent()) {
                     LOGGER.info("Generating new property-lease-agreement Imani Bill for date: {}", dateString);

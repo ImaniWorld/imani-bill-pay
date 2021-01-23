@@ -2,8 +2,7 @@ package com.imani.bill.pay.domain.billing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
-import com.imani.bill.pay.domain.daycare.DayCare;
-import com.imani.bill.pay.domain.property.Property;
+import com.imani.bill.pay.domain.business.Business;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -54,13 +53,8 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DayCareID", nullable = true)
-    private DayCare dayCare;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PropertyID", nullable = true)
-    private Property property;
+    @JoinColumn(name = "BusinessID", nullable = false)
+    private Business business;
 
 
     public BillPayFee() {
@@ -130,22 +124,13 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
         this.feeTypeE = feeTypeE;
     }
 
-    public DayCare getDayCare() {
-        return dayCare;
+    public Business getBusiness() {
+        return business;
     }
 
-    public void setDayCare(DayCare dayCare) {
-        this.dayCare = dayCare;
+    public void setBusiness(Business business) {
+        this.business = business;
     }
-
-    public Property getProperty() {
-        return property;
-    }
-
-    public void setProperty(Property property) {
-        this.property = property;
-    }
-
 
     @Override
     public String toString() {
@@ -157,8 +142,7 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
                 .append("optionalFlatRate", optionalFlatRate)
                 .append("feePaymentChargeTypeE", feePaymentChargeTypeE)
                 .append("feeTypeE", feeTypeE)
-                .append("dayCare", dayCare)
-                .append("property", property)
+                .append("Business", business)
                 .toString();
     }
 }

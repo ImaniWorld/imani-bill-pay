@@ -1,6 +1,8 @@
 package com.imani.bill.pay.service.billing;
 
-import com.imani.bill.pay.domain.billing.*;
+import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFeeExplained;
+import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.property.Property;
@@ -12,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author manyce400
@@ -36,6 +36,11 @@ public class ResidentialPropertyLeaseFeeGenerationService implements IBillPayFee
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ResidentialPropertyLeaseFeeGenerationService.class);
 
+
+    @Override
+    public void addImaniBillFees(UserRecord userRecord, IHasBillingAgreement iHasBillingAgreement, ImaniBill imaniBill) {
+
+    }
 
     @Override
     public void addImaniBillFees(UserRecord userRecord, PropertyLeaseAgreement propertyLeaseAgreement, ImaniBill imaniBill) {
@@ -66,25 +71,25 @@ public class ResidentialPropertyLeaseFeeGenerationService implements IBillPayFee
     }
 
     void applyLeaseLateFee(ImaniBill imaniBill, Property property, PropertyLeaseAgreement propertyLeaseAgreement) {
-        boolean isCurrentMonthLeasePaymentLate = isCurrentMonthLeasePaymentLate(property, imaniBill);
-
-        if (isCurrentMonthLeasePaymentLate) {
-            Set<ImaniBillToFee> appliedLateFees = imaniBill.getBillPayFeesByFeeTypeE(FeeTypeE.LATE_FEE);
-
-            if(CollectionUtils.isEmpty(appliedLateFees)) {
-                LOGGER.info("User lease payment is late, applying late fee for this month's payment...");
-                BillPayFee lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(property, FeeTypeE.LATE_FEE);
-                Double feeAmount = lateBillPayFee.calculatFeeCharge(imaniBill.getAmountOwed());
-
-                // Calculate charge with fee
-                double amountWithFeeCharge = propertyLeaseAgreement.getEmbeddedAgreement().getFixedCost().doubleValue() + feeAmount;
-
-                imaniBill.setAmountOwed(amountWithFeeCharge);
-                imaniBill.addImaniBillToFee(lateBillPayFee, feeAmount);
-            } else {
-                LOGGER.info("ImaniBill => {} for lease agreement already has late fee applied, skipping fees processing", imaniBill.getId());
-            }
-        }
+//        boolean isCurrentMonthLeasePaymentLate = isCurrentMonthLeasePaymentLate(property, imaniBill);
+//
+//        if (isCurrentMonthLeasePaymentLate) {
+//            Set<ImaniBillToFee> appliedLateFees = imaniBill.getBillPayFeesByFeeTypeE(FeeTypeE.LATE_FEE);
+//
+//            if(CollectionUtils.isEmpty(appliedLateFees)) {
+//                LOGGER.info("User lease payment is late, applying late fee for this month's payment...");
+//                BillPayFee lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(property, FeeTypeE.LATE_FEE);
+//                Double feeAmount = lateBillPayFee.calculatFeeCharge(imaniBill.getAmountOwed());
+//
+//                // Calculate charge with fee
+//                double amountWithFeeCharge = propertyLeaseAgreement.getEmbeddedAgreement().getFixedCost().doubleValue() + feeAmount;
+//
+//                imaniBill.setAmountOwed(amountWithFeeCharge);
+//                imaniBill.addImaniBillToFee(lateBillPayFee, feeAmount);
+//            } else {
+//                LOGGER.info("ImaniBill => {} for lease agreement already has late fee applied, skipping fees processing", imaniBill.getId());
+//            }
+//        }
     }
 
     boolean isCurrentMonthLeasePaymentLate(Property property, ImaniBill imaniBill) {

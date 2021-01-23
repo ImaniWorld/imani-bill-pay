@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.daycare.ChildCareAgreement;
+import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.payment.EmbeddedPayment;
 import com.imani.bill.pay.domain.payment.record.ImaniBillPayRecord;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
@@ -77,6 +79,11 @@ public class ImaniBill extends AuditableRecord {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "PropertyLeaseAgreementID")
     private PropertyLeaseAgreement propertyLeaseAgreement;
+
+    // Tracks optional EducationalTermAgreement linked to this generated bill. Only IF residential leases
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TuitionAgreementID")
+    private TuitionAgreement tuitionAgreement;
 
 
     // Tracks all additional fees that should be applied to this bill
@@ -257,7 +264,7 @@ public class ImaniBill extends AuditableRecord {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
                 .append("id", id)
                 .append("amountOwed", amountOwed)
                 .append("amountPaid", amountPaid)
@@ -267,6 +274,7 @@ public class ImaniBill extends AuditableRecord {
                 .append("billedUser", billedUser)
                 .append("childCareAgreement", childCareAgreement)
                 .append("propertyLeaseAgreement", propertyLeaseAgreement)
+                .append("educationalTermAgreement", tuitionAgreement)
                 .toString();
     }
 
@@ -314,6 +322,11 @@ public class ImaniBill extends AuditableRecord {
 
         public Builder propertyLeaseAgreement(PropertyLeaseAgreement propertyLeaseAgreement) {
             imaniBill.propertyLeaseAgreement = propertyLeaseAgreement;
+            return this;
+        }
+
+        public Builder tuitionAgreement(TuitionAgreement tuitionAgreement) {
+            imaniBill.tuitionAgreement = tuitionAgreement;
             return this;
         }
 

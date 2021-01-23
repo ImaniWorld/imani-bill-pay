@@ -73,6 +73,11 @@ public class ChildCareAgreement extends AuditableRecord implements IHasBillingAg
     }
 
     @Override
+    public String describeAgreement() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)

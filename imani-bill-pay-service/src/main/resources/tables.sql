@@ -8,6 +8,105 @@ create table GeographicalRegion (
     );
 
 
+create table UserToBusiness (
+       ID bigint not null auto_increment,
+        UserRecordID bigint not null,
+        BusinessID bigint not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table Business (
+       ID bigint not null auto_increment,
+        Name varchar(100) not null,
+        BusinessTypeE varchar(25) not null,
+        Email varchar(100),
+        MobilePhone bigint not null,
+        Phone bigint,
+        PreferredContactType varchar(10),
+        StripeAcctID varchar(100),
+        PropertyID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table TuitionGrade (
+       ID bigint not null auto_increment,
+        Grade varchar(100) not null,
+        Description varchar(200),
+        TuitionGradeTypeE varchar(25) not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table SchoolToTuitionGrade (
+       ID bigint not null auto_increment,
+        NumberOfDaysTillLate integer,
+        BusinessID bigint not null,
+        TuitionGradeID bigint not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+
+create table TuitionAgreement (
+       ID bigint not null auto_increment,
+        StudentUserRecordID bigint not null,
+        TuitionGradeID bigint not null,
+        AgreementInForce TINYINT,
+        BillScheduleTypeE varchar(20) not null,
+        NumberOfDaysTillLate integer,
+        FixedCost double precision not null,
+        AgreementDocument varchar(100),
+        BusinessID bigint not null,
+        UserRecordID bigint not null,
+        EffectiveDate datetime not null,
+        TerminationDate datetime not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table ImaniBill (
+       ID bigint not null auto_increment,
+        AmountOwed double precision,
+        AmountPaid double precision,
+        BillScheduleDate datetime,
+        BillScheduleTypeE varchar(25) not null,
+        BillServiceRenderedTypeE varchar(25) not null,
+        UserRecordID bigint not null,
+        TuitionAgreementID bigint,
+        ChildCareAgreementID bigint,
+        PropertyLeaseAgreementID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    );
+
+
+create table BillPayFee (
+       ID bigint not null auto_increment,
+        FeeName varchar(50) not null,
+        FeeDescription varchar(250),
+        OptionalFlatAmount double precision,
+        OptionalFlatRate double precision,
+        FeeTypeE varchar(25) not null,
+        FeePaymentChargeType varchar(25) not null,
+        BusinessID bigint not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
 create table PlaidAPIInvocationStatistic (
        ID bigint not null auto_increment,
        PlaidAPIInvocation varchar(20),
@@ -117,56 +216,6 @@ create table PropertyManager (
     ) engine=MyISAM;
 
 
-create table MonthlyRentalBill (
-       ID bigint not null auto_increment,
-       RentalMonth datetime not null,
-       RentalAgreementID bigint not null,
-       UserResidenceID bigint not null,
-       AmountPaid double precision,
-       BillClosed TINYINT,
-        CreateDate datetime not null,
-        ModifyDate datetime,
-        primary key (ID)
-    );
-
-
-create table MonthlyRentalFee (
-       ID bigint not null auto_increment,
-        FeeName varchar(50) not null,
-        FeeDescription varchar(250),
-        FeePaymentChargeType varchar(25) not null,
-        OptionalFlatAmount double precision,
-        optionalFlatRate double precision,
-        RentalFeeType varchar(25) not null,
-        CreateDate datetime not null,
-        ModifyDate datetime,
-        PropertyID bigint,
-        primary key (ID)
-    );
-
-
-
-create table PropertyService (
-       ID bigint not null auto_increment,
-        ServiceName varchar(100) not null,
-        ServiceMonthlyCost double precision not null,
-        ServiceActive TINYINT,
-        PropertyID bigint not null,
-        CreateDate datetime not null,
-        ModifyDate datetime,
-        primary key (ID)
-    );
-
-
-    create table UserResidencePropertyService (
-       ID bigint not null auto_increment,
-       PropertyServicesID bigint not null,
-        UserResidenceID bigint not null,
-        ServiceActive TINYINT,
-        CreateDate datetime not null,
-        ModifyDate datetime,
-        primary key (ID)
-    );
 
     create table LeaseAgreement (
            ID bigint not null auto_increment,
@@ -205,19 +254,3 @@ create table PropertyService (
           ModifyDate datetime,
           primary key (ID)
       );
-
-
-  create table ImaniBillPayHistory (
-         ID bigint not null auto_increment,
-          Currency varchar(3),
-          PaymentAmount double precision not null,
-          PaymentDate datetime not null,
-          PaymentPostDate datetime,
-          PaymentStatusE varchar(20) not null,
-          PlaidErrorType integer,
-          PlaidErrorCode integer,
-          PlaidErrorMessage varchar(500),
-          ACHPaymentInfoID bigint,
-          ImaniBillID bigint,
-          primary key (ID)
-      )

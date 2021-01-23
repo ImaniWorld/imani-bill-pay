@@ -7,4 +7,6 @@ public interface IHasBillingAgreement {
 
     public EmbeddedAgreement getEmbeddedAgreement();
 
+    public String describeAgreement();
+
 }

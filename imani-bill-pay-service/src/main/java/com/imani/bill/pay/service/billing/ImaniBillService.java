@@ -4,6 +4,7 @@ import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
+import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -45,15 +46,15 @@ public class ImaniBillService implements IImaniBillService {
 
 
     @Override
-    public Optional<ImaniBill> findByUserCurrentMonthResidentialLease(UserRecord userRecord) {
+    public Optional<ImaniBill> findByUserCurrentMonthBill(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE) {
         Assert.notNull(userRecord, "userRecord cannot be null");
 
         DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
         String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
 
         // Using Fetch records from repository object to load all bill payment records for this bill
-        LOGGER.info("Finding current month: {} residential lease bill for user: {}", dateString, userRecord.getEmbeddedContactInfo().getEmail());
-        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
+        LOGGER.info("Finding Current_Month[{}] BillServiceRenderedTypeE[{}]  for user: {}", dateString, billServiceRenderedTypeE, userRecord.getEmbeddedContactInfo().getEmail());
+        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, billServiceRenderedTypeE);
         return imaniBill;
     }
 
@@ -71,6 +72,47 @@ public class ImaniBillService implements IImaniBillService {
         Set<ImaniBill> imaniBills = imaniBillRepository.getYTDImaniBillsFetchRecords(userRecord, atStartOfYear, dateTimeAtStartOfCurrentMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
         return imaniBills;
     }
+
+    @Override
+    public Set<ImaniBill> findYTDUnPaidImaniBillsForUser(UserRecord userRecord, TuitionAgreement tuitionAgreement) {
+        Assert.notNull(userRecord, "userRecord cannot be null");
+        Assert.notNull(tuitionAgreement, "tuitionAgreement cannot be null");
+
+        DateTime atStartOfYear = iDateTimeUtil.getDateTimeAtStartOfYear(DateTime.now());
+        DateTime atEndOfYear = iDateTimeUtil.getDateTimeAtEndOfYear(DateTime.now());
+
+        String start = iDateTimeUtil.toDisplayFriendlyNoTime(atStartOfYear);
+        String end = iDateTimeUtil.toDisplayFriendlyNoTime(atEndOfYear);
+
+        LOGGER.info("Finding entire YTD unpaid tuition agreement bills for User: {} between [{} - {}]", userRecord.getEmbeddedContactInfo().getEmail(), start, end);
+        return imaniBillRepository.getYTDUnPaidImaniBillsForUser(userRecord, atStartOfYear, atEndOfYear, tuitionAgreement);
+    }
+
+    @Override
+    public Optional<ImaniBill> findCurrentMonthBillForTuitionAgreement(UserRecord userRecord, TuitionAgreement tuitionAgreement) {
+        Assert.notNull(userRecord, "userRecord cannot be null");
+        Assert.notNull(tuitionAgreement, "billServiceRenderedTypeE cannot be null");
+
+        DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+        String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
+
+        LOGGER.info("Finding current month({}) TuitionAgreement[ID: {}] bill for User => {}", dateString, tuitionAgreement.getId(), userRecord.getEmbeddedContactInfo().getEmail());
+        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillForTuitionAndUser(userRecord, tuitionAgreement);
+        return imaniBill;
+    }
+
+//    @Override
+//    public Optional<ImaniBill> findCurrentMonthBillByServiceRendered(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE) {
+//        Assert.notNull(userRecord, "userRecord cannot be null");
+//        Assert.notNull(billServiceRenderedTypeE, "billServiceRenderedTypeE cannot be null");
+//
+//        DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+//        String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
+//
+//        LOGGER.info("Finding current month({}) [{}] bill for user => {}", dateString, billServiceRenderedTypeE, userRecord.getEmbeddedContactInfo().getEmail());
+//        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, billServiceRenderedTypeE);
+//        return imaniBill;
+//    }
 
     @Override
     public void save(ImaniBill imaniBill) {

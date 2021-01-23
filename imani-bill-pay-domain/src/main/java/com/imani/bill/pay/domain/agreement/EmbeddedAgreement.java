@@ -35,6 +35,12 @@ public class EmbeddedAgreement {
     private boolean agreementInForce;
 
 
+    // Specifies the number of days past a payment due date for a payment to be considered late
+    // This can be overridden if set to null using any other stored relevant data or logic based on implementation
+    @Column(name="NumberOfDaysTillLate", nullable=true)
+    private Integer numberOfDaysTillLate;
+
+
     // Tracks the effective date of the agreement not created date
     @Column(name = "EffectiveDate", nullable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -54,8 +60,8 @@ public class EmbeddedAgreement {
     private String agreementDocument;
 
 
-    // Tracks ImaniBillPay user for which agreement is created
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Tracks ImaniBillPay user for which agreement is created.  This user will be responsible for making payments
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "UserRecordID", nullable = false)
     private UserRecord userRecord;
 
@@ -86,6 +92,14 @@ public class EmbeddedAgreement {
 
     public void setAgreementInForce(boolean agreementInForce) {
         this.agreementInForce = agreementInForce;
+    }
+
+    public Integer getNumberOfDaysTillLate() {
+        return numberOfDaysTillLate;
+    }
+
+    public void setNumberOfDaysTillLate(Integer numberOfDaysTillLate) {
+        this.numberOfDaysTillLate = numberOfDaysTillLate;
     }
 
     public DateTime getEffectiveDate() {
@@ -126,6 +140,7 @@ public class EmbeddedAgreement {
                 .append("fixedCost", fixedCost)
                 .append("billScheduleTypeE", billScheduleTypeE)
                 .append("agreementInForce", agreementInForce)
+                .append("numberOfDaysTillLate", numberOfDaysTillLate)
                 .append("effectiveDate", effectiveDate)
                 .append("terminationDate", terminationDate)
                 .append("agreementDocument", agreementDocument)
@@ -155,6 +170,11 @@ public class EmbeddedAgreement {
             return this;
         }
 
+        public Builder numberOfDaysTillLate(Integer numberOfDaysTillLate) {
+            embeddedAgreement.numberOfDaysTillLate = numberOfDaysTillLate;
+            return this;
+        }
+
         public Builder effectiveDate(DateTime effectiveDate) {
             embeddedAgreement.effectiveDate = effectiveDate;
             return this;
@@ -178,6 +198,7 @@ public class EmbeddedAgreement {
         public EmbeddedAgreement build() {
             return embeddedAgreement;
         }
+
     }
 
 }

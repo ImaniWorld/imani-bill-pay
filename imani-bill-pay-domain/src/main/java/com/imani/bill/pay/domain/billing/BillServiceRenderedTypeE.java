@@ -5,6 +5,8 @@ package com.imani.bill.pay.domain.billing;
  */
 public enum BillServiceRenderedTypeE {
 
+    Tuition,
+
     ChildCare,
 
     Residential_Lease,

@@ -2,10 +2,11 @@ package com.imani.bill.pay.domain.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
-import com.imani.bill.pay.domain.property.PropertyManager;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -13,6 +14,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * UserRecord is the domain model for all users that can access Imani Cash to transact.
@@ -104,10 +107,10 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
     private DateTime lastLogoutDate;
 
 
-    // Populated Only IF this user is a PropertyManager user.  This will identify the PropertyManager that the user can execute transactions on behalf of.
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PropertyManagerID")
-    private PropertyManager propertyManager;
+    // Tracks and maps a user to Businesses that this user is affiliated with.  Actualy business relationship
+    // Will be determined by the u
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "userRecord")
+    private Set<UserToBusiness> userToBusinesses = new HashSet<>();
 
 
     public UserRecord() {
@@ -234,12 +237,17 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
         this.lastLogoutDate = lastLogoutDate;
     }
 
-    public PropertyManager getPropertyManager() {
-        return propertyManager;
+    public Set<UserToBusiness> getUserToBusinesses() {
+        return ImmutableSet.copyOf(userToBusinesses);
     }
 
-    public void setPropertyManager(PropertyManager propertyManager) {
-        this.propertyManager = propertyManager;
+    public void addUserToBusiness(Business business) {
+        Assert.notNull(business, "Business cannot be null");
+        UserToBusiness userToBusiness = UserToBusiness.builder()
+                .userRecord(this)
+                .business(business)
+                .build();
+        this.userToBusinesses.add(userToBusiness);
     }
 
     public void updateSafeFieldsWherePresent(UserRecord userRecordToCopy) {
@@ -285,7 +293,6 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
                 .append("acceptedTermsAndConditions", acceptedTermsAndConditions)
                 .append("lastLoginDate", lastLoginDate)
                 .append("lastLogoutDate", lastLogoutDate)
-                .append("propertyManager", propertyManager)
                 .toString();
     }
 
@@ -363,8 +370,8 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
             return this;
         }
 
-        public Builder propertyManager(PropertyManager propertyManager) {
-            userRecord.propertyManager = propertyManager;
+        public Builder business(Business business) {
+            userRecord.addUserToBusiness(business);
             return this;
         }
 

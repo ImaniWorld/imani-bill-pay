@@ -91,6 +91,11 @@ public class PropertyLeaseAgreement extends AuditableRecord implements IHasBilli
     }
 
     @Override
+    public String describeAgreement() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
