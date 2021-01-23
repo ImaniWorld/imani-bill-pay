@@ -3,7 +3,9 @@ package com.imani.bill.pay.service.billing.education;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
+import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
+import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
@@ -44,8 +46,20 @@ public class TuitionBillExplanationService implements IBillExplanationService {
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         LOGGER.info("Attempting to generate TuitionAgreement Bill Explanation for User[{}] ", userRecord.getEmbeddedContactInfo().getEmail());
+
+        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
         Optional<ImaniBill> imaniBill = imaniBillService.findByUserCurrentMonthBill(userRecord, BillServiceRenderedTypeE.Tuition);
-        return explainImaniBill(imaniBill);
+
+        Optional<ImaniBillExplained> billExplained = explainImaniBill(imaniBill);
+        if(billExplained.isPresent()) {
+            TuitionAgreement tuitionAgreement = imaniBill.get().getTuitionAgreement();
+            billExplained.get().getBillPurposeExplained().setStudent(tuitionAgreement.getStudent().getFullName());
+            executionResult.setResult(billExplained.get());
+        } else {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No TuitionAgreement bill found for user"));
+        }
+
+        return executionResult;
     }
 
     @Override

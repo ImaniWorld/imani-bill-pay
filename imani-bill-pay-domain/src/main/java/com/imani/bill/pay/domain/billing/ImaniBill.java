@@ -171,6 +171,14 @@ public class ImaniBill extends AuditableRecord {
         this.propertyLeaseAgreement = propertyLeaseAgreement;
     }
 
+    public TuitionAgreement getTuitionAgreement() {
+        return tuitionAgreement;
+    }
+
+    public void setTuitionAgreement(TuitionAgreement tuitionAgreement) {
+        this.tuitionAgreement = tuitionAgreement;
+    }
+
     public boolean isPaidInFull() {
         return amountOwed.equals(amountPaid);
     }
@@ -237,14 +245,18 @@ public class ImaniBill extends AuditableRecord {
     }
 
     public ImaniBillExplained toImaniBillExplained() {
+        BillPurposeExplained billPurposeExplained = BillPurposeExplained.builder()
+                .billScheduleDate(billScheduleDate)
+                .billScheduleTypeE(billScheduleTypeE)
+                .billServiceRenderedTypeE(billServiceRenderedTypeE)
+                .build();
+
         ImaniBillExplained imaniBillExplained = ImaniBillExplained.builder()
                 .imaniBillID(id)
                 .amountOwed(amountOwed)
                 .amountPaid(amountPaid)
-                .billScheduleDate(billScheduleDate)
-                .billScheduleTypeE(billScheduleTypeE)
-                .billServiceRenderedTypeE(billServiceRenderedTypeE)
-                .userRecordLite(billedUser.toUserRecordLite())
+                .billPurposeExplained(billPurposeExplained)
+                .userBilled(billedUser.toUserRecordLite())
                 .build();
 
         // Get any applied fees to buid a fee explanation
@@ -274,7 +286,7 @@ public class ImaniBill extends AuditableRecord {
                 .append("billedUser", billedUser)
                 .append("childCareAgreement", childCareAgreement)
                 .append("propertyLeaseAgreement", propertyLeaseAgreement)
-                .append("educationalTermAgreement", tuitionAgreement)
+                .append("tuitionAgreement", tuitionAgreement)
                 .toString();
     }
 

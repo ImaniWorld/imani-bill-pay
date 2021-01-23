@@ -1,13 +1,11 @@
 package com.imani.bill.pay.domain.billing;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.payment.EmbeddedPayment;
 import com.imani.bill.pay.domain.payment.PaymentStatusE;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import java.util.HashSet;
@@ -20,6 +18,8 @@ import java.util.Set;
 public class ImaniBillExplained {
 
 
+    private String explanation;
+
     private Long imaniBillID;
 
     private Double amountOwed;
@@ -29,14 +29,9 @@ public class ImaniBillExplained {
     // Passed only when a client is making a payment.  Should never exceed the total amount due
     private Double amtBeingPaid;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private DateTime billScheduleDate;
+    private BillPurposeExplained billPurposeExplained;
 
-    private BillScheduleTypeE billScheduleTypeE;
-
-    private BillServiceRenderedTypeE billServiceRenderedTypeE;
-
-    private UserRecordLite userRecordLite;
+    private UserRecordLite userBilled;
 
     // Collection of additional fees applied against this rental bill
     private Set<BillPayFeeExplained> billPayFeeExplainedSet = new HashSet<>();
@@ -76,36 +71,20 @@ public class ImaniBillExplained {
         this.amtBeingPaid = amtBeingPaid;
     }
 
-    public DateTime getBillScheduleDate() {
-        return billScheduleDate;
+    public BillPurposeExplained getBillPurposeExplained() {
+        return billPurposeExplained;
     }
 
-    public void setBillScheduleDate(DateTime billScheduleDate) {
-        this.billScheduleDate = billScheduleDate;
+    public void setBillPurposeExplained(BillPurposeExplained billPurposeExplained) {
+        this.billPurposeExplained = billPurposeExplained;
     }
 
-    public BillScheduleTypeE getBillScheduleTypeE() {
-        return billScheduleTypeE;
+    public UserRecordLite getUserBilled() {
+        return userBilled;
     }
 
-    public void setBillScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
-        this.billScheduleTypeE = billScheduleTypeE;
-    }
-
-    public BillServiceRenderedTypeE getBillServiceRenderedTypeE() {
-        return billServiceRenderedTypeE;
-    }
-
-    public void setBillServiceRenderedTypeE(BillServiceRenderedTypeE billServiceRenderedTypeE) {
-        this.billServiceRenderedTypeE = billServiceRenderedTypeE;
-    }
-
-    public UserRecordLite getUserRecordLite() {
-        return userRecordLite;
-    }
-
-    public void setUserRecordLite(UserRecordLite userRecordLite) {
-        this.userRecordLite = userRecordLite;
+    public void setUserBilled(UserRecordLite userBilled) {
+        this.userBilled = userBilled;
     }
 
     public Set<BillPayFeeExplained> getBillPayFeeExplained() {
@@ -146,10 +125,8 @@ public class ImaniBillExplained {
                 .append("amountOwed", amountOwed)
                 .append("amountPaid", amountPaid)
                 .append("amtBeingPaid", amtBeingPaid)
-                .append("billScheduleDate", billScheduleDate)
-                .append("billScheduleTypeE", billScheduleTypeE)
-                .append("billServiceRenderedTypeE", billServiceRenderedTypeE)
-                .append("userRecordLite", userRecordLite)
+                .append("billPurposeExplained", billPurposeExplained)
+                .append("userBilled", userBilled)
                 .toString();
     }
 
@@ -181,23 +158,13 @@ public class ImaniBillExplained {
             return this;
         }
 
-        public Builder billScheduleDate(DateTime billScheduleDate) {
-            monthlyRentalBillExplained.billScheduleDate = billScheduleDate;
+        public Builder billPurposeExplained(BillPurposeExplained billPurposeExplained) {
+            monthlyRentalBillExplained.billPurposeExplained = billPurposeExplained;
             return this;
         }
 
-        public Builder billScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
-            monthlyRentalBillExplained.billScheduleTypeE = billScheduleTypeE;
-            return this;
-        }
-
-        public Builder billServiceRenderedTypeE(BillServiceRenderedTypeE billServiceRenderedTypeE) {
-            monthlyRentalBillExplained.billServiceRenderedTypeE = billServiceRenderedTypeE;
-            return this;
-        }
-
-        public Builder userRecordLite(UserRecordLite userRecordLite) {
-            monthlyRentalBillExplained.userRecordLite = userRecordLite;
+        public Builder userBilled(UserRecordLite userBilled) {
+            monthlyRentalBillExplained.userBilled = userBilled;
             return this;
         }
 

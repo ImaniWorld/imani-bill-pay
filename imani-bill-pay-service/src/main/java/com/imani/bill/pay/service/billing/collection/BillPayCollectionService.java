@@ -71,7 +71,7 @@ public class BillPayCollectionService implements IBillPayCollectionService {
         // Build BillingDetail object
         ImaniBill imaniBill = imaniBillRepository.getOne(imaniBillExplained.getImaniBillID());
         imaniBillExplained.setAmountOwed(imaniBill.getAmountOwed());
-        UserRecord userRecord = iUserRecordRepository.findByUserEmail(imaniBillExplained.getUserRecordLite().getEmail());
+        UserRecord userRecord = iUserRecordRepository.findByUserEmail(imaniBillExplained.getUserBilled().getEmail());
         ACHPaymentInfo achPaymentInfo = iachPaymentInfoRepository.findPrimaryUserACHPaymentInfo(userRecord);
 
         // Build a new ImaniBillPayRecord
@@ -105,7 +105,7 @@ public class BillPayCollectionService implements IBillPayCollectionService {
 
         if(!billingDetailExecutionResult.hasValidationAdvice()
                 && !billingDetailExecutionResult.hasExecutionError()) {
-            LOGGER.info("Executing ImaniBill payment for user=> {} for rendered service=> {}", imaniBillExplained.getUserRecordLite().getEmail(), imaniBillExplained.getBillServiceRenderedTypeE());
+            LOGGER.info("Executing ImaniBill payment for user=> {} for rendered service=> {}", imaniBillExplained.getUserBilled().getEmail(), imaniBillExplained.getBillPurposeExplained().getBillServiceRenderedTypeE());
             Optional<Charge> charge = iStripeChargeService.createCustomerACHCharge(userRecord, imaniBillExplained.getAmtBeingPaid());
             onPaymentProcessed(imaniBillExplained, imaniBillPayRecord);
         } else {

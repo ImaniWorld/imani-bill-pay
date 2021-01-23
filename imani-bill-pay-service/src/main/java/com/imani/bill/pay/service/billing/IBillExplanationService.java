@@ -3,7 +3,6 @@ package com.imani.bill.pay.service.billing;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 
@@ -28,17 +27,15 @@ public interface IBillExplanationService {
     public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite);
 
 
-    public default ExecutionResult<ImaniBillExplained> explainImaniBill(Optional<ImaniBill> imaniBill) {
+    public default Optional<ImaniBillExplained> explainImaniBill(Optional<ImaniBill> imaniBill) {
         ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
 
         if(imaniBill.isPresent()) {
             ImaniBillExplained imaniBillExplained = imaniBill.get().toImaniBillExplained();
-            executionResult.setResult(imaniBillExplained);
-        } else {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No lease agreement bill found for user"));
+            return Optional.of(imaniBillExplained);
         }
 
-        return executionResult;
+        return Optional.empty();
     }
 
 }
