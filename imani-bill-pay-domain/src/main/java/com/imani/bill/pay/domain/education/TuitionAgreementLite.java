@@ -1,7 +1,8 @@
 package com.imani.bill.pay.domain.education;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
+import com.imani.bill.pay.domain.agreement.EmbeddedAgreementLite;
+import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -13,13 +14,13 @@ public class TuitionAgreementLite {
 
     private Long agreementID;
 
-    private Long businessID;
+    private Long schoolID;
 
-    private String studentFirstName;
+    private Long tuitionGradeID;
 
-    private String studentLastName;
+    private UserRecordLite student;
 
-    private EmbeddedAgreement embeddedAgreement;
+    private EmbeddedAgreementLite embeddedAgreementLite;
 
 
     public TuitionAgreementLite() {
@@ -34,46 +35,46 @@ public class TuitionAgreementLite {
         this.agreementID = agreementID;
     }
 
-    public Long getBusinessID() {
-        return businessID;
+    public Long getSchoolID() {
+        return schoolID;
     }
 
-    public void setBusinessID(Long businessID) {
-        this.businessID = businessID;
+    public void setSchoolID(Long schoolID) {
+        this.schoolID = schoolID;
     }
 
-    public String getStudentFirstName() {
-        return studentFirstName;
+    public Long getTuitionGradeID() {
+        return tuitionGradeID;
     }
 
-    public void setStudentFirstName(String studentFirstName) {
-        this.studentFirstName = studentFirstName;
+    public void setTuitionGradeID(Long tuitionGradeID) {
+        this.tuitionGradeID = tuitionGradeID;
     }
 
-    public String getStudentLastName() {
-        return studentLastName;
+    public UserRecordLite getStudent() {
+        return student;
     }
 
-    public void setStudentLastName(String studentLastName) {
-        this.studentLastName = studentLastName;
+    public void setStudent(UserRecordLite student) {
+        this.student = student;
     }
 
-    public EmbeddedAgreement getEmbeddedAgreement() {
-        return embeddedAgreement;
+    public EmbeddedAgreementLite getEmbeddedAgreementLite() {
+        return embeddedAgreementLite;
     }
 
-    public void setEmbeddedAgreement(EmbeddedAgreement embeddedAgreement) {
-        this.embeddedAgreement = embeddedAgreement;
+    public void setEmbeddedAgreementLite(EmbeddedAgreementLite embeddedAgreementLite) {
+        this.embeddedAgreementLite = embeddedAgreementLite;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("agreementID", agreementID)
-                .append("businessID", businessID)
-                .append("studentFirstName", studentFirstName)
-                .append("studentLastName", studentLastName)
-                .append("embeddedAgreement", embeddedAgreement)
+                .append("schoolID", schoolID)
+                .append("tuitionGradeID", tuitionGradeID)
+                .append("student", student)
+                .append("embeddedAgreementLite", embeddedAgreementLite)
                 .toString();
     }
 
