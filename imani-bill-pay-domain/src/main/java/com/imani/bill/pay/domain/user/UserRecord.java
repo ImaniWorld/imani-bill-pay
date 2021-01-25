@@ -271,6 +271,11 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(embeddedContactInfo.getEmail())
+                .mobilePhone(embeddedContactInfo.getMobilePhone())
+                .userRecordTypeE(userRecordTypeE)
+                .loggedIn(loggedIn)
+                .accountLocked(accountLocked)
+                .lastLoginDate(lastLoginDate)
                 .build();
         return userRecordLite;
     }

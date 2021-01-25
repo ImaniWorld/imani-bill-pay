@@ -26,6 +26,11 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.imani.bill.pay</groupId>
+            <artifactId>imani-bill-pay-xecservice</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.imani.bill.pay</groupId>
@@ -82,6 +87,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.10.5</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.imani.bill.pay</groupId>
+            <artifactId>imani-bill-pay-xecservice</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

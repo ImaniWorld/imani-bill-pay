@@ -1,5 +1,7 @@
 package com.imani.bill.pay.domain.user;
 
+import java.util.Optional;
+
 /**
  * @author manyce400
  */
@@ -29,20 +31,14 @@ public enum UserRecordTypeE {
     ;
 
 
-    public boolean isInstitutionalUser() {
-        if(this == PropertyManager || this == PropertyOwner || this == ServiceProvider) {
-            return true;
+    public static Optional<UserRecordTypeE> findByType(String type) {
+        for(UserRecordTypeE userRecordTypeE : UserRecordTypeE.values()) {
+            if(userRecordTypeE.toString().equals(type)) {
+                return Optional.of(userRecordTypeE);
+            }
         }
 
-        return false;
-    }
-
-    public boolean isEndUser() {
-        if(this == Tenant || this == HOAMember) {
-            return true;
-        }
-
-        return false;
+        return Optional.empty();
     }
 
 }
