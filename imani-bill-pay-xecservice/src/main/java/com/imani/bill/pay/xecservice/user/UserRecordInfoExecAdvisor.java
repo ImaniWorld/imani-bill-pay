@@ -50,8 +50,8 @@ public class UserRecordInfoExecAdvisor {
         // Validate the userRecordTypeE
         Optional<UserRecordTypeE> userRecordTypeE = UserRecordTypeE.findByType(userType);
         if(!userRecordTypeE.isPresent()) {
-            StringBuffer sb = new StringBuffer("No valid Business found with ID[")
-                    .append(businessID)
+            StringBuffer sb = new StringBuffer("No valid UserRecordTypeE found [")
+                    .append(userType)
                     .append("]");
             executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
         }
