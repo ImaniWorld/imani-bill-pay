@@ -76,6 +76,42 @@ create table TuitionAgreement (
     )
 
 
+create table ChildCareAgreement (
+       ID bigint not null auto_increment,
+        ChildName varchar(100) not null,
+        AgreementDocument varchar(100),
+        AgreementInForce TINYINT,
+        FixedCost double precision not null,
+        NumberOfDaysTillLate integer,
+        BillScheduleTypeE varchar(20) not null,
+        DayCareID bigint not null,
+        UserRecordID bigint not null,
+        EffectiveDate datetime not null,
+        TerminationDate datetime not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table PropertyLeaseAgreement (
+       ID bigint not null auto_increment,
+        LeasedApartmentID bigint,
+        LeasedPropertyID bigint,
+        AgreementDocument varchar(100),
+        AgreementInForce TINYINT,
+        FixedCost double precision not null,
+        NumberOfDaysTillLate integer,
+        BillScheduleTypeE varchar(20) not null,
+        UserRecordID bigint not null,
+        EffectiveDate datetime not null,
+        TerminationDate datetime not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
 create table ImaniBill (
        ID bigint not null auto_increment,
         AmountOwed double precision,

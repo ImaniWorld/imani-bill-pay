@@ -4,8 +4,9 @@ import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
-import com.imani.bill.pay.service.billing.collection.BillPayCollectionService;
-import com.imani.bill.pay.service.billing.collection.IBillPayCollectionService;
+import com.imani.bill.pay.domain.payment.record.ImaniBillPayRecord;
+import com.imani.bill.pay.xecservice.collection.BillPayCollectService;
+import com.imani.bill.pay.xecservice.collection.IBillPayCollectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,15 +23,18 @@ public class BillingPaymentController {
 
 
     @Autowired
-    @Qualifier(BillPayCollectionService.SPRING_BEAN)
-    private IBillPayCollectionService iBillPayCollectionService;
+    @Qualifier(BillPayCollectService.SPRING_BEAN)
+    private IBillPayCollectService iBillPayCollectService;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingPaymentController.class);
 
-    @PostMapping("/residential/lease")
+    @PostMapping("/process")
     public APIGatewayResponse getUserLeaseAgreementBill(@RequestBody APIGatewayRequest<ImaniBillExplained> apiGatewayRequest) {
-        LOGGER.info("Processing a residential lease bill payment....");
-        ExecutionResult<ImaniBillExplained> executionResult = iBillPayCollectionService.collectPayment(apiGatewayRequest.getRequestObject());
+        LOGGER.info("Received a request to process Imani Bill payment....");
+        ImaniBillPayRecord imaniBillPayRecord = ImaniBillPayRecord.builder()
+                .build();
+        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
+        iBillPayCollectService.processPayment(imaniBillPayRecord, executionResult);
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 }
