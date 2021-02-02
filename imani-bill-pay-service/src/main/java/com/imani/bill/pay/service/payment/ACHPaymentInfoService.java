@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.payment;
 
+import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.payment.plaid.PlaidBankAcct;
@@ -61,8 +62,8 @@ public class ACHPaymentInfoService implements IACHPaymentInfoService {
 
         if(iHasPaymentInfo instanceof UserRecord) {
             achPaymentInfo.setUserRecord((UserRecord) iHasPaymentInfo);
-        } else if(iHasPaymentInfo instanceof PropertyManager) {
-            achPaymentInfo.setPropertyManager((PropertyManager) iHasPaymentInfo);
+        } else if(iHasPaymentInfo instanceof Business) {
+            achPaymentInfo.setBusiness((Business) iHasPaymentInfo);
         }
 
         return achPaymentInfo;

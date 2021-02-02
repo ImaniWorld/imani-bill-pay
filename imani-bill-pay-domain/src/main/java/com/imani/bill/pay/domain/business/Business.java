@@ -6,6 +6,7 @@ import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.education.SchoolToTuitionGrade;
 import com.imani.bill.pay.domain.education.TuitionGrade;
+import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.property.Property;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
@@ -17,7 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name="Business")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Business extends AuditableRecord {
+public class Business extends AuditableRecord implements IHasPaymentInfo {
 
 
     @Id
