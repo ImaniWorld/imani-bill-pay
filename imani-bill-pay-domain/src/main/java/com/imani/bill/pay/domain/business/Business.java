@@ -32,7 +32,7 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
     @Embedded
     private EmbeddedContactInfo embeddedContactInfo;
 
-    // Represents Stripe Account ID for Institutions - PropertyManager, PropertyOwner etc
+    // Represents Stripe Account ID for this business.  This gets created as part of creating a new business
     @Column(name="StripeAcctID", length=100)
     public String stripeAcctID;
     

@@ -1,6 +1,6 @@
 package com.imani.bill.pay.domain.payment.stripe;
 
-import com.imani.bill.pay.domain.property.PropertyManager;
+import com.imani.bill.pay.domain.business.Business;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +26,11 @@ public enum CompanyObjFieldsE {
     ;
 
 
-    public static Map<String, Object> getCompanyCreateParams(PropertyManager propertyManager) {
+    public static Map<String, Object> getCompanyCreateParams(Business business) {
         Map<String, Object> params = new HashMap<>();
-        params.put(name.name(), propertyManager.getName());
-        params.put(email.name(), propertyManager.getEmbeddedContactInfo().getEmail());
-        params.put(phone.name(), propertyManager.getEmbeddedContactInfo().getPhone());
+        params.put(name.name(), business.getName());
+        params.put(email.name(), business.getEmbeddedContactInfo().getEmail());
+        params.put(phone.name(), business.getEmbeddedContactInfo().getPhone());
         return params;
     }
 

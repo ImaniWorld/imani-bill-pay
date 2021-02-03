@@ -1,6 +1,6 @@
 package com.imani.bill.pay.domain.payment.stripe;
 
-import com.imani.bill.pay.domain.property.PropertyManager;
+import com.imani.bill.pay.domain.business.Business;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ public enum AccountObjFieldsE {
     ;
 
 
-    public static Map<String, Object> getAccountCreateParams(PropertyManager propertyManager) {
-        Assert.notNull(propertyManager, "PropertyManager cannot be null");
+    public static Map<String, Object> getAccountCreateParams(Business business) {
+        Assert.notNull(business, "Business cannot be null");
 
         // Set requested capabilities
         List<Object> requestedCapabilities = new ArrayList<>();
@@ -47,13 +47,13 @@ public enum AccountObjFieldsE {
 
         Map<String, Object> params = new HashMap<>();
         params.put(type.name(), "custom");
-        params.put(email.name(), propertyManager.getEmbeddedContactInfo().getEmail());
+        params.put(email.name(), business.getEmbeddedContactInfo().getEmail());
         params.put(country.name(), "US");
         params.put(business_type.name(), StripeAcctHolderTypeE.Company.getHolderType());
         params.put(requested_capabilities.name(), requestedCapabilities);
 
         // Add Company details for this property manager
-        Map<String, Object> companyParams = CompanyObjFieldsE.getCompanyCreateParams(propertyManager);
+        Map<String, Object> companyParams = CompanyObjFieldsE.getCompanyCreateParams(business);
         params.put(company.name(), companyParams);
         return params;
     }

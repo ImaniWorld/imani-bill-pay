@@ -7,6 +7,12 @@ import com.imani.bill.pay.domain.business.Business;
  */
 public interface IBusinessService {
 
+    // Register a new Imani BillPay Business.
+    public void registerBusiness(Business business);
+
+    public boolean removeConnectedStripeAcct(Business business);
+
+    // Save/update Imani BillPay Business
     public void saveBusiness(Business business);
 
 }

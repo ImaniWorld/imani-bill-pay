@@ -19,7 +19,7 @@ public class EmbeddedAgreement {
 
 
     // Captures cost per bill schedule to be applied excluding any fees
-    @Column(name="FixedCost", nullable=false)
+    @Column(name="FixedCost")
     private Double fixedCost;
 
 

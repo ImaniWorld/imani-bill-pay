@@ -76,6 +76,25 @@ create table TuitionAgreement (
     )
 
 
+create table UtilityServiceAgreement (
+       ID bigint not null auto_increment,
+        UtilityTypeE varchar(25) not null,
+        AgreementInForce TINYINT,
+        BillScheduleTypeE varchar(20) not null,
+        FixedCost double precision,
+        NumberOfDaysTillLate integer,
+        AgreementDocument varchar(100),
+        BusinessID bigint not null,
+        UserRecordID bigint not null,
+        UtilityPropertyID bigint not null,
+        EffectiveDate datetime not null,
+        TerminationDate datetime not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
 create table ChildCareAgreement (
        ID bigint not null auto_increment,
         ChildName varchar(100) not null,

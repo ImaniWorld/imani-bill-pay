@@ -7,7 +7,9 @@ public enum BillScheduleTypeE {
 
     WEEKLY,
 
-    MONTHLY
+    MONTHLY,
+
+    QUARTERLY
     ;
 
 }

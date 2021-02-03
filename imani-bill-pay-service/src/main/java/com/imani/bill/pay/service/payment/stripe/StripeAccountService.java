@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.payment.stripe;
 
+import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.execution.ExecutionError;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
@@ -19,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Default implementation to provide Stripe Account creation functionality.
@@ -55,6 +56,52 @@ public class StripeAccountService implements IStripeAccountService {
 
     @Transactional
     @Override
+    public Optional<Account> createConnectedStripeAcct(Business business) {
+        Assert.notNull(business, "business cannot be null");
+        Assert.isNull(business.getStripeAcctID(), "Business already has a Stripe Acct ID");
+        Optional<Account> account = createStripeAccount(business);
+        return account;
+    }
+
+    @Override
+    public Optional<Account> getConnectedStripeAcct(Business business) {
+        Assert.notNull(business, "Business cannot be null");
+        Assert.notNull(business.getStripeAcctID(), "Business has no connected Stripe Acct ID");
+
+        LOGGER.info("Attempting to retrieve Connected Stripe Acct for Business[{}]", business.getName());
+
+        try {
+            Account account = Account.retrieve(business.getStripeAcctID());
+            if(account != null) {
+                return Optional.of(account);
+            }
+        } catch (StripeException e) {
+            LOGGER.warn("Exception occurred while trying to retrieve a connected Stripe Acct", e);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean removeConnectedStripeAcct(Business business) {
+        Assert.notNull(business, "Business cannot be null");
+        Assert.notNull(business.getStripeAcctID(), "Business has no connected Stripe Acct ID");
+
+        Optional<Account> account = getConnectedStripeAcct(business);
+        if(account.isPresent()) {
+            try {
+                account.get().delete();
+                return true;
+            } catch (StripeException e) {
+                LOGGER.warn("Exception occurred while trying to delete a connected Stripe Acct", e);
+            }
+        }
+
+        return false;
+    }
+
+    @Transactional
+    @Override
     public ExecutionResult createCustomStripeAccount(PropertyOwner propertyOwner) {
         Assert.notNull(propertyOwner, "propertyOwner cannot be null");
         ExecutionResult executionResult = new ExecutionResult();
@@ -78,7 +125,7 @@ public class StripeAccountService implements IStripeAccountService {
 
         if (achPaymentInfo != null) {
             try {
-                Account stripeAccount = getStripeAccount(propertyManager);
+                Account stripeAccount = null;//getStripeAccount(propertyManager);
                 propertyManager.setStripeAcctID(stripeAccount.getId());
                 iPropertyManagerService.save(propertyManager);
 
@@ -94,16 +141,17 @@ public class StripeAccountService implements IStripeAccountService {
     }
 
 
-    Account getStripeAccount(PropertyManager propertyManager) throws StripeException {
-        LOGGER.debug("Attempting to create or retrieve connected Stripe Account for propertyManager");
-        if(StringUtils.isEmpty(propertyManager.getStripeAcctID())) {
-            Map<String, Object> params = AccountObjFieldsE.getAccountCreateParams(propertyManager);
-            Account stripeAccount = Account.create(params);
-            return stripeAccount;
-        }
+    Optional<Account> createStripeAccount(Business business)  {
+        LOGGER.debug("Attempting to create connected Stripe Account for Business[{}]", business.getName());
 
-        // Get already created connected account
-        return Account.retrieve(propertyManager.getStripeAcctID());
+        try {
+            Map<String, Object> params = AccountObjFieldsE.getAccountCreateParams(business);
+            Account stripeAccount = Account.create(params);
+            return Optional.of(stripeAccount);
+        } catch (StripeException e) {
+            LOGGER.warn("Exception occurred while trying to create a connected Stripe Acct", e);
+            return Optional.empty();
+        }
     }
 
 
