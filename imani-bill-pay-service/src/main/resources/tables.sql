@@ -8,6 +8,18 @@ create table GeographicalRegion (
     );
 
 
+create table Address (
+       ID bigint not null auto_increment,
+        StreetAddress varchar(400) not null,
+        CityID bigint not null,
+        ZipCode varchar(50) not null,
+        POBoxNumber varchar(50),
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
 create table UserToBusiness (
        ID bigint not null auto_increment,
         UserRecordID bigint not null,
@@ -76,19 +88,30 @@ create table TuitionAgreement (
     )
 
 
-create table UtilityServiceAgreement (
+create table WaterServiceAgreement (
        ID bigint not null auto_increment,
-        UtilityTypeE varchar(25) not null,
+        BusinessCustomerAcctID varchar(100),
+        NumberOfGallonsPerFixedCost bigint,
+        NumberOfDaysTillLate integer,
         AgreementInForce TINYINT,
         BillScheduleTypeE varchar(20) not null,
         FixedCost double precision,
-        NumberOfDaysTillLate integer,
         AgreementDocument varchar(100),
-        BusinessID bigint not null,
         UserRecordID bigint not null,
+        BusinessID bigint not null,
         UtilityPropertyID bigint not null,
         EffectiveDate datetime not null,
         TerminationDate datetime not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+create table WaterUtilization (
+       ID bigint not null auto_increment,
+        NumberOfGallonsUsed bigint,
+        Description varchar(200),
+        WaterServiceAgreementID bigint not null,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)

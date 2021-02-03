@@ -9,7 +9,9 @@ public enum BusinessTypeE {
 
     Child_Care,
 
-    Utility,
+    Utility_Water,
+
+    Utility_Sewer,
 
     School,
 

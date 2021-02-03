@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
  * @author manyce400
  */
 @Repository
-public interface IUtilityServiceAgreementRepository extends JpaRepository<WaterServiceAgreement, Long> {
+public interface IWaterServiceAgreementRepository extends JpaRepository<WaterServiceAgreement, Long> {
 
 
 

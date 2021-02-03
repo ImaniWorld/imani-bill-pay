@@ -3,11 +3,11 @@ package com.imani.bill.pay.domain.business;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.contact.Address;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.education.SchoolToTuitionGrade;
 import com.imani.bill.pay.domain.education.TuitionGrade;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
-import com.imani.bill.pay.domain.property.Property;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -44,8 +44,8 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
     // Represents the physical property/address that the business operates in
     // This could be the businesses corporate HQ
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PropertyID", nullable = true)
-    private Property businessProperty;
+    @JoinColumn(name = "AddressID", nullable = true)
+    private Address address;
 
     // IF the Business is a School, this will link to all Tuition Grades offered by the school
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "school")
@@ -96,12 +96,12 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
         this.businessTypeE = businessTypeE;
     }
 
-    public Property getBusinessProperty() {
-        return businessProperty;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setBusinessProperty(Property businessProperty) {
-        this.businessProperty = businessProperty;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public Set<SchoolToTuitionGrade> getSchoolToTuitionGrades() {
@@ -125,7 +125,7 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
                 .append("embeddedContactInfo", embeddedContactInfo)
                 .append("stripeAcctID", stripeAcctID)
                 .append("businessTypeE", businessTypeE)
-                .append("businessProperty", businessProperty)
+                .append("address", address)
                 .toString();
     }
 
@@ -156,8 +156,8 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
             return this;
         }
 
-        public Builder businessProperty(Property businessProperty) {
-            business.businessProperty = businessProperty;
+        public Builder address(Address address) {
+            business.address = address;
             return this;
         }
 
