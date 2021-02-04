@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.agreement;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -42,6 +43,7 @@ public class EmbeddedAgreement {
 
 
     // Tracks the effective date of the agreement not created date
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "EffectiveDate", nullable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @CreatedDate
@@ -49,7 +51,8 @@ public class EmbeddedAgreement {
 
 
     // Tracks date when this agreement gets terminated
-    @Column(name = "TerminationDate", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "TerminationDate")
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     @CreatedDate
     private DateTime terminationDate;

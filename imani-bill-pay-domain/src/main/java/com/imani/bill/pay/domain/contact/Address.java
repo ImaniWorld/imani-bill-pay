@@ -3,6 +3,8 @@ package com.imani.bill.pay.domain.contact;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.geographical.City;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -75,6 +77,33 @@ public class Address extends AuditableRecord {
 
     public void setPostOfficeBoxNumber(String postOfficeBoxNumber) {
         this.postOfficeBoxNumber = postOfficeBoxNumber;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Address address = (Address) o;
+        return new EqualsBuilder()
+                .append(id, address.id)
+                .append(streetAddress, address.streetAddress)
+                .append(city, address.city)
+                .append(zipCode, address.zipCode)
+                .append(postOfficeBoxNumber, address.postOfficeBoxNumber)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(streetAddress)
+                .append(city)
+                .append(zipCode)
+                .append(postOfficeBoxNumber)
+                .toHashCode();
     }
 
     @Override

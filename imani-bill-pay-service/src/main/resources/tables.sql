@@ -19,6 +19,16 @@ create table Address (
         primary key (ID)
     )
 
+create table Community (
+       ID bigint not null auto_increment,
+        CommunityName varchar(400),
+        CommunityTypeE varchar(25) not null,
+        CityID bigint not null,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
 
 create table UserToBusiness (
        ID bigint not null auto_increment,
@@ -91,17 +101,18 @@ create table TuitionAgreement (
 create table WaterServiceAgreement (
        ID bigint not null auto_increment,
         BusinessCustomerAcctID varchar(100),
+        FixedCost double precision,
         NumberOfGallonsPerFixedCost bigint,
+        BillScheduleTypeE varchar(20) not null,
         NumberOfDaysTillLate integer,
         AgreementInForce TINYINT,
-        BillScheduleTypeE varchar(20) not null,
-        FixedCost double precision,
         AgreementDocument varchar(100),
         UserRecordID bigint not null,
         BusinessID bigint not null,
-        UtilityPropertyID bigint not null,
+        ServiceAddressID bigint not null,
+        CommunityID bigint,
         EffectiveDate datetime not null,
-        TerminationDate datetime not null,
+        TerminationDate datetime,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)

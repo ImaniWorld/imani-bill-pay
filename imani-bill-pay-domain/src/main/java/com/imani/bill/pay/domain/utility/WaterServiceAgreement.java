@@ -1,13 +1,22 @@
 package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
+import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.business.Business;
-import com.imani.bill.pay.domain.property.Property;
+import com.imani.bill.pay.domain.contact.Address;
+import com.imani.bill.pay.domain.geographical.Community;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -47,10 +56,14 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
     @JoinColumn(name = "BusinessID", nullable = false)
     private Business business;
 
-    // Tracks Property at which the utility is being provided
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UtilityPropertyID", nullable = false)
-    private Property utilityProperty;
+    @JoinColumn(name = "ServiceAddressID", nullable = false)
+    private Address serviceAddress;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CommunityID")
+    private Community community;
 
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "waterServiceAgreement")
@@ -86,12 +99,12 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
         this.business = business;
     }
 
-    public Property getUtilityProperty() {
-        return utilityProperty;
+    public Address getServiceAddress() {
+        return serviceAddress;
     }
 
-    public void setUtilityProperty(Property utilityProperty) {
-        this.utilityProperty = utilityProperty;
+    public void setServiceAddress(Address serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 
     public String getBusinessCustomerAcctID() {
@@ -108,6 +121,14 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
     public void setNumberOfGallonsPerFixedCost(Long numberOfGallonsPerFixedCost) {
         this.numberOfGallonsPerFixedCost = numberOfGallonsPerFixedCost;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    public void setCommunity(Community community) {
+        this.community = community;
     }
 
     public Set<WaterUtilization> getWaterUtilizations() {
@@ -132,7 +153,8 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
                 .append("numberOfGallonsPerFixedCost", numberOfGallonsPerFixedCost)
                 .append("embeddedAgreement", embeddedAgreement)
                 .append("business", business)
-                .append("utilityProperty", utilityProperty)
+                .append("serviceAddress", serviceAddress)
+                .append("community", community)
                 .toString();
     }
 
@@ -164,8 +186,13 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
             return this;
         }
 
-        public Builder utilityProperty(Property utilityProperty) {
-            waterServiceAgreement.utilityProperty = utilityProperty;
+        public Builder serviceAddress(Address address) {
+            waterServiceAgreement.serviceAddress = address;
+            return this;
+        }
+
+        public Builder community(Community community) {
+            waterServiceAgreement.community = community;
             return this;
         }
 
@@ -176,6 +203,47 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
         public WaterServiceAgreement build() {
             return waterServiceAgreement;
+        }
+
+    }
+
+    public static void main(String[] args) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        UserRecord userRecord = new UserRecord();
+        userRecord.setId(5L);
+
+        EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
+                .fixedCost(3.50)
+                .agreementInForce(true)
+                .billScheduleTypeE(BillScheduleTypeE.QUARTERLY)
+                .numberOfDaysTillLate(15)
+                .effectiveDate(new DateTime())
+                .userRecord(userRecord)
+                .build();
+
+        Address address = new Address();
+        address.setId(1L);
+
+        Business business = new Business();
+        business.setId(1L);
+
+        WaterServiceAgreement waterServiceAgreement = WaterServiceAgreement.builder()
+                .serviceAddress(address)
+                .embeddedAgreement(embeddedAgreement)
+                .business(business)
+                .numberOfGallonsPerFixedCost(1000L)
+                .businessCustomerAcctID("Addy-001")
+                .build();
+
+        try {
+            String json = objectMapper.writeValueAsString(waterServiceAgreement);
+            System.out.println("json = " + json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
 
     }

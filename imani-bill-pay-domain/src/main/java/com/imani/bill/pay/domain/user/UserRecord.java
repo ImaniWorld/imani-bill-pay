@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.business.Business;
+import com.imani.bill.pay.domain.contact.Address;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -111,6 +112,9 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
     // Will be determined by the u
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "userRecord")
     private Set<UserToBusiness> userToBusinesses = new HashSet<>();
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "userRecord")
+    private Set<UserToAddress> userToAddresses = new HashSet<>();
 
 
     public UserRecord() {
@@ -250,6 +254,25 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
         this.userToBusinesses.add(userToBusiness);
     }
 
+    public Set<UserToAddress> getUserToAddresses() {
+        return ImmutableSet.copyOf(userToAddresses);
+    }
+
+    public void addUserToAddress(Address address, boolean isPrimary) {
+        Assert.notNull(address, "Address cannot be null");
+        UserToAddress userToAddress = UserToAddress.builder()
+                .userRecord(this)
+                .address(address)
+                .primaryAddress(isPrimary)
+                .build();
+        this.userToAddresses.add(userToAddress);
+    }
+
+    public boolean hasAddress(Address address) {
+        Assert.notNull(address, "Address cannot be null");
+        return userToAddresses.contains(address);
+    }
+
     public void updateSafeFieldsWherePresent(UserRecord userRecordToCopy) {
         Assert.notNull(userRecordToCopy, "userRecordToCopy cannot be null");
 
@@ -377,6 +400,11 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
 
         public Builder business(Business business) {
             userRecord.addUserToBusiness(business);
+            return this;
+        }
+
+        public Builder address(Address address, boolean isPrimary) {
+            userRecord.addUserToAddress(address, isPrimary);
             return this;
         }
 
