@@ -1,10 +1,15 @@
 package com.imani.bill.pay.domain.geographical;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author manyce400
@@ -30,6 +35,9 @@ public class Community extends AuditableRecord {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CityID", nullable = false)
     private City city;
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "community")
+    private Set<UtilityServiceArea> utilityServiceAreas = new HashSet<>();
 
     public Community() {
 
@@ -67,6 +75,15 @@ public class Community extends AuditableRecord {
         this.city = city;
     }
 
+    public void addBillableCommunityArea(UtilityServiceArea utilityServiceArea) {
+        Assert.notNull(utilityServiceArea, "BillableCommunityArea cannot be null");
+        utilityServiceAreas.add(utilityServiceArea);
+    }
+
+    public Set<UtilityServiceArea> getBillableCommunityAreas() {
+        return ImmutableSet.copyOf(utilityServiceAreas);
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -76,4 +93,6 @@ public class Community extends AuditableRecord {
                 .append("city", city)
                 .toString();
     }
+
+
 }

@@ -173,13 +173,14 @@ create table ImaniBill (
         BillScheduleTypeE varchar(25) not null,
         BillServiceRenderedTypeE varchar(25) not null,
         UserRecordID bigint not null,
+        WaterServiceAgreementID bigint,
         TuitionAgreementID bigint,
         ChildCareAgreementID bigint,
         PropertyLeaseAgreementID bigint,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)
-    );
+    )
 
 
 create table BillPayFee (

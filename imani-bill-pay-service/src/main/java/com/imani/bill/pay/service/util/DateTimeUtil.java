@@ -109,13 +109,150 @@ public class DateTimeUtil implements IDateTimeUtil {
         return dateTime.toString(DEFAULT_FORMATTER);
     }
 
+    @Override
+    public DateTime getDateTimeAStartOfCurrentQuarter() {
+        DateTime now = DateTime.now();
+        int currentYear = now.getYear();
+        int currentQuarter = getCurrentQuaterOfCurrentYear();
+
+        if(currentQuarter == 1) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(1);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 2) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(4);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 3) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(7);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 4) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(10);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        }
+
+        return null;
+    }
+
+    @Override
+    public DateTime getDateTimeAEndOfCurrentQuarter() {
+        DateTime now = DateTime.now();
+        int currentYear = now.getYear();
+        int currentQuarter = getCurrentQuaterOfCurrentYear();
+
+        if(currentQuarter == 1) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(3);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 2) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(6);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 3) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(9);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        } else if(currentQuarter == 4) {
+            MutableDateTime mutableDateTime = new MutableDateTime();
+            mutableDateTime.setYear(currentYear);
+            mutableDateTime.setMonthOfYear(12);
+            mutableDateTime.setDayOfMonth(1);
+            mutableDateTime.setHourOfDay(0);
+            mutableDateTime.setMinuteOfHour(0);
+            mutableDateTime.setSecondOfMinute(0);
+            mutableDateTime.setMillisOfSecond(0);
+            return mutableDateTime.toDateTime();
+        }
+
+        return null;
+    }
+
+    @Override
+    public Integer getCurrentQuaterOfCurrentYear() {
+        DateTime now = DateTime.now();
+        int monthOfYear = now.getMonthOfYear();
+        return getQuaterByMonthOfYear(monthOfYear);
+    }
+
+    @Override
+    public Integer getDateTimeQuarter(DateTime dateTime) {
+        Assert.notNull(dateTime, "DateTime cannot be null");
+        int monthOfYear = dateTime.getMonthOfYear();
+        return getQuaterByMonthOfYear(monthOfYear);
+    }
+
+    @Override
+    public boolean isDateTimeInCurrentQuarter(DateTime dateTime) {
+        int currentQuarter = getCurrentQuaterOfCurrentYear();
+        int dateTimeQuarter = getDateTimeQuarter(dateTime);
+        return currentQuarter == dateTimeQuarter;
+    }
+
+    private int getQuaterByMonthOfYear(int monthOfYear) {
+        if(monthOfYear >= 1 && monthOfYear <= 3) {
+            return 1; // 1 for First Quarter
+        } else if(monthOfYear >= 4 && monthOfYear <= 6) {
+            return 2; // 2 for Second Quarter
+        } else if(monthOfYear >= 7 && monthOfYear <= 9) {
+            return 3; // 3 for Third Quarter
+        } else if(monthOfYear >= 10 && monthOfYear <= 12) {
+            return 4; // 4 for Fourth Quarter
+        }
+
+        return -1;
+    }
 
     public static void main(String[] args) {
         DateTimeUtil dateTimeUtil = new DateTimeUtil();
-        DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
+        int quarter = dateTimeUtil.getCurrentQuaterOfCurrentYear();
+        System.out.println("quarter = " + quarter);
+
+        DateTime dateTime = dateTimeUtil.getDateTimeAStartOfCurrentQuarter();
         System.out.println("dateTime = " + dateTime);
-        String str = dateTimeUtil.toDisplayDefault(dateTime);
-        System.out.println("str = " + str);
     }
 
     

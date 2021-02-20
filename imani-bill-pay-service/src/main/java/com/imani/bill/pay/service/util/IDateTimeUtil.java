@@ -25,4 +25,14 @@ public interface IDateTimeUtil {
 
     public String toDisplayDefault(DateTime dateTime);
 
+    public DateTime getDateTimeAStartOfCurrentQuarter();
+
+    public DateTime getDateTimeAEndOfCurrentQuarter();
+
+    public Integer getCurrentQuaterOfCurrentYear();
+
+    public Integer getDateTimeQuarter(DateTime dateTime);
+
+    public boolean isDateTimeInCurrentQuarter(DateTime dateTime);
+
 }

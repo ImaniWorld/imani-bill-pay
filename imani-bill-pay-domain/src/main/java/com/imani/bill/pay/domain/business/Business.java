@@ -8,6 +8,7 @@ import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.education.SchoolToTuitionGrade;
 import com.imani.bill.pay.domain.education.TuitionGrade;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -50,6 +51,9 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
     // IF the Business is a School, this will link to all Tuition Grades offered by the school
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "school")
     private Set<SchoolToTuitionGrade> schoolToTuitionGrades = new HashSet<>();
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "business")
+    private Set<UtilityServiceArea> utilityServiceAreas = new HashSet<>();
 
     public Business() {
         
@@ -115,6 +119,15 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
                 .tuitionGrade(tuitionGrade)
                 .build();
         schoolToTuitionGrades.add(schoolToTuitionGrade);
+    }
+
+    public void addBillableCommunityArea(UtilityServiceArea utilityServiceArea) {
+        Assert.notNull(utilityServiceArea, "BillableCommunityArea cannot be null");
+        utilityServiceAreas.add(utilityServiceArea);
+    }
+
+    public Set<UtilityServiceArea> getBillableCommunityAreas() {
+        return ImmutableSet.copyOf(utilityServiceAreas);
     }
 
     @Override

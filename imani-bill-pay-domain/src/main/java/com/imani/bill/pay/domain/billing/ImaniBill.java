@@ -88,7 +88,7 @@ public class ImaniBill extends AuditableRecord {
 
     // Tracks optional UtilityServiceAgreement linked to this generated bill.
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UtilityServiceAgreement")
+    @JoinColumn(name = "WaterServiceAgreementID")
     private WaterServiceAgreement waterServiceAgreement;
 
 
@@ -185,11 +185,11 @@ public class ImaniBill extends AuditableRecord {
         this.tuitionAgreement = tuitionAgreement;
     }
 
-    public WaterServiceAgreement getUtilityServiceAgreement() {
+    public WaterServiceAgreement getWaterServiceAgreement() {
         return waterServiceAgreement;
     }
 
-    public void setUtilityServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
+    public void setWaterServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
         this.waterServiceAgreement = waterServiceAgreement;
     }
 
@@ -357,6 +357,11 @@ public class ImaniBill extends AuditableRecord {
         }
 
         public Builder utilityServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
+            imaniBill.waterServiceAgreement = waterServiceAgreement;
+            return this;
+        }
+
+        public Builder waterServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
             imaniBill.waterServiceAgreement = waterServiceAgreement;
             return this;
         }

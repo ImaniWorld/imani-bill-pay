@@ -28,8 +28,8 @@ public class WaterSvcAgreementExecServiceAdvisor {
 
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
         validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), executionResult);
-        validateBusiness(waterServiceAgreement.getBusiness(), executionResult);
-        validateServiceAddress(waterServiceAgreement.getServiceAddress(), executionResult);
+        validateBusiness(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProvider(), executionResult);
+        validateServiceAddress(waterServiceAgreement.getEmbeddedUtilityService().getSvcCustomerAddress(), executionResult);
     }
 
     void validateEmbeddedAgreement(EmbeddedAgreement embeddedAgreement, ExecutionResult<WaterServiceAgreement> executionResult) {
