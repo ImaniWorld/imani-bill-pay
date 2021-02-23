@@ -1,17 +1,13 @@
 package com.imani.bill.pay.domain.property;
 
-import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author manyce400
@@ -47,11 +43,6 @@ public class PropertyOwner extends AuditableRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PropertyID", nullable = true)
     private Property addressInfo;
-
-
-    // Contains the portfolio of properties owned by the property owner which can be rented
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "propertyOwner")
-    private Set<Property> portfolio = new HashSet<>();
 
 
     public PropertyOwner() {
@@ -96,15 +87,6 @@ public class PropertyOwner extends AuditableRecord {
 
     public void setAddressInfo(Property addressInfo) {
         this.addressInfo = addressInfo;
-    }
-
-    public Set<Property> getPortfolio() {
-        return ImmutableSet.copyOf(portfolio);
-    }
-
-    public void addToPortfolio(Property property) {
-        Assert.notNull(property, "property cannot be null");
-        this.portfolio.add(property);
     }
 
     @Override

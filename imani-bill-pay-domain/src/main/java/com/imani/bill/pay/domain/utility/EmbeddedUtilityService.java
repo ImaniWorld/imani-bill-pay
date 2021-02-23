@@ -2,8 +2,6 @@ package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.business.Business;
-import com.imani.bill.pay.domain.contact.Address;
-import com.imani.bill.pay.domain.geographical.Community;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -18,8 +16,8 @@ public class EmbeddedUtilityService {
 
     // Tracks the Business which is responsible for providing the utility servie
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UtilityProviderID", nullable = false)
-    private Business utilityProvider;
+    @JoinColumn(name = "UtilityProviderBusinessID", nullable = false)
+    private Business utilityProviderBusiness;
 
 
     // Unique Service Account that the specific business uses to track this customer agreement
@@ -30,25 +28,6 @@ public class EmbeddedUtilityService {
     // Optional field to provide additional context and details for service
     @Column(name="SvcDescription", length = 300)
     private String svcDescription;
-
-
-    // Optional Customer Address for which the service is being rendered.
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "SvcCustomerAddressID")
-    private Address svcCustomerAddress;
-
-
-    // Optional Service customer Business for which the service is being rendered.
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "SvcCustomerBusinessID", nullable = false)
-    private Business svcCustomerBusiness;
-
-
-    // Optional Community  for which the service is being rendered.
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "SvcCustomerCommunityID")
-    private Community svcCustomerCommunity;
-
 
     // Optional UtilityServiceArea for which the service is being rendered.
     // UtilityServiceArea will be attached to either an Address, Business, or Community.
@@ -62,12 +41,12 @@ public class EmbeddedUtilityService {
 
     }
 
-    public Business getUtilityProvider() {
-        return utilityProvider;
+    public Business getUtilityProviderBusiness() {
+        return utilityProviderBusiness;
     }
 
-    public void setUtilityProvider(Business utilityProvider) {
-        this.utilityProvider = utilityProvider;
+    public void setUtilityProviderBusiness(Business utilityProviderBusiness) {
+        this.utilityProviderBusiness = utilityProviderBusiness;
     }
 
     public String getSvcCustomerAcctID() {
@@ -86,30 +65,6 @@ public class EmbeddedUtilityService {
         this.svcDescription = svcDescription;
     }
 
-    public Address getSvcCustomerAddress() {
-        return svcCustomerAddress;
-    }
-
-    public void setSvcCustomerAddress(Address svcCustomerAddress) {
-        this.svcCustomerAddress = svcCustomerAddress;
-    }
-
-    public Business getSvcCustomerBusiness() {
-        return svcCustomerBusiness;
-    }
-
-    public void setSvcCustomerBusiness(Business svcCustomerBusiness) {
-        this.svcCustomerBusiness = svcCustomerBusiness;
-    }
-
-    public Community getSvcCustomerCommunity() {
-        return svcCustomerCommunity;
-    }
-
-    public void setSvcCustomerCommunity(Community svcCustomerCommunity) {
-        this.svcCustomerCommunity = svcCustomerCommunity;
-    }
-
     public UtilityServiceArea getUtilityServiceArea() {
         return utilityServiceArea;
     }
@@ -121,22 +76,24 @@ public class EmbeddedUtilityService {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("utilityProvider", utilityProvider)
+                .append("utilityProviderBusiness", utilityProviderBusiness)
                 .append("svcCustomerAcctID", svcCustomerAcctID)
                 .append("svcDescription", svcDescription)
-                .append("svcCustomerAddress", svcCustomerAddress)
-                .append("svcCustomerBusiness", svcCustomerBusiness)
-                .append("svcCustomerCommunity", svcCustomerCommunity)
                 .append("utilityServiceArea", utilityServiceArea)
                 .toString();
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
 
         private EmbeddedUtilityService embeddedUtilityService = new EmbeddedUtilityService();
 
-        public Builder utilityProvider(Business utilityProvider) {
-            embeddedUtilityService.utilityProvider = utilityProvider;
+        public Builder utilityProviderBusiness(Business utilityProviderBusiness) {
+            embeddedUtilityService.utilityProviderBusiness = utilityProviderBusiness;
             return this;
         }
 
@@ -147,21 +104,6 @@ public class EmbeddedUtilityService {
 
         public Builder svcDescription(String svcDescription) {
             embeddedUtilityService.svcDescription = svcDescription;
-            return this;
-        }
-
-        public Builder svcCustomerAddress(Address svcCustomerAddress) {
-            embeddedUtilityService.svcCustomerAddress = svcCustomerAddress;
-            return this;
-        }
-
-        public Builder svcCustomerBusiness(Business svcCustomerBusiness) {
-            embeddedUtilityService.svcCustomerBusiness = svcCustomerBusiness;
-            return this;
-        }
-
-        public Builder svcCustomerCommunity(Community svcCustomerCommunity) {
-            embeddedUtilityService.svcCustomerCommunity = svcCustomerCommunity;
             return this;
         }
 

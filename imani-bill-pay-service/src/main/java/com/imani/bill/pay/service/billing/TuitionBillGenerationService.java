@@ -85,6 +85,10 @@ public class TuitionBillGenerationService implements IBillGenerationService {
         return true;
     }
 
+    @Override
+    public boolean generateImaniBill(Object generationObject) {
+        return false;
+    }
 
     void genImaniBill(UserRecord userRecord, TuitionAgreement tuitionAgreement, DateTime dateTimeAtStartOfMonth) {
         LOGGER.info("Generating a new TuitionAgreement ImaniBill for Parent/Guardian({}) with dateTimeAtStartOfMonth:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), dateTimeAtStartOfMonth);

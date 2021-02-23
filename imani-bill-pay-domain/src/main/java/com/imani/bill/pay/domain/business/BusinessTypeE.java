@@ -5,6 +5,8 @@ package com.imani.bill.pay.domain.business;
  */
 public enum BusinessTypeE {
 
+    HOA,
+
     Property_Management,
 
     Child_Care,
@@ -15,5 +17,7 @@ public enum BusinessTypeE {
 
     School,
 
-    RETAIL;
+    Retail
+    ;
+
 }

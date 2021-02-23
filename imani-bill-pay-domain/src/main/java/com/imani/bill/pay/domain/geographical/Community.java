@@ -3,6 +3,7 @@ package com.imani.bill.pay.domain.geographical;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
@@ -35,6 +36,11 @@ public class Community extends AuditableRecord {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CityID", nullable = false)
     private City city;
+
+    // Optional Business responsible for managing this community
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ManagedByBusinessID")
+    private Business managedByBusiness;
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "community")
     private Set<UtilityServiceArea> utilityServiceAreas = new HashSet<>();
@@ -75,12 +81,20 @@ public class Community extends AuditableRecord {
         this.city = city;
     }
 
-    public void addBillableCommunityArea(UtilityServiceArea utilityServiceArea) {
+    public Business getManagedByBusiness() {
+        return managedByBusiness;
+    }
+
+    public void setManagedByBusiness(Business managedByBusiness) {
+        this.managedByBusiness = managedByBusiness;
+    }
+
+    public void addUtilityServiceArea(UtilityServiceArea utilityServiceArea) {
         Assert.notNull(utilityServiceArea, "BillableCommunityArea cannot be null");
         utilityServiceAreas.add(utilityServiceArea);
     }
 
-    public Set<UtilityServiceArea> getBillableCommunityAreas() {
+    public Set<UtilityServiceArea> getUtilityServiceAreas() {
         return ImmutableSet.copyOf(utilityServiceAreas);
     }
 
@@ -91,8 +105,8 @@ public class Community extends AuditableRecord {
                 .append("communityName", communityName)
                 .append("communityTypeE", communityTypeE)
                 .append("city", city)
+                .append("managedByBusiness", managedByBusiness)
                 .toString();
     }
-
 
 }

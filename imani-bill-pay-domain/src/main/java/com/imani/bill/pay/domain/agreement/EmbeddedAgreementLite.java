@@ -109,7 +109,7 @@ public class EmbeddedAgreementLite {
                 .effectiveDate(effectiveDate)
                 .terminationDate(terminationDate)
                 .agreementDocument(agreementDocument)
-                .userRecord(billedUser)
+                .agreementUserRecord(billedUser)
                 .build();
         return embeddedAgreement;
     }

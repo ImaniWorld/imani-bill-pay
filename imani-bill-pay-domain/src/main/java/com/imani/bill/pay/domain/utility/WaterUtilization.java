@@ -76,6 +76,10 @@ public class WaterUtilization extends AuditableRecord {
                 .toString();
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder {
         private WaterUtilization waterUtilization = new WaterUtilization();
 

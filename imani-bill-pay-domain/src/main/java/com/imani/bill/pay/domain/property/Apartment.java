@@ -111,8 +111,8 @@ public class Apartment extends AuditableRecord {
 
     public String getDescriptiveLocation() {
         StringBuffer sb = new StringBuffer(apartmentNumber)
-                .append(" - Floor: ").append(floor.getFloorNumber())
-                .append(" - Property: ").append(floor.getProperty().getPrintableAddress());
+                .append(" - Floor: ").append(floor.getFloorNumber());
+//                .append(" - Property: ").append(floor.getProperty().getPrintableAddress());
         return sb.toString();
     }
 

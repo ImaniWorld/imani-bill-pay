@@ -7,8 +7,9 @@ public enum FeeTypeE {
 
     LATE_FEE,
 
-    BOUNCED_PAYMENT_FEE,
+    Scheduled_Fee,
 
+    BOUNCED_PAYMENT_FEE,
     ;
 
 }

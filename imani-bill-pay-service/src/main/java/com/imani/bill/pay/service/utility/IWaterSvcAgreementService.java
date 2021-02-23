@@ -8,8 +8,6 @@ import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
  */
 public interface IWaterSvcAgreementService {
 
-    public double computeWaterChargeOnQuarterlyUtilization(WaterServiceAgreement waterServiceAgreement);
-
     public void createAgreement(WaterServiceAgreement waterServiceAgreement, ExecutionResult executionResult);
 
 }

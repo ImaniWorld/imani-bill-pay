@@ -3,8 +3,8 @@ package com.imani.bill.pay.domain.utility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.business.Business;
-import com.imani.bill.pay.domain.contact.Address;
 import com.imani.bill.pay.domain.geographical.Community;
+import com.imani.bill.pay.domain.property.Property;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 
@@ -42,8 +42,8 @@ public class UtilityServiceArea extends AuditableRecord {
     private boolean active;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "AddressID")
-    private Address address;
+    @JoinColumn(name = "PropertyID")
+    private Property property;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BusinessID")
@@ -98,12 +98,12 @@ public class UtilityServiceArea extends AuditableRecord {
         this.active = active;
     }
 
-    public Address getAddress() {
-        return address;
+    public Property getProperty() {
+        return property;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setProperty(Property property) {
+        this.property = property;
     }
 
     public Business getBusiness() {
@@ -130,7 +130,7 @@ public class UtilityServiceArea extends AuditableRecord {
                 .append("areaDescription", areaDescription)
                 .append("utilityTypeE", utilityTypeE)
                 .append("active", active)
-                .append("address", address)
+                .append("property", property)
                 .append("business", business)
                 .append("community", community)
                 .toString();

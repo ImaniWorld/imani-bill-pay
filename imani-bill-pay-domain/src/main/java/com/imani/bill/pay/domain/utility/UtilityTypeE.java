@@ -9,6 +9,8 @@ public enum UtilityTypeE {
 
     Sewer,
 
+    Gas,
+
     Electric
     ;
 }

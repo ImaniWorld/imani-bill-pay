@@ -1,11 +1,22 @@
 package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
+import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
+import com.imani.bill.pay.domain.business.Business;
+import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
+import com.imani.bill.pay.domain.property.Property;
+import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -28,8 +39,8 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
     // Tracks the usage rate according to number of gallons billed per each fixed cost/
     // This leverages FixedCost in EmbeddedAgreement
-    @Column(name="NumberOfGallonsPerFixedCost")
-    private Long numberOfGallonsPerFixedCost;
+    @Column(name="NbrOfGallonsPerFixedCost")
+    private Long nbrOfGallonsPerFixedCost;
 
     @Embedded
     private EmbeddedAgreement embeddedAgreement;
@@ -70,12 +81,12 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
         this.embeddedUtilityService = embeddedUtilityService;
     }
 
-    public Long getNumberOfGallonsPerFixedCost() {
-        return numberOfGallonsPerFixedCost;
+    public Long getNbrOfGallonsPerFixedCost() {
+        return nbrOfGallonsPerFixedCost;
     }
 
-    public void setNumberOfGallonsPerFixedCost(Long numberOfGallonsPerFixedCost) {
-        this.numberOfGallonsPerFixedCost = numberOfGallonsPerFixedCost;
+    public void setNbrOfGallonsPerFixedCost(Long nbrOfGallonsPerFixedCost) {
+        this.nbrOfGallonsPerFixedCost = nbrOfGallonsPerFixedCost;
     }
 
     public Set<WaterUtilization> getWaterUtilizations() {
@@ -90,13 +101,13 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
     @Override
     public String describeAgreement() {
         StringBuffer sb = new StringBuffer("WaterServiceAgreement[BillPayer: ")
-                .append(embeddedAgreement.getUserRecord().getEmbeddedContactInfo().getEmail())
+                .append(embeddedAgreement.getAgreementUserRecord().getEmbeddedContactInfo().getEmail())
                 .append("; FixedCost: ")
                 .append(embeddedAgreement.getFixedCost())
                 .append("; numberOfGallonsPerFixedCost: ")
-                .append(numberOfGallonsPerFixedCost)
+                .append(nbrOfGallonsPerFixedCost)
                 .append("; Business: ")
-                .append(embeddedUtilityService.getUtilityProvider().getName())
+                .append(embeddedUtilityService.getUtilityProviderBusiness().getName())
                 .append("]");
         return sb.toString();
     }
@@ -105,7 +116,7 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("numberOfGallonsPerFixedCost", numberOfGallonsPerFixedCost)
+                .append("nbrOfGallonsPerFixedCost", nbrOfGallonsPerFixedCost)
                 .append("embeddedAgreement", embeddedAgreement)
                 .append("embeddedUtilityService", embeddedUtilityService)
                 .append("waterUtilizations", waterUtilizations)
@@ -130,8 +141,8 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
             return this;
         }
 
-        public Builder numberOfGallonsPerFixedCost(Long numberOfGallonsPerFixedCost) {
-            waterServiceAgreement.numberOfGallonsPerFixedCost = numberOfGallonsPerFixedCost;
+        public Builder nbrOfGallonsPerFixedCost(Long nbrOfGallonsPerFixedCost) {
+            waterServiceAgreement.nbrOfGallonsPerFixedCost = nbrOfGallonsPerFixedCost;
             return this;
         }
 
@@ -142,43 +153,52 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
     }
 
     public static void main(String[] args) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.registerModule(new Jdk8Module());
-//        objectMapper.registerModule(new JodaModule());
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//
-//        UserRecord userRecord = new UserRecord();
-//        userRecord.setId(5L);
-//
-//        EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
-//                .fixedCost(3.50)
-//                .agreementInForce(true)
-//                .billScheduleTypeE(BillScheduleTypeE.QUARTERLY)
-//                .numberOfDaysTillLate(15)
-//                .effectiveDate(new DateTime())
-//                .userRecord(userRecord)
-//                .build();
-//
-//        Address address = new Address();
-//        address.setId(1L);
-//
-//        Business business = new Business();
-//        business.setId(1L);
-//
-//        WaterServiceAgreement waterServiceAgreement = WaterServiceAgreement.builder()
-//                .serviceAddress(address)
-//                .embeddedAgreement(embeddedAgreement)
-//                .business(business)
-//                .numberOfGallonsPerFixedCost(1000L)
-//                .businessCustomerAcctID("Addy-001")
-//                .build();
-//
-//        try {
-//            String json = objectMapper.writeValueAsString(waterServiceAgreement);
-//            System.out.println("json = " + json);
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        EmbeddedContactInfo embeddedContactInfo = EmbeddedContactInfo.builder()
+                .email("manyce400@gmail.com")
+                .build();
+        UserRecord userRecord = UserRecord.builder()
+                .embeddedContactInfo(embeddedContactInfo)
+                .build();
+
+        Property property = new Property();
+        property.setId(1L);
+
+        Business business = new Business();
+        business.setId(1L);
+
+        EmbeddedUtilityService embeddedUtilityService = EmbeddedUtilityService.builder()
+                .utilityProviderBusiness(business)
+                    .svcCustomerAcctID("LCCX-122")
+                    .svcDescription("Test utility agreement")
+                .build();
+
+        EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
+                .fixedCost(3.50)
+                .agreementInForce(true)
+                .billScheduleTypeE(BillScheduleTypeE.QUARTERLY)
+                .numberOfDaysTillLate(15)
+                .effectiveDate(new DateTime())
+                .agreementUserRecord(userRecord)
+                .agreementProperty(property)
+                .build();
+
+        WaterServiceAgreement waterServiceAgreement = WaterServiceAgreement.builder()
+                .embeddedAgreement(embeddedAgreement)
+                .embeddedUtilityService(embeddedUtilityService)
+                .nbrOfGallonsPerFixedCost(1000L)
+                .build();
+
+        try {
+            String json = objectMapper.writeValueAsString(waterServiceAgreement);
+            System.out.println("json = " + json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
     }
 

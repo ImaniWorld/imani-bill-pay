@@ -51,6 +51,16 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
     @Enumerated(EnumType.STRING)
     private FeeTypeE feeTypeE;
 
+    // IF FeeType is scheduled then this will determine the schedule to apply fee
+    @Column(name="BillScheduleTypeE", length=20)
+    @Enumerated(EnumType.STRING)
+    private BillScheduleTypeE billScheduleTypeE;
+
+    // Defines the type of service which we are billing for, this will dictate how billing is computed
+    @Column(name="BillServiceRenderedTypeE", nullable=false, length=25)
+    @Enumerated(EnumType.STRING)
+    private BillServiceRenderedTypeE billServiceRenderedTypeE;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BusinessID", nullable = false)
@@ -124,6 +134,22 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
         this.feeTypeE = feeTypeE;
     }
 
+    public BillScheduleTypeE getBillScheduleTypeE() {
+        return billScheduleTypeE;
+    }
+
+    public void setBillScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
+        this.billScheduleTypeE = billScheduleTypeE;
+    }
+
+    public BillServiceRenderedTypeE getBillServiceRenderedTypeE() {
+        return billServiceRenderedTypeE;
+    }
+
+    public void setBillServiceRenderedTypeE(BillServiceRenderedTypeE billServiceRenderedTypeE) {
+        this.billServiceRenderedTypeE = billServiceRenderedTypeE;
+    }
+
     public Business getBusiness() {
         return business;
     }
@@ -142,7 +168,10 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
                 .append("optionalFlatRate", optionalFlatRate)
                 .append("feePaymentChargeTypeE", feePaymentChargeTypeE)
                 .append("feeTypeE", feeTypeE)
-                .append("Business", business)
+                .append("billScheduleTypeE", billScheduleTypeE)
+                .append("billServiceRenderedTypeE", billServiceRenderedTypeE)
+                .append("business", business)
                 .toString();
     }
+
 }

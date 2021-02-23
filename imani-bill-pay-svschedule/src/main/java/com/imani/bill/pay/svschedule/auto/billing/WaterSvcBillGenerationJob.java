@@ -1,13 +1,16 @@
 package com.imani.bill.pay.svschedule.auto.billing;
 
-import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
+import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
-import com.imani.bill.pay.service.billing.TuitionBillGenerationService;
+import com.imani.bill.pay.service.billing.WaterSvcBillGenerationService;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  *
@@ -19,11 +22,11 @@ public class WaterSvcBillGenerationJob implements Job {
 
 
     @Autowired
-    private IUserRecordRepository iUserRecordRepository;
+    @Qualifier(WaterSvcBillGenerationService.SPRING_BEAN)
+    private IBillGenerationService<WaterServiceAgreement> iBillGenerationService;
 
     @Autowired
-    @Qualifier(TuitionBillGenerationService.SPRING_BEAN)
-    private IBillGenerationService iBillGenerationService;
+    private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
     private static final String JOB_DETAIL = "WATER-SVC-BILL-GENERATION-JOB";
 
@@ -34,18 +37,13 @@ public class WaterSvcBillGenerationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//        LOGGER.info("Running automated Imani BillPay Tuition Bill generation .....");
-//
-//        // Find all BillPayer user's in order to generate TuitionAgreement bills for them
-//        List<UserRecord> billPayerUsers = iUserRecordRepository.findAllUsersByType(UserRecordTypeE.BillPayer);
-//
-//        for(UserRecord billPayer : billPayerUsers) {
-//            try {
-//                iBillGenerationService.generateImaniBill(billPayer);
-//            } catch (Exception e) {
-//                LOGGER.warn("Failed to generate bill for user:=> {}", billPayer.getEmbeddedContactInfo().getEmail(), e);
-//            }
-//        }
+        LOGGER.info("Running automated Imani BillPay Tuition Bill generation .....");
+
+        // Find all BillPayer user's in order to generate TuitionAgreement bills for them
+        List<WaterServiceAgreement> waterServiceAgreements = iWaterServiceAgreementRepository.findAllWhereAgreementInforce();
+        waterServiceAgreements.forEach(waterServiceAgreement -> {
+            iBillGenerationService.generateImaniBill(waterServiceAgreement);
+        });
     }
 
     @Bean(WaterSvcBillGenerationJob.JOB_DETAIL)
@@ -60,7 +58,7 @@ public class WaterSvcBillGenerationJob implements Job {
     public Trigger trigger(@Qualifier(WaterSvcBillGenerationJob.JOB_DETAIL) JobDetail job) {
         return TriggerBuilder.newTrigger().forJob(job)
                 .withIdentity("WATER-SVC_Bill_Trigger")
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule().repeatForever().withIntervalInSeconds(20))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().repeatForever().withIntervalInSeconds(60))
                 .build();
     }
 

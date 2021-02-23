@@ -1,18 +1,14 @@
 package com.imani.bill.pay.domain.contact;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.geographical.City;
-import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name="Address")
@@ -38,9 +34,6 @@ public class Address extends AuditableRecord {
 
     @Column(name="POBoxNumber", length=50)
     private String postOfficeBoxNumber;
-
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "address")
-    private Set<UtilityServiceArea> utilityServiceAreas = new HashSet<>();
 
 
     public Address() {
@@ -87,13 +80,14 @@ public class Address extends AuditableRecord {
         this.postOfficeBoxNumber = postOfficeBoxNumber;
     }
 
-    public void addBillableCommunityArea(UtilityServiceArea utilityServiceArea) {
-        Assert.notNull(utilityServiceArea, "BillableCommunityArea cannot be null");
-        utilityServiceAreas.add(utilityServiceArea);
-    }
-
-    public Set<UtilityServiceArea> getBillableCommunityAreas() {
-        return ImmutableSet.copyOf(utilityServiceAreas);
+    @JsonIgnore
+    public String getPrintableAddress() {
+        StringBuilder sb = new StringBuilder()
+                .append(streetAddress).append(" ")
+                .append(city.getName()).append(" ")
+                .append(city.getState().getName()).append(" ")
+                .append(zipCode);
+        return sb.toString();
     }
 
     @Override

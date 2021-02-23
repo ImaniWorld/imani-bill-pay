@@ -133,7 +133,7 @@ public class GeographicalRegionService implements IGeographicalRegionService {
                 .fixedCost(1500.00)
                 .effectiveDate(dateTime)
                 .terminationDate(dateTime)
-                .userRecord(userRecord)
+                .agreementUserRecord(userRecord)
                 .build();
 
         PropertyLeaseAgreement propertyLeaseAgreement = PropertyLeaseAgreement.builder()

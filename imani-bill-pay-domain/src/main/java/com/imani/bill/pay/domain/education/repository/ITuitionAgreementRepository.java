@@ -15,7 +15,7 @@ import java.util.List;
 public interface ITuitionAgreementRepository extends JpaRepository<TuitionAgreement, Long> {
 
     // UserRecord passed in will be the user responsible for making payments on the TuitionAgreement
-    @Query("Select tuitionAgreement From TuitionAgreement tuitionAgreement Where tuitionAgreement.embeddedAgreement.userRecord = ?1 and tuitionAgreement.embeddedAgreement.agreementInForce = 1")
+    @Query("Select tuitionAgreement From TuitionAgreement tuitionAgreement Where tuitionAgreement.embeddedAgreement.agreementUserRecord = ?1 and tuitionAgreement.embeddedAgreement.agreementInForce = 1")
     public List<TuitionAgreement> findParentTuitionAgreements(UserRecord userRecord);
 
 }

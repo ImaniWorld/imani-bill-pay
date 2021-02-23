@@ -1,12 +1,12 @@
 package com.imani.bill.pay.domain.property;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
-import com.imani.bill.pay.domain.geographical.Borough;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import com.imani.bill.pay.domain.contact.Address;
+import com.imani.bill.pay.domain.geographical.Community;
+import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -16,18 +16,15 @@ import java.util.Set;
 
 /**
  * Models all data to uniquely identify a property by attributes captured at the municipality level.
- * For example in NYC all below attributes will help to uniquely identify a property and find all information
- * stored by the City on the property.
  *
  * TODO:  Currently this model is designed to support US Based properties.  In future refactor to support international addresses.
  *
  * @author manyce400
  */
 @Entity
-@Table(name="Property", indexes = {@Index(name = "Property_Finder_IDX", columnList = "PropertyNumber, StreetName, ZipCode, BoroughID")})
+@Table(name="Property")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Property extends AuditableRecord {
-
 
 
     @Id
@@ -35,32 +32,17 @@ public class Property extends AuditableRecord {
     @Column(name="ID", nullable=false)
     private Long id;
 
-
-    @Column(name="PropertyNumber", nullable=false, length=50)
-    private String propertyNumber;
-
-
-    @Column(name="StreetName", nullable=false, length = 300)
-    private String streetName;
-
-
     // Tax Block for the building
     @Column(name="Block", nullable=true, length = 30)
     private String block;
-
 
     // Tax lot for the building.
     @Column(name="Lot", nullable=true, length = 30)
     private String lot;
 
-
     // Buliding Identification Number is a unique number used to identify the building by City
     @Column(name="BIN", nullable=true, length=30)
     private String buildingIdentificationNumber;
-
-
-    @Column(name="ZipCode", nullable=false, length=30)
-    private String zipCode;
 
     @Column(name="Latitude", nullable=true)
     private Double latitude;
@@ -68,42 +50,35 @@ public class Property extends AuditableRecord {
     @Column(name="Longitude", nullable=true)
     private Double longitude;
 
-
     @Column(name="PropertyTypeE", nullable=false, length=20)
     @Enumerated(EnumType.STRING)
     private PropertyTypeE propertyTypeE;
-
-    // Based on the location of the property, this is an optional field. Setup mainly for NYC properties
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "BoroughID")
-    private Borough borough;
-
-    // Based on the location of the property, this could be directly in a City.
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "CityID")
-//    private City city;
-
-
-    // Maps to optional PropertyManagement firm responsible for managing the property
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "PropertyManagerID", nullable = true)
-    private PropertyManager propertyManager;
-
-
-    // Maps to optional PropertyOwner individual that actually owns the property.
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "PropertyOwnerID", nullable = true)
-    private PropertyOwner propertyOwner;
-
 
     // Determines how many days a monthly rental payment can be late for till before late fee's are applied.
     @Column(name="MthlyNumberOfDaysPaymentLate", nullable=true)
     private Integer mthlyNumberOfDaysPaymentLate;
 
+    // Based on the location of the property, this is an optional field. Setup mainly for NYC properties
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AddressID", nullable = false)
+    private Address address;
+
+    // Represents optional Community that this property is part of
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CommunityID")
+    private Community community;
+
+    // Maps to optional PropertyOwner individual that actually owns the property.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "OwnerID", nullable = true)
+    private UserRecord owner;
 
     // Contains collection of all Floors that are in this property
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "property")
     private Set<Floor> floors = new HashSet<>();
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "property")
+    private Set<UtilityServiceArea> utilityServiceAreas = new HashSet<>();
 
 
     public Property() {
@@ -116,22 +91,6 @@ public class Property extends AuditableRecord {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getPropertyNumber() {
-        return propertyNumber;
-    }
-
-    public void setPropertyNumber(String propertyNumber) {
-        this.propertyNumber = propertyNumber;
-    }
-
-    public String getStreetName() {
-        return streetName;
-    }
-
-    public void setStreetName(String streetName) {
-        this.streetName = streetName;
     }
 
     public String getBlock() {
@@ -158,14 +117,6 @@ public class Property extends AuditableRecord {
         this.buildingIdentificationNumber = buildingIdentificationNumber;
     }
 
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
     public Double getLatitude() {
         return latitude;
     }
@@ -190,44 +141,36 @@ public class Property extends AuditableRecord {
         this.propertyTypeE = propertyTypeE;
     }
 
-    public Borough getBorough() {
-        return borough;
-    }
-
-    public void setBorough(Borough borough) {
-        this.borough = borough;
-    }
-
-//    public City getCity() {
-//        return city;
-//    }
-//
-//    public void setCity(City city) {
-//        this.city = city;
-//    }
-
-    public PropertyManager getPropertyManager() {
-        return propertyManager;
-    }
-
-    public void setPropertyManager(PropertyManager propertyManager) {
-        this.propertyManager = propertyManager;
-    }
-
-    public PropertyOwner getPropertyOwner() {
-        return propertyOwner;
-    }
-
-    public void setPropertyOwner(PropertyOwner propertyOwner) {
-        this.propertyOwner = propertyOwner;
-    }
-
     public Integer getMthlyNumberOfDaysPaymentLate() {
         return mthlyNumberOfDaysPaymentLate;
     }
 
     public void setMthlyNumberOfDaysPaymentLate(Integer mthlyNumberOfDaysPaymentLate) {
         this.mthlyNumberOfDaysPaymentLate = mthlyNumberOfDaysPaymentLate;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    public void setCommunity(Community community) {
+        this.community = community;
+    }
+
+    public UserRecord getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserRecord owner) {
+        this.owner = owner;
     }
 
     public Set<Floor> getFloors() {
@@ -239,110 +182,56 @@ public class Property extends AuditableRecord {
         floors.add(floor);
     }
 
-    @JsonIgnore
-    public String getPrintableAddress() {
-        StringBuilder sb = new StringBuilder()
-                .append(propertyNumber).append(" ")
-                .append(streetName).append(" ")
-                .append(borough.getName()).append(" ")
-                .append(borough.getCity().getName()).append(" ")
-                .append(borough.getCity().getState().getName()).append(" ")
-                .append(zipCode);
-        return sb.toString();
+    public void addUtilityServiceArea(UtilityServiceArea utilityServiceArea) {
+        Assert.notNull(utilityServiceArea, "UtilityServiceArea cannot be null");
+        utilityServiceAreas.add(utilityServiceArea);
     }
 
-    public PropertyIndex toPropertyIndex() {
-        PropertyIndex propertyIndex = PropertyIndex.builder()
-                .id(this.id)
-                .propertyNumber(this.propertyNumber)
-                .streetName(this.streetName)
-                .borough(this.borough.getName())
-                .city(this.borough.getCity().getName())
-                .state(this.borough.getCity().getState().getName())
-                .zipCode(this.zipCode)
-                .build();
-
-        // set PropertyOwner, PropertyManager and total number of floors
-        if(this.propertyOwner != null) {
-            propertyIndex.setPropertyOwner(this.propertyOwner.getBusinessName());
-        }
-
-        if(this.propertyManager != null) {
-            propertyIndex.setPropertyManager(propertyManager.getName());
-        }
-
-        // set total number of floors
-        propertyIndex.setTotalFloors(this.floors.size());
-        return propertyIndex;
+    public Set<UtilityServiceArea> getUtilityServiceAreas() {
+        return ImmutableSet.copyOf(utilityServiceAreas);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+//    public PropertyIndex toPropertyIndex() {
+//        PropertyIndex propertyIndex = PropertyIndex.builder()
+//                .id(this.id)
+//                .propertyNumber(this.propertyNumber)
+//                .streetName(this.streetName)
+//                .borough(this.borough.getName())
+//                .city(this.borough.getCity().getName())
+//                .state(this.borough.getCity().getState().getName())
+//                .zipCode(this.zipCode)
+//                .build();
+//
+//        // set PropertyOwner, PropertyManager and total number of floors
+//        if(this.propertyOwner != null) {
+//            propertyIndex.setPropertyOwner(this.propertyOwner.getBusinessName());
+//        }
+//
+//        if(this.propertyManager != null) {
+//            propertyIndex.setPropertyManager(propertyManager.getName());
+//        }
+//
+//        // set total number of floors
+//        propertyIndex.setTotalFloors(this.floors.size());
+//        return propertyIndex;
+//    }
 
-        Property property = (Property) o;
-
-        return new EqualsBuilder()
-                .append(id, property.id)
-                .append(propertyNumber, property.propertyNumber)
-                .append(streetName, property.streetName)
-                .append(block, property.block)
-                .append(lot, property.lot)
-                .append(buildingIdentificationNumber, property.buildingIdentificationNumber)
-                .append(zipCode, property.zipCode)
-                .append(latitude, property.latitude)
-                .append(longitude, property.longitude)
-                .append(propertyTypeE, property.propertyTypeE)
-                .append(borough, property.borough)
-//                .append(city, property.city)
-                .append(propertyManager, property.propertyManager)
-                .append(propertyOwner, property.propertyOwner)
-                .append(mthlyNumberOfDaysPaymentLate, property.mthlyNumberOfDaysPaymentLate)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(propertyNumber)
-                .append(streetName)
-                .append(block)
-                .append(lot)
-                .append(buildingIdentificationNumber)
-                .append(zipCode)
-                .append(latitude)
-                .append(longitude)
-                .append(propertyTypeE)
-                .append(borough)
-//                .append(city)
-                .append(propertyManager)
-                .append(propertyOwner)
-                .append(mthlyNumberOfDaysPaymentLate)
-                .toHashCode();
-    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("propertyNumber", propertyNumber)
-                .append("streetName", streetName)
                 .append("block", block)
                 .append("lot", lot)
                 .append("buildingIdentificationNumber", buildingIdentificationNumber)
-                .append("zipCode", zipCode)
                 .append("latitude", latitude)
                 .append("longitude", longitude)
                 .append("propertyTypeE", propertyTypeE)
-                .append("borough", borough)
-//                .append("city", city)
-                .append("propertyManager", propertyManager)
-                .append("propertyOwner", propertyOwner)
                 .append("mthlyNumberOfDaysPaymentLate", mthlyNumberOfDaysPaymentLate)
-                .append("floors", floors)
+                .append("address", address)
+                .append("community", community)
+                .append("owner", owner)
                 .toString();
     }
 
@@ -353,16 +242,6 @@ public class Property extends AuditableRecord {
     public static final class Builder {
 
         private Property property = new Property();
-
-        public Builder propertyNumber(String propertyNumber) {
-            property.propertyNumber = propertyNumber;
-            return this;
-        }
-
-        public Builder streetName(String streetName) {
-            property.streetName = streetName;
-            return this;
-        }
 
         public Builder block(String block) {
             property.block = block;
@@ -389,33 +268,8 @@ public class Property extends AuditableRecord {
             return this;
         }
 
-        public Builder zipCode(String zipCode) {
-            property.zipCode = zipCode;
-            return this;
-        }
-
         public Builder propertyTypeE(PropertyTypeE propertyTypeE) {
             property.propertyTypeE = propertyTypeE;
-            return this;
-        }
-
-        public Builder borough(Borough borough) {
-            property.borough = borough;
-            return this;
-        }
-
-//        public Builder city(City city) {
-//            property.city = city;
-//            return this;
-//        }
-
-        public Builder propertyManager(PropertyManager propertyManager) {
-            property.propertyManager = propertyManager;
-            return this;
-        }
-
-        public Builder propertyOwner(PropertyOwner propertyOwner) {
-            property.propertyOwner = propertyOwner;
             return this;
         }
 
@@ -424,6 +278,20 @@ public class Property extends AuditableRecord {
             return this;
         }
 
+        public Builder address(Address address) {
+            property.address = address;
+            return this;
+        }
+
+        public Builder community(Community community) {
+            property.community = community;
+            return this;
+        }
+
+        public Builder owner(UserRecord owner) {
+            property.owner = owner;
+            return this;
+        }
 
         public Property build() {
             return property;

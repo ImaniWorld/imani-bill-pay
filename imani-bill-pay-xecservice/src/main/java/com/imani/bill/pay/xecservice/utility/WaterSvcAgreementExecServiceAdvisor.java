@@ -28,8 +28,8 @@ public class WaterSvcAgreementExecServiceAdvisor {
 
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
         validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), executionResult);
-        validateBusiness(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProvider(), executionResult);
-        validateServiceAddress(waterServiceAgreement.getEmbeddedUtilityService().getSvcCustomerAddress(), executionResult);
+        validateUtilityServiceProvider(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), executionResult);
+//        validateServiceAddress(waterServiceAgreement.getEmbeddedUtilityService().getSvcCustomerAddress(), executionResult);
     }
 
     void validateEmbeddedAgreement(EmbeddedAgreement embeddedAgreement, ExecutionResult<WaterServiceAgreement> executionResult) {
@@ -48,15 +48,16 @@ public class WaterSvcAgreementExecServiceAdvisor {
             if(embeddedAgreement.getEffectiveDate() == null) {
                 executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement is missing Effective Date."));
             }
-            if(embeddedAgreement.getUserRecord() == null
-                    || embeddedAgreement.getUserRecord().getEmbeddedContactInfo() == null
-                    || embeddedAgreement.getUserRecord().getEmbeddedContactInfo().getEmail() == null) {
-                executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement is missing details of User[email] responsible for agreement."));
+            if(embeddedAgreement.getAgreementUserRecord() == null
+                    && embeddedAgreement.getAgreementBusiness() == null
+                    && embeddedAgreement.getAgreementProperty() == null
+                    && embeddedAgreement.getAgreementCommunity() == null) {
+                executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement is missing details on Agreement-Entity[User, Business, Property, Community]"));
             }
         }
     }
 
-    void validateBusiness(Business business, ExecutionResult<WaterServiceAgreement> executionResult) {
+    void validateUtilityServiceProvider(Business business, ExecutionResult<WaterServiceAgreement> executionResult) {
         if(business == null || business.getId() == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("Valid Utility Business is required for agreement."));
         }

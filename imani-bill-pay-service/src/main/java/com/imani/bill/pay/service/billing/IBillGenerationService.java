@@ -7,8 +7,10 @@ import com.imani.bill.pay.domain.user.UserRecord;
  *
  * @author manyce400
  */
-public interface IBillGenerationService {
+public interface IBillGenerationService<O> {
 
     public boolean generateImaniBill(UserRecord userRecord);
+
+    public boolean generateImaniBill(O generationObject);
 
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +59,7 @@ public class PropertyBuilderService implements IPropertyBuilderService {
             // Try to find a matching property that exists with the same information. Theoretically this should always be exactly 1 match if found.
             Optional<Borough> borough = iBoroughRepository.findById(iHasPropertyData.getBoroID());
             Optional<City> city = iCityRepository.findById(iHasPropertyData.getCityID());
-            List<Property> properties = iPropertyRepository.findUniqueProperties(propertyNumber, streetName, zipCode, borough.get());
+            List<Property> properties = new ArrayList<>();//iPropertyRepository.findUniqueProperties(propertyNumber, streetName, zipCode, borough.get());
 
             if(properties == null || properties.size() == 0) {
                 LOGGER.info("No matching property already saved, proceeding to build and save new property data.....");
@@ -84,10 +85,6 @@ public class PropertyBuilderService implements IPropertyBuilderService {
 
     Property createProperty(IHasPropertyData iHasPropertyData, Optional<Borough> borough) {
         Property property = Property.builder()
-                .propertyNumber(iHasPropertyData.getPropertyNumber())
-                .streetName(iHasPropertyData.getStreetName())
-                .zipCode(iHasPropertyData.getZipCode())
-                .borough(borough.get())
                 .block(iHasPropertyData.getBlock())
                 .lot(iHasPropertyData.getLot())
                 .buildingIdentificationNumber(iHasPropertyData.getBin())

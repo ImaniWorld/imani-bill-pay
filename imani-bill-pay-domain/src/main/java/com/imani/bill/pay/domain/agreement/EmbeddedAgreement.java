@@ -3,6 +3,9 @@ package com.imani.bill.pay.domain.agreement;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
+import com.imani.bill.pay.domain.business.Business;
+import com.imani.bill.pay.domain.geographical.Community;
+import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
@@ -62,11 +65,25 @@ public class EmbeddedAgreement {
     @Column(name="AgreementDocument", nullable=true, length = 100)
     private String agreementDocument;
 
-
-    // Tracks ImaniBillPay user for which agreement is created.  This user will be responsible for making payments
+    // Optional UserRecord for agreement.  User will be responsible for payments.
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UserRecordID", nullable = false)
-    private UserRecord userRecord;
+    @JoinColumn(name = "AgreementUserRecordID", nullable = false)
+    private UserRecord agreementUserRecord;
+
+    // Optional Community for agreement.  Community will be responsible for payments.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AgreementPropertyID")
+    private Property agreementProperty;
+
+    // Optional Business for agreement.  Business will be responsible for payments.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AgreementBusinessID")
+    private Business agreementBusiness;
+
+    // Optional Community for agreement.  Community will be responsible for payments.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AgreementCommunityID")
+    private Community agreementCommunity;
 
 
     public EmbeddedAgreement() {
@@ -129,12 +146,36 @@ public class EmbeddedAgreement {
         this.agreementDocument = agreementDocument;
     }
 
-    public UserRecord getUserRecord() {
-        return userRecord;
+    public UserRecord getAgreementUserRecord() {
+        return agreementUserRecord;
     }
 
-    public void setUserRecord(UserRecord userRecord) {
-        this.userRecord = userRecord;
+    public void setAgreementUserRecord(UserRecord agreementUserRecord) {
+        this.agreementUserRecord = agreementUserRecord;
+    }
+
+    public Property getAgreementProperty() {
+        return agreementProperty;
+    }
+
+    public void setAgreementProperty(Property agreementProperty) {
+        this.agreementProperty = agreementProperty;
+    }
+
+    public Business getAgreementBusiness() {
+        return agreementBusiness;
+    }
+
+    public void setAgreementBusiness(Business agreementBusiness) {
+        this.agreementBusiness = agreementBusiness;
+    }
+
+    public Community getAgreementCommunity() {
+        return agreementCommunity;
+    }
+
+    public void setAgreementCommunity(Community agreementCommunity) {
+        this.agreementCommunity = agreementCommunity;
     }
 
     @Override
@@ -147,7 +188,10 @@ public class EmbeddedAgreement {
                 .append("effectiveDate", effectiveDate)
                 .append("terminationDate", terminationDate)
                 .append("agreementDocument", agreementDocument)
-                .append("userRecord", userRecord)
+                .append("agreementUserRecord", agreementUserRecord)
+                .append("agreementProperty", agreementProperty)
+                .append("agreementBusiness", agreementBusiness)
+                .append("agreementCommunity", agreementCommunity)
                 .toString();
     }
 
@@ -193,8 +237,23 @@ public class EmbeddedAgreement {
             return this;
         }
 
-        public Builder userRecord(UserRecord userRecord) {
-            embeddedAgreement.userRecord = userRecord;
+        public Builder agreementUserRecord(UserRecord agreementUserRecord) {
+            embeddedAgreement.agreementUserRecord = agreementUserRecord;
+            return this;
+        }
+
+        public Builder agreementProperty(Property agreementProperty) {
+            embeddedAgreement.agreementProperty = agreementProperty;
+            return this;
+        }
+
+        public Builder agreementBusiness(Business agreementBusiness) {
+            embeddedAgreement.agreementBusiness = agreementBusiness;
+            return this;
+        }
+
+        public Builder agreementCommunity(Community agreementCommunity) {
+            embeddedAgreement.agreementCommunity = agreementCommunity;
             return this;
         }
 

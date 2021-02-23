@@ -1,18 +1,14 @@
 package com.imani.bill.pay.domain.property;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.UserAuditableRecord;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author manyce400
@@ -51,11 +47,6 @@ public class PropertyManager extends UserAuditableRecord implements IHasPaymentI
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PropertyInfoID", nullable = true)
     private Property businessAddressInfo;
-
-
-    // Contains the portfolio of properties managed by the property management firm
-    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "propertyManager")
-    private Set<Property> portfolio = new HashSet<>();
 
 
     public PropertyManager() {
@@ -110,14 +101,6 @@ public class PropertyManager extends UserAuditableRecord implements IHasPaymentI
         this.businessAddressInfo = businessAddressInfo;
     }
 
-    public Set<Property> getPortfolio() {
-        return ImmutableSet.copyOf(portfolio);
-    }
-
-    public void addToPortfolio(Property property) {
-        Assert.notNull(property, "property cannot be null");
-        this.portfolio.add(property);
-    }
 
     @Override
     public String toString() {
@@ -128,7 +111,6 @@ public class PropertyManager extends UserAuditableRecord implements IHasPaymentI
                 .append("stripeAcctID", stripeAcctID)
                 .append("achPaymentInfo", achPaymentInfo)
                 .append("businessAddressInfo", businessAddressInfo)
-                .append("portfolio", portfolio)
                 .append("createdBy", createdBy)
                 .append("createDate", createDate)
                 .append("modifyDate", modifyDate)

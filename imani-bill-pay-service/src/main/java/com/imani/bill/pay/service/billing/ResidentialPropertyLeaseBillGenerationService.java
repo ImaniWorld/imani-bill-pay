@@ -72,7 +72,7 @@ public class ResidentialPropertyLeaseBillGenerationService implements IBillGener
             if(propertyLeaseAgreement.getEmbeddedAgreement().isAgreementInForce()) {
                 DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
                 String dateString = iDateTimeUtil.toDisplayDefault(dateTimeAtStartOfMonth);
-                LOGGER.info("User lease agreement found @ property: {}. ", property.getPrintableAddress());
+//                LOGGER.info("User lease agreement found @ property: {}. ", property.getPrintableAddress());
 
                 // Check to see if a lease bill has been generated already for the current month
                 Optional<ImaniBill> optionalImaniBill = imaniBillService.findByUserCurrentMonthBill(userRecord, BillServiceRenderedTypeE.Commercial_Lease);
@@ -91,6 +91,11 @@ public class ResidentialPropertyLeaseBillGenerationService implements IBillGener
             }
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean generateImaniBill(Object generationObject) {
         return false;
     }
 

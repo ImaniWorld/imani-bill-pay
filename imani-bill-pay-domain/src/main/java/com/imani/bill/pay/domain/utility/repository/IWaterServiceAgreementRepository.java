@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,7 +15,10 @@ import java.util.Optional;
 @Repository
 public interface IWaterServiceAgreementRepository extends JpaRepository<WaterServiceAgreement, Long> {
 
-    @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.userRecord = ?1")
+    @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.agreementUserRecord = ?1")
     public Optional<WaterServiceAgreement> findWaterServiceAgreement(UserRecord userRecord);
+
+    @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.agreementInForce = 1")
+    public List<WaterServiceAgreement> findAllWhereAgreementInforce();
 
 }

@@ -72,7 +72,7 @@ public class ApartmentLeaseService implements IResidentialPropertyLeaseService {
             LOGGER.info("Finalizing leasing of apartment with location:=> {}", apartment.get().getDescriptiveLocation());
 
             EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
-                    .userRecord(userRecord)
+                    .agreementUserRecord(userRecord)
                     .effectiveDate(propertyLeaseAgreementLite.getEffectiveDate())
                     .terminationDate(propertyLeaseAgreementLite.getTerminationDate())
                     .fixedCost(propertyLeaseAgreementLite.getFixedCost())

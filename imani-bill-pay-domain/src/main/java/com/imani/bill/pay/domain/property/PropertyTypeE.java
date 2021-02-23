@@ -9,7 +9,11 @@ public enum PropertyTypeE {
 
     SingleFamily,
 
-    MultiFamily,
+    OneBedroom,
+
+    TwoBedroom,
+
+    ThreeBedroom,
 
     Condo,
 

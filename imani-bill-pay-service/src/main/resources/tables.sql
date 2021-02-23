@@ -23,6 +23,7 @@ create table Community (
        ID bigint not null auto_increment,
         CommunityName varchar(400),
         CommunityTypeE varchar(25) not null,
+        ManagedByBusinessID bigint,
         CityID bigint not null,
         CreateDate datetime not null,
         ModifyDate datetime,
@@ -50,6 +51,24 @@ create table Business (
         PreferredContactType varchar(10),
         StripeAcctID varchar(100),
         PropertyID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+
+create table Property (
+       ID bigint not null auto_increment,
+       AddressID bigint not null,
+        Block varchar(30),
+        BIN varchar(30),
+        Latitude double precision,
+        Longitude double precision,
+        Lot varchar(30),
+        PropertyTypeE varchar(20) not null,
+        MthlyNumberOfDaysPaymentLate integer,
+        CommunityID bigint,
+        OwnerID bigint,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)
@@ -97,6 +116,42 @@ create table TuitionAgreement (
         primary key (ID)
     )
 
+create table UtilityServiceArea (
+       ID bigint not null auto_increment,
+       AreaName varchar(400),
+        AreaDescription varchar(400),
+        UtilityTypeE varchar(25) not null,
+        Active TINYINT,
+        PropertyID bigint,
+        BusinessID bigint,
+        CommunityID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
+create table WaterServiceAgreement (
+       ID bigint not null auto_increment,
+       UtilityProviderBusinessID bigint not null,
+       SvcCustomerAcctID varchar(100),
+       SvcDescription varchar(300),
+       UtilityServiceAreaID bigint,
+        FixedCost double precision,
+        NbrOfGallonsPerFixedCost bigint,
+        NumberOfDaysTillLate integer,
+        BillScheduleTypeE varchar(20) not null,
+        AgreementInForce TINYINT,
+        EffectiveDate datetime not null,
+        TerminationDate datetime,
+        AgreementDocument varchar(100),
+        AgreementUserRecordID bigint not null,
+        AgreementPropertyID bigint,
+        AgreementBusinessID bigint,
+        AgreementCommunityID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
 
 create table WaterServiceAgreement (
        ID bigint not null auto_increment,
@@ -128,6 +183,16 @@ create table WaterUtilization (
         primary key (ID)
     )
 
+
+create table WaterUtilizationCharge (
+       ID bigint not null auto_increment,
+        Charge double precision,
+        TotalGallonsUsed bigint,
+        ImaniBillID bigint not null,
+        UtilizationStartDate datetime not null,
+        UtilizationEndDate datetime not null,
+        primary key (ID)
+    )
 
 create table ChildCareAgreement (
        ID bigint not null auto_increment,
@@ -191,11 +256,14 @@ create table BillPayFee (
         OptionalFlatRate double precision,
         FeeTypeE varchar(25) not null,
         FeePaymentChargeType varchar(25) not null,
+        BillScheduleTypeE varchar(20),
+        BillServiceRenderedTypeE varchar(25) not null,
         BusinessID bigint not null,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)
     )
+
 
 create table PlaidAPIInvocationStatistic (
        ID bigint not null auto_increment,

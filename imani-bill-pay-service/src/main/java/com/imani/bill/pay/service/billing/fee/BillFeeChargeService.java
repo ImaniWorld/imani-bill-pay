@@ -77,7 +77,7 @@ public class BillFeeChargeService implements IBillFeeChargeService {
         WaterServiceAgreement waterServiceAgreement = imaniBill.getWaterServiceAgreement();
 
         // Get the actual water charge based on user water utilization
-        double quarterlyCharge = iWaterSvcAgreementService.computeWaterChargeOnQuarterlyUtilization(waterServiceAgreement);
+        double quarterlyCharge = 0;//iWaterSvcAgreementService.computeWaterChargeOnQuarterlyUtilization(waterServiceAgreement);
 
         LOGGER.info("Attempting to charge and apply late fee on ImaniBill[{}] on: ", imaniBill.getId(), waterServiceAgreement.describeAgreement());
 
@@ -85,7 +85,7 @@ public class BillFeeChargeService implements IBillFeeChargeService {
         boolean isBillLate = isImaniBillPaymentLate(imaniBill, waterServiceAgreement.getEmbeddedAgreement());
         if(isBillLate) {
             // Load up the late fee for this business
-            Optional<BillPayFee> billPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProvider(), FeeTypeE.LATE_FEE);
+            Optional<BillPayFee> billPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
             if(billPayFee.isPresent()) {
                 BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
 
@@ -95,7 +95,7 @@ public class BillFeeChargeService implements IBillFeeChargeService {
                 }
 
             } else {
-                LOGGER.warn("ImaniBill[{}] is late however no configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProvider().getId());
+                LOGGER.warn("ImaniBill[{}] is late however no configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
             }
         }
 

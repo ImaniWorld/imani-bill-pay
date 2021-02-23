@@ -13,7 +13,7 @@ public interface IMockPropertyTestBuilder {
     public default Property buildMultiFamilyProperty() {
         Property property = Property.builder()
                 .mthlyNumberOfDaysPaymentLate(PROPERTY_NUM_DAYS_PAYMENT_LATE)
-                .propertyTypeE(PropertyTypeE.MultiFamily)
+                .propertyTypeE(PropertyTypeE.Condo)
                 .build();
         return property;
     }

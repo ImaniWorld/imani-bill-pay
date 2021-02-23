@@ -33,7 +33,7 @@ public class PropertyBuilderServiceTest extends AbstractMockPropertyBuilderTest 
 
     @Test
     public void testInitializePropertyFloors() {
-        IHasPropertyData iHasPropertyData = buildIHasPropertyData(4, PropertyTypeE.MultiFamily);
+        IHasPropertyData iHasPropertyData = buildIHasPropertyData(4, PropertyTypeE.Condo);
         Property property = buildProperty();
         propertyBuilderService.initializePropertyFloors(property, iHasPropertyData);
         Assert.assertEquals(4, property.getFloors().size());

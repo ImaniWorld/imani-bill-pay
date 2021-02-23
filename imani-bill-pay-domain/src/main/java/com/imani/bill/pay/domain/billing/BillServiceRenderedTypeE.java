@@ -9,6 +9,8 @@ public enum BillServiceRenderedTypeE {
 
     ChildCare,
 
+    Utility,
+
     Residential_Lease,
 
     Commercial_Lease
