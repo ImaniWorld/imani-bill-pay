@@ -72,11 +72,17 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
                 LOGGER.info("Generating new ImaniBill for quarter start Date[{}] ", dateAtStartOfQtr);
                 ImaniBill persistedBill = generateImaniBill(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, dateAtStartOfQtr);
                 WaterUtilizationCharge waterUtilizationCharge = iWaterUtilizationService.computeWaterUtilizationCharge(waterServiceAgreement);
-                waterUtilizationCharge.setImaniBill(persistedBill);
+
+                // Compute charges with fees and persist bill.
                 double amountOwed = iWaterUtilizationService.computeUtilizationChargeWithFees(waterServiceAgreement, persistedBill, waterUtilizationCharge.getCharge());
                 persistedBill.setAmountOwed(amountOwed);
                 imaniBillService.save(persistedBill);
-                iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
+
+                if (waterUtilizationCharge.getCharge().doubleValue() > 0) {
+                    LOGGER.info("Persisting utilization details...");
+                    waterUtilizationCharge.setImaniBill(persistedBill);
+                    iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
+                }
             }
         }
 

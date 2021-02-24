@@ -60,14 +60,8 @@ public class WaterUtilizationService implements IWaterUtilizationService {
 
         // First compute total # of gallons that have currently been used in the quater.
         // Cost is determined by #of gallons used and charged per 1,000 gallons on agreement
-        double waterChargeOnUtilization = computeChargeOnUtilization(waterServiceAgreement, atStartOfQuarter, atEndOfQuarter);
-        LOGGER.info("Computed water charge of: {} adding final charges with fees...", waterChargeOnUtilization);
-
-        WaterUtilizationCharge waterUtilizationCharge = WaterUtilizationCharge.builder()
-                .charge(waterChargeOnUtilization)
-                .utilizationStart(atStartOfQuarter)
-                .utilizationEnd(atEndOfQuarter)
-                .build();
+        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, atStartOfQuarter, atEndOfQuarter);
+        LOGGER.info("Computed water utilization charge of: {}", waterUtilizationCharge);
         return waterUtilizationCharge;
     }
 
@@ -112,7 +106,7 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         }
     }
 
-    double computeChargeOnUtilization(WaterServiceAgreement waterServiceAgreement, DateTime start, DateTime end) {
+    WaterUtilizationCharge computeChargeOnUtilization(WaterServiceAgreement waterServiceAgreement, DateTime start, DateTime end) {
         LOGGER.info("Attempting to compute water utilization charges with DateRange[{} - {}]", start, end);
         long totalGallonsUsed = 0;
 
@@ -124,12 +118,20 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         double fixCostPer1000Galls = waterServiceAgreement.getEmbeddedAgreement().getFixedCost(); // Per agreement this will be the (fixed cost/1000 gallons)
         LOGGER.info("Total current water utilization computed to [{} gallons], figuring out chare on FixCostPer1000Galls[{}]", totalGallonsUsed, fixCostPer1000Galls);
 
+        WaterUtilizationCharge waterUtilizationCharge = WaterUtilizationCharge.builder()
+                .totalGallonsUsed(totalGallonsUsed)
+                .utilizationStart(start)
+                .utilizationEnd(end)
+                .build();
+
         if(totalGallonsUsed > 0) {
             double waterChargeOnUtilization = (totalGallonsUsed * fixCostPer1000Galls) / 1000;
-            return waterChargeOnUtilization;
+            waterUtilizationCharge.setCharge(waterChargeOnUtilization);
+        } else {
+            waterUtilizationCharge.setCharge(0d);
         }
 
-        return 0;
+        return waterUtilizationCharge;
     }
 
 
