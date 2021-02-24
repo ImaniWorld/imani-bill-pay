@@ -1,5 +1,6 @@
 package com.imani.bill.pay.domain.utility;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -26,6 +27,7 @@ public class WaterUtilization extends AuditableRecord {
     @Column(name="Description", length = 200)
     private String description;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "WaterServiceAgreementID", nullable = false)
     private WaterServiceAgreement waterServiceAgreement;

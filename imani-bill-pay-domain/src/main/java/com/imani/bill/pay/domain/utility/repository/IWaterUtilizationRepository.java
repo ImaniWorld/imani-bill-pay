@@ -18,4 +18,7 @@ public interface IWaterUtilizationRepository extends JpaRepository<WaterUtilizat
     @Query("Select waterUtilization From WaterUtilization waterUtilization Where waterUtilization.waterServiceAgreement = ?1 and waterUtilization.createDate >= ?2 and waterUtilization.createDate <= ?3")
     public List<WaterUtilization> findUtilizationInPeriod(WaterServiceAgreement waterServiceAgreement, DateTime start, DateTime end);
 
+    @Query("Select waterUtilization From WaterUtilization waterUtilization Where waterUtilization.waterServiceAgreement.id = ?1 and waterUtilization.createDate >= ?2 and waterUtilization.createDate <= ?3")
+    public List<WaterUtilization> findUtilizationInPeriod(Long waterServiceAgreementID, DateTime start, DateTime end);
+
 }

@@ -4,9 +4,11 @@ import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
+import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillExplanationService;
 import com.imani.bill.pay.service.billing.education.TuitionBillExplanationService;
+import com.imani.bill.pay.service.billing.utility.WaterBillExplanationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +34,10 @@ public class BillingExplainedController {
     @Qualifier(TuitionBillExplanationService.SPRING_BEAN)
     private IBillExplanationService tuitionBillExplanationService;
 
+    @Autowired
+    @Qualifier(WaterBillExplanationService.SPRING_BEAN)
+    private IBillExplanationService waterBillExplanationService;
+
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingExplainedController.class);
 
@@ -46,6 +52,12 @@ public class BillingExplainedController {
     @PostMapping("/tuition/current")
     public APIGatewayResponse getCurrentTuitionBill(@RequestBody APIGatewayRequest apiGatewayRequest) {
         ExecutionResult<ImaniBillExplained> executionResult = tuitionBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getUserRecordLite());
+        return APIGatewayResponse.fromExecutionResult(executionResult);
+    }
+
+    @PostMapping("/water/current")
+    public APIGatewayResponse getCurrentWaterBill(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
+        ExecutionResult<ImaniBillExplained> executionResult = waterBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getRequestObject());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

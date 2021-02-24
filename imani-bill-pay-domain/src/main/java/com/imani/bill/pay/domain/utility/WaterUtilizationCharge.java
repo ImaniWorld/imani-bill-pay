@@ -35,12 +35,12 @@ public class WaterUtilizationCharge {
     @JoinColumn(name = "ImaniBillID", nullable = false)
     private ImaniBill imaniBill;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "UtilizationStartDate", nullable = false, updatable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     protected DateTime utilizationStart;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "UtilizationEndDate", nullable = false, updatable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     protected DateTime utilizationEnd;

@@ -17,6 +17,9 @@ import java.util.Optional;
 @Repository
 public interface IImaniBillWaterSvcAgreementRepository extends JpaRepository<ImaniBill, Long> {
 
+    @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.waterServiceAgreement.id = ?1 and imaniBill.billScheduleDate = ?2")
+    public Optional<ImaniBill> getImaniBillForAgreement(Long id, DateTime billScheduleDate);
+
     @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.billedUser = ?1 and imaniBill.waterServiceAgreement = ?2 and imaniBill.billScheduleDate = ?3")
     public Optional<ImaniBill> getImaniBillForAgreement(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate);
 

@@ -12,7 +12,9 @@ import java.util.Optional;
 /**
  * @author manyce400
  */
-public interface IBillExplanationService {
+public interface IBillExplanationService<O> {
+
+    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(O explanationTarget);
 
     // Get the explanation for the current and most recent user bill from this implementation
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord);

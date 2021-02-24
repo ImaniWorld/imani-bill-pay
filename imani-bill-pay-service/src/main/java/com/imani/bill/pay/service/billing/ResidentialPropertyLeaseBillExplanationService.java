@@ -40,6 +40,11 @@ public class ResidentialPropertyLeaseBillExplanationService implements IBillExpl
 
 
     @Override
+    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(Object explanationTarget) {
+        return null;
+    }
+
+    @Override
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         LOGGER.info("Attempting to generate residential property lease agreement bill for user: {} ", userRecord.getEmbeddedContactInfo().getEmail());

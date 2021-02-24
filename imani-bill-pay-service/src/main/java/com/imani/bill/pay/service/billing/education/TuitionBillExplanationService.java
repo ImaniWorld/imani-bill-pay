@@ -43,6 +43,11 @@ public class TuitionBillExplanationService implements IBillExplanationService {
 
 
     @Override
+    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(Object explanationTarget) {
+        return null;
+    }
+
+    @Override
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
         Assert.notNull(userRecord, "UserRecord cannot be null");
         LOGGER.info("Attempting to generate TuitionAgreement Bill Explanation for User[{}] ", userRecord.getEmbeddedContactInfo().getEmail());

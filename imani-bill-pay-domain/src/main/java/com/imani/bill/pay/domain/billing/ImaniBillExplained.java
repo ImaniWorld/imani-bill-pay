@@ -15,10 +15,7 @@ import java.util.Set;
  * @author manyce400
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ImaniBillExplained {
-
-
-    private String explanation;
+public class ImaniBillExplained<O> {
 
     private Long imaniBillID;
 
@@ -26,8 +23,11 @@ public class ImaniBillExplained {
 
     private Double amountPaid;
 
-    // Passed only when a client is making a payment.  Should never exceed the total amount due
+    // Passed only when a client is making a payment.
+    // Should never exceed the total amount due
     private Double amtBeingPaid;
+
+    private O billingDetail;
 
     private BillPurposeExplained billPurposeExplained;
 
@@ -69,6 +69,14 @@ public class ImaniBillExplained {
 
     public void setAmtBeingPaid(Double amtBeingPaid) {
         this.amtBeingPaid = amtBeingPaid;
+    }
+
+    public O getBillingDetail() {
+        return billingDetail;
+    }
+
+    public void setBillingDetail(O billingDetail) {
+        this.billingDetail = billingDetail;
     }
 
     public BillPurposeExplained getBillPurposeExplained() {
@@ -125,6 +133,7 @@ public class ImaniBillExplained {
                 .append("amountOwed", amountOwed)
                 .append("amountPaid", amountPaid)
                 .append("amtBeingPaid", amtBeingPaid)
+                .append("billingDetail", billingDetail)
                 .append("billPurposeExplained", billPurposeExplained)
                 .append("userBilled", userBilled)
                 .toString();
@@ -134,42 +143,47 @@ public class ImaniBillExplained {
         return new Builder();
     }
 
-    public static class Builder {
+    public static class Builder<O> {
 
-        private ImaniBillExplained monthlyRentalBillExplained = new ImaniBillExplained();
+        private ImaniBillExplained imaniBillExplained = new ImaniBillExplained();
 
         public Builder imaniBillID(Long imaniBillID) {
-            monthlyRentalBillExplained.imaniBillID = imaniBillID;
+            imaniBillExplained.imaniBillID = imaniBillID;
             return this;
         }
 
         public Builder amountOwed(Double amountOwed) {
-            monthlyRentalBillExplained.amountOwed = amountOwed;
+            imaniBillExplained.amountOwed = amountOwed;
             return this;
         }
 
         public Builder amountPaid(Double amountPaid) {
-            monthlyRentalBillExplained.amountPaid = amountPaid;
+            imaniBillExplained.amountPaid = amountPaid;
             return this;
         }
 
         public Builder amtBeingPaid(Double amtBeingPaid) {
-            monthlyRentalBillExplained.amtBeingPaid = amtBeingPaid;
+            imaniBillExplained.amtBeingPaid = amtBeingPaid;
+            return this;
+        }
+
+        public Builder billingDetail(O billingDetail) {
+            imaniBillExplained.billingDetail = billingDetail;
             return this;
         }
 
         public Builder billPurposeExplained(BillPurposeExplained billPurposeExplained) {
-            monthlyRentalBillExplained.billPurposeExplained = billPurposeExplained;
+            imaniBillExplained.billPurposeExplained = billPurposeExplained;
             return this;
         }
 
         public Builder userBilled(UserRecordLite userBilled) {
-            monthlyRentalBillExplained.userBilled = userBilled;
+            imaniBillExplained.userBilled = userBilled;
             return this;
         }
 
         public ImaniBillExplained build() {
-            return monthlyRentalBillExplained;
+            return imaniBillExplained;
         }
     }
 
