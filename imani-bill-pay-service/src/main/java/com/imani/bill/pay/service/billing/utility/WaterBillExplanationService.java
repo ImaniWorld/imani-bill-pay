@@ -4,8 +4,6 @@ import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.utility.WaterBillingDetail;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilization;
@@ -80,30 +78,4 @@ public class WaterBillExplanationService implements IBillExplanationService<Wate
         return executionResult;
     }
 
-
-
-
-
-
-
-
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
-        return null;
-    }
-
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
-        return null;
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecord userRecord) {
-        return null;
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
-        return null;
-    }
 }

@@ -6,23 +6,19 @@ import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author manyce400
  */
 @Service(ResidentialPropertyLeaseBillExplanationService.SPRING_BEAN)
-public class ResidentialPropertyLeaseBillExplanationService implements IBillExplanationService {
+public class ResidentialPropertyLeaseBillExplanationService implements IBillExplanationService<UserRecord> {
 
 
 
@@ -38,11 +34,6 @@ public class ResidentialPropertyLeaseBillExplanationService implements IBillExpl
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ResidentialPropertyLeaseBillExplanationService.class);
 
-
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(Object explanationTarget) {
-        return null;
-    }
 
     @Override
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
@@ -62,39 +53,39 @@ public class ResidentialPropertyLeaseBillExplanationService implements IBillExpl
         return executionResult;
     }
 
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
-        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
-        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
-        return getCurrentBillExplanation(userRecord);
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecord userRecord) {
-        Assert.notNull(userRecord, "UserRecord cannot be null");
-        ExecutionResult<List<ImaniBillExplained>> executionResult = new ExecutionResult<>();
-        Set<ImaniBill> imaniBills = imaniBillService.findYTDResidentialPropertyLeaseBills(userRecord);
-        buildYTDExecutionResult(executionResult, imaniBills);
-        return executionResult;
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
-        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
-        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
-        return getYTDBillsExplanation(userRecord);
-    }
-
-    private void buildYTDExecutionResult(ExecutionResult<List<ImaniBillExplained>> executionResult, Set<ImaniBill> imaniBills) {
-        if(!imaniBills.isEmpty()) {
-            List<ImaniBillExplained> imaniBillExplainedList = new ArrayList<>();
-            imaniBills.forEach(imaniBill -> {
-                ImaniBillExplained imaniBillExplained = imaniBill.toImaniBillExplained();
-                imaniBillExplainedList.add(imaniBillExplained);
-            });
-            executionResult.setResult(imaniBillExplainedList);
-        } else {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No billing activity YTD found."));
-        }
-    }
+//    @Override
+//    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
+//        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
+//        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
+//        return getCurrentBillExplanation(userRecord);
+//    }
+//
+//    @Override
+//    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecord userRecord) {
+//        Assert.notNull(userRecord, "UserRecord cannot be null");
+//        ExecutionResult<List<ImaniBillExplained>> executionResult = new ExecutionResult<>();
+//        Set<ImaniBill> imaniBills = imaniBillService.findYTDResidentialPropertyLeaseBills(userRecord);
+//        buildYTDExecutionResult(executionResult, imaniBills);
+//        return executionResult;
+//    }
+//
+//    @Override
+//    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
+//        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
+//        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
+//        return getYTDBillsExplanation(userRecord);
+//    }
+//
+//    private void buildYTDExecutionResult(ExecutionResult<List<ImaniBillExplained>> executionResult, Set<ImaniBill> imaniBills) {
+//        if(!imaniBills.isEmpty()) {
+//            List<ImaniBillExplained> imaniBillExplainedList = new ArrayList<>();
+//            imaniBills.forEach(imaniBill -> {
+//                ImaniBillExplained imaniBillExplained = imaniBill.toImaniBillExplained();
+//                imaniBillExplainedList.add(imaniBillExplained);
+//            });
+//            executionResult.setResult(imaniBillExplainedList);
+//        } else {
+//            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No billing activity YTD found."));
+//        }
+//    }
 }

@@ -3,7 +3,7 @@ package com.imani.bill.pay.svschedule.auto.billing;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
-import com.imani.bill.pay.service.billing.WaterSvcBillGenerationService;
+import com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

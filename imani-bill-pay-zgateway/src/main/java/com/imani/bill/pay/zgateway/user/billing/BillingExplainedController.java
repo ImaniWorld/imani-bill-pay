@@ -65,7 +65,7 @@ public class BillingExplainedController {
     @PostMapping("/lease/ytd")
     public APIGatewayResponse getYTDResidentialLeaseBills(@RequestBody APIGatewayRequest apiGatewayRequest) {
         LOGGER.info("Generating all YTD residential property lease agreement bills for user:=> {}", apiGatewayRequest.getUserRecordLite().getEmail());
-        ExecutionResult<List<ImaniBillExplained>> executionResult = residentialBillExplanationService.getYTDBillsExplanation(apiGatewayRequest.getUserRecordLite());
+        ExecutionResult<List<ImaniBillExplained>> executionResult = new ExecutionResult<>();
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

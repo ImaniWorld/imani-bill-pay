@@ -7,7 +7,6 @@ import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.user.UserRecord;
-import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.IImaniBillService;
@@ -17,14 +16,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * @author manyce400
  */
 @Service(TuitionBillExplanationService.SPRING_BEAN)
-public class TuitionBillExplanationService implements IBillExplanationService {
+public class TuitionBillExplanationService implements IBillExplanationService<UserRecord> {
 
 
 
@@ -41,11 +39,6 @@ public class TuitionBillExplanationService implements IBillExplanationService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(TuitionBillExplanationService.class);
 
-
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(Object explanationTarget) {
-        return null;
-    }
 
     @Override
     public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecord userRecord) {
@@ -67,22 +60,22 @@ public class TuitionBillExplanationService implements IBillExplanationService {
 
         return executionResult;
     }
-
-    @Override
-    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
-        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
-        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
-        return getCurrentBillExplanation(userRecord);
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecord userRecord) {
-        return null;
-    }
-
-    @Override
-    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
-        return null;
-    }
+//
+//    @Override
+//    public ExecutionResult<ImaniBillExplained> getCurrentBillExplanation(UserRecordLite userRecordLite) {
+//        Assert.notNull(userRecordLite, "UserRecordLite cannot be null");
+//        UserRecord userRecord = iUserRecordRepository.findByUserEmail(userRecordLite.getEmail());
+//        return getCurrentBillExplanation(userRecord);
+//    }
+//
+//    @Override
+//    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecord userRecord) {
+//        return null;
+//    }
+//
+//    @Override
+//    public ExecutionResult<List<ImaniBillExplained>> getYTDBillsExplanation(UserRecordLite userRecordLite) {
+//        return null;
+//    }
 
 }

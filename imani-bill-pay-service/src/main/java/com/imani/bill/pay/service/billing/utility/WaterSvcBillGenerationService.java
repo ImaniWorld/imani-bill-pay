@@ -1,4 +1,4 @@
-package com.imani.bill.pay.service.billing;
+package com.imani.bill.pay.service.billing.utility;
 
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
@@ -8,6 +8,9 @@ import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
+import com.imani.bill.pay.service.billing.IBillGenerationService;
+import com.imani.bill.pay.service.billing.IImaniBillService;
+import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import com.imani.bill.pay.service.utility.IWaterUtilizationService;
@@ -47,7 +50,7 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     private IImaniBillWaterSvcAgreementRepository imaniBillWaterSvcAgreementRepository;
 
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.WaterSvcBillGenerationService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterSvcBillGenerationService.class);
 
