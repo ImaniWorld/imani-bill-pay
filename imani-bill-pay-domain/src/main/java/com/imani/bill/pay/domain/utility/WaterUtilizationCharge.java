@@ -66,6 +66,10 @@ public class WaterUtilizationCharge {
         this.charge = charge;
     }
 
+    public boolean hasCharge() {
+        return charge != null && charge.doubleValue() > 0;
+    }
+
     public Long getTotalGallonsUsed() {
         return totalGallonsUsed;
     }

@@ -246,7 +246,7 @@ public class ImaniBill extends AuditableRecord {
     }
 
     public Set<ImaniBillToFee> getBillPayFeesByFeeTypeE(FeeTypeE feeTypeE) {
-        Assert.notNull(billScheduleTypeE, "BillScheduleTypeE cannot be null");
+        Assert.notNull(feeTypeE, "feeTypeE cannot be null");
 
         Set<ImaniBillToFee> billToFeeSet = new HashSet<>();
         for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
@@ -256,6 +256,19 @@ public class ImaniBill extends AuditableRecord {
         }
 
         return ImmutableSet.copyOf(billToFeeSet);
+    }
+
+    public double computeTotalFeeAmountByFeeTypeE(FeeTypeE feeTypeE) {
+        Assert.notNull(feeTypeE, "feeTypeE cannot be null");
+
+        double totalFeesLeviedAmount = 0;
+        for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
+            if (feeTypeE == imaniBillToFee.getBillPayFee().getFeeTypeE()) {
+                totalFeesLeviedAmount = totalFeesLeviedAmount + imaniBillToFee.getFeeAmount();
+            }
+        }
+
+        return totalFeesLeviedAmount;
     }
 
     public ImaniBillExplained toImaniBillExplained() {

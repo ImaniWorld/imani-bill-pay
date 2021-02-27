@@ -6,11 +6,7 @@ import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
-import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
-import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
-import com.imani.bill.pay.service.billing.IImaniBillService;
-import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.billing.fee.IBillFeeChargeService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -37,19 +33,12 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     private IDateTimeUtil iDateTimeUtil;
 
     @Autowired
-    @Qualifier(ImaniBillService.SPRING_BEAN)
-    private IImaniBillService imaniBillService;
-
-    @Autowired
     @Qualifier(WaterUtilizationService.SPRING_BEAN)
     private IWaterUtilizationService iWaterUtilizationService;
 
     @Autowired
     @Qualifier(WaterBillFeeChargeService.SPRING_BEAN)
     IBillFeeChargeService<WaterServiceAgreement> iBillFeeChargeService;
-
-    @Autowired
-    private IWaterUtilizationChargeRepository iWaterUtilizationChargeRepository;
 
     @Autowired
     private IImaniBillWaterSvcAgreementRepository imaniBillWaterSvcAgreementRepository;
@@ -69,7 +58,7 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     @Override
     public boolean generateImaniBill(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-        LOGGER.info("Attempting to generate a quarterly ImaniBill on WaterServiceAgreement[ID: {}]", waterServiceAgreement.getId());
+        LOGGER.info("Attempting to generate a quarterly ImaniBill on {}", waterServiceAgreement.describeAgreement());
 
         if(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE() == BillScheduleTypeE.QUARTERLY) {
             // Check to see IF a bill has already been created for the start of the quarter on this agreement
@@ -77,20 +66,10 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
             Optional<ImaniBill> imaniBill = imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, dateAtStartOfQtr);
 
             if(!imaniBill.isPresent()) {
+                // Compute charges with fees and persist bill.
                 LOGGER.info("Generating new ImaniBill for quarter start Date[{}] ", dateAtStartOfQtr);
                 ImaniBill persistedBill = generateImaniBill(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, dateAtStartOfQtr);
-                WaterUtilizationCharge waterUtilizationCharge = iWaterUtilizationService.computeWaterUtilizationCharge(waterServiceAgreement);
-
-                // Compute charges with fees and persist bill.
-                double amountOwed = iWaterUtilizationService.computeUtilizationChargeWithFees(waterServiceAgreement, persistedBill, waterUtilizationCharge.getCharge());
-                persistedBill.setAmountOwed(amountOwed);
-                imaniBillService.save(persistedBill);
-
-                if (waterUtilizationCharge.getCharge().doubleValue() > 0) {
-                    LOGGER.info("Persisting utilization details...");
-                    waterUtilizationCharge.setImaniBill(persistedBill);
-                    iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
-                }
+                iWaterUtilizationService.computeUtilizationChargeWithSchdFees(persistedBill);
             } else {
                 LOGGER.info("ImaniBill already created in current quater.");
                 iBillFeeChargeService.chargeWaterBillLateFees(waterServiceAgreement);

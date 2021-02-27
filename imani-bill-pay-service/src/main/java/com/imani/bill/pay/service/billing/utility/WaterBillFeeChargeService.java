@@ -4,7 +4,6 @@ import com.imani.bill.pay.domain.billing.*;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
-import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
 import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.billing.fee.IBillFeeChargeService;
@@ -99,8 +98,8 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
 
                     if(billScheduleTypeE == BillScheduleTypeE.QUARTERLY) { // TODO we only currently support quarterly billing for water, make more flexible
                         // Get the current water charge based on current utilization
-                        WaterUtilizationCharge waterUtilizationCharge = iWaterUtilizationService.computeWaterUtilizationChargeWithScheduledFees(imaniBill);
-                        boolean feeLevied = applyQuarterlyLateFee(waterUtilizationCharge.getCharge(), imaniBill, billPayFee.get());
+                        double chargeWithScheduledFees = iWaterUtilizationService.computeUtilizationChargeWithSchdFees(imaniBill);
+                        boolean feeLevied = applyQuarterlyLateFee(chargeWithScheduledFees, imaniBill, billPayFee.get());
                         return feeLevied;
                     }
                 } else {

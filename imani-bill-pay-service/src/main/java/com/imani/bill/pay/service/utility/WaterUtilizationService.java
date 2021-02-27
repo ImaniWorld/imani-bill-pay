@@ -14,6 +14,8 @@ import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
+import com.imani.bill.pay.service.billing.IImaniBillService;
+import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import org.joda.time.DateTime;
@@ -34,6 +36,15 @@ public class WaterUtilizationService implements IWaterUtilizationService {
 
 
     @Autowired
+    @Qualifier(DateTimeUtil.SPRING_BEAN)
+    private IDateTimeUtil iDateTimeUtil;
+
+    @Autowired
+    @Qualifier(ImaniBillService.SPRING_BEAN)
+    private IImaniBillService imaniBillService;
+
+
+    @Autowired
     private IBillPayFeeRepository iBillPayFeeRepository;
 
     @Autowired
@@ -45,41 +56,61 @@ public class WaterUtilizationService implements IWaterUtilizationService {
     @Autowired
     private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
-    @Autowired
-    @Qualifier(DateTimeUtil.SPRING_BEAN)
-    private IDateTimeUtil iDateTimeUtil;
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.utility.WaterUtilizationService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterUtilizationService.class);
 
 
+
+    @Transactional
     @Override
-    public WaterUtilizationCharge computeWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement) {
-        Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, Optional.empty());
-        LOGGER.info("Computed water utilization charge of: {}", waterUtilizationCharge);
+    public WaterUtilizationCharge computeUtilizationCharge(ImaniBill imaniBill) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        Assert.notNull(imaniBill.getWaterServiceAgreement(), "WaterServiceAgreement on bill cannot be null");
+
+        // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
+        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        DateTime end = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
+
+        // Get existing WaterUtilizationCharge or create new and compute + update charges based on current utilization
+        WaterUtilizationCharge waterUtilizationCharge = getDefaultWaterUtilizationCharge(imaniBill, start, end);
+        computeAndUpdateWaterUtilizationCharge(imaniBill.getWaterServiceAgreement(), waterUtilizationCharge);
+
         return waterUtilizationCharge;
     }
 
+    @Transactional
     @Override
-    public WaterUtilizationCharge computeWaterUtilizationChargeWithScheduledFees(ImaniBill imaniBill) {
+    public double computeUtilizationChargeWithSchdFees(ImaniBill imaniBill) {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
-        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilizationWithSchdFees(imaniBill.getWaterServiceAgreement(), Optional.of(imaniBill));
-        return waterUtilizationCharge;
-    }
+        Assert.notNull(imaniBill.getWaterServiceAgreement(), "WaterServiceAgreement on bill cannot be null");
 
-    @Override
-    public double computeUtilizationChargeWithFees(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill, double waterChargeOnUtilization) {
-        Assert.notNull(imaniBill, "ImaniBill cannot be null");
-        LOGGER.info("Applying all scheduled fees to current waterChargeOnUtilization=> {}", waterChargeOnUtilization);
+        // Get and update the current water utilization charge
+        WaterUtilizationCharge waterUtilizationCharge = computeUtilizationCharge(imaniBill);
 
-        BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
+        // Compute the total amount of scheduled fees applied already to check if we need to apply new fees
+        double chargeWithScheduledFees = 0;
+        double totalFeesLeviedAmount = imaniBill.computeTotalFeeAmountByFeeTypeE(FeeTypeE.Scheduled_Fee);
 
-        // Look up only the scheduled fees here. Late fees are applied seperately
-        List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
-        double utilizationChargePlusFees = computeTotalPaymentWithFees(billPayFees, waterChargeOnUtilization, imaniBill);
-        return utilizationChargePlusFees;
+        if(totalFeesLeviedAmount > 0) {
+            // Fees have already been applied on the ImaniBill so add it to newly computed utlization charge
+            LOGGER.info("Total scheduled fees in amount => {} have already been levied against this bill", totalFeesLeviedAmount);
+            chargeWithScheduledFees = waterUtilizationCharge.getCharge().doubleValue() + totalFeesLeviedAmount;
+            imaniBill.setAmountOwed(chargeWithScheduledFees);
+        } else {
+            // Compute and apply scheduled fees. Look up only the scheduled fees here. Late fees are applied seperately
+            BillScheduleTypeE billScheduleTypeE = imaniBill.getWaterServiceAgreement().getEmbeddedAgreement().getBillScheduleTypeE();
+            List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(imaniBill.getWaterServiceAgreement().getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
+            chargeWithScheduledFees = computeTotalChargeWithFees(billPayFees, waterUtilizationCharge, imaniBill);
+        }
+
+        LOGGER.info("Computed final chargeWithScheduledFees=> {}", chargeWithScheduledFees);
+
+        // Save or update the ImaniBill as well as the WaterUtilizationCharge
+        imaniBillService.save(imaniBill);
+        iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
+        return chargeWithScheduledFees;
     }
 
     @Transactional
@@ -113,74 +144,57 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         }
     }
 
-    WaterUtilizationCharge computeChargeOnUtilization(WaterServiceAgreement waterServiceAgreement, Optional<ImaniBill> imaniBill) {
+
+    void computeAndUpdateWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement, WaterUtilizationCharge waterUtilizationCharge) {
         // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
         DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
         DateTime end = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
-        WaterUtilizationCharge waterUtilizationCharge = getDefaultWaterUtilizationCharge(imaniBill, start, end);
 
-        LOGGER.info("Attempting to compute water utilization charges with DateRange[{} - {}]", start, end);
+        LOGGER.info("Attempting to compute current water utilization charge with DateRange[{} - {}] on agreement", start, end);
 
         long totalGallonsUsed = 0;
-
         List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement, start, end);
+
         for(WaterUtilization waterUtilization : waterUtilizations) {
             totalGallonsUsed = totalGallonsUsed + waterUtilization.getNumberOfGallonsUsed();
         }
 
-        double fixCostPer1000Galls = waterServiceAgreement.getEmbeddedAgreement().getFixedCost(); // Per agreement this will be the (fixed cost/1000 gallons)
-        LOGGER.info("Total current water utilization computed to [{} gallons], figuring out chare on FixCostPer1000Galls[{}]", totalGallonsUsed, fixCostPer1000Galls);
-
         if(totalGallonsUsed > 0) {
-            double waterChargeOnUtilization = (totalGallonsUsed * fixCostPer1000Galls) / 1000;
+            double fixCostPer1000Galls = waterServiceAgreement.getEmbeddedAgreement().getFixedCost(); // Per agreement this will be the (fixed cost/1000 gallons)
+            LOGGER.info("Total current water utilization computed to [{} gallons], figuring out chare on FixCostPer1000Galls[{}]", totalGallonsUsed, fixCostPer1000Galls);
+            double finalChargeOnUtilization = (totalGallonsUsed * fixCostPer1000Galls) / 1000;
             waterUtilizationCharge.setTotalGallonsUsed(totalGallonsUsed);
-            waterUtilizationCharge.setCharge(waterChargeOnUtilization);
-        } else {
-            // Since we computed 0 total utilization it means there was no utilization at all
-            waterUtilizationCharge.setCharge(0d);
+            waterUtilizationCharge.setCharge(finalChargeOnUtilization);
         }
-
-        return waterUtilizationCharge;
-    }
-
-    WaterUtilizationCharge computeChargeOnUtilizationWithSchdFees(WaterServiceAgreement waterServiceAgreement, Optional<ImaniBill> imaniBill) {
-        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, imaniBill);
-        double waterChargeOnUtilization = waterUtilizationCharge.getCharge();
-
-        // Look up only the scheduled fees here. Late fees are applied seperately
-        BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
-        List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
-
-        for(BillPayFee billPayFee : billPayFees) {
-            waterChargeOnUtilization = billPayFee.calculatePaymentWithFees(waterChargeOnUtilization);
-        }
-
-        waterUtilizationCharge.setCharge(waterChargeOnUtilization);
-        return waterUtilizationCharge;
     }
 
 
-    double computeTotalPaymentWithFees(List<BillPayFee> billPayFees, double waterChargeOnUtilization, ImaniBill imaniBill) {
+
+
+    double computeTotalChargeWithFees(List<BillPayFee> billPayFees, WaterUtilizationCharge waterUtilizationCharge, ImaniBill imaniBill) {
+        double chargeWithFees = waterUtilizationCharge.getCharge();
+
         for(BillPayFee billPayFee : billPayFees) {
-            waterChargeOnUtilization = billPayFee.calculatePaymentWithFees(waterChargeOnUtilization);
-            double feeAmount = billPayFee.calculatFeeCharge(waterChargeOnUtilization);
+            chargeWithFees = billPayFee.calculatePaymentWithFees(chargeWithFees);
+            double feeAmount = billPayFee.calculatFeeCharge(chargeWithFees);
             imaniBill.addImaniBillToFee(billPayFee, feeAmount);
         }
 
-        return waterChargeOnUtilization;
+        imaniBill.setAmountOwed(chargeWithFees);
+        return chargeWithFees;
     }
 
-    WaterUtilizationCharge getDefaultWaterUtilizationCharge(Optional<ImaniBill> imaniBill, DateTime start, DateTime end) {
+    WaterUtilizationCharge getDefaultWaterUtilizationCharge(ImaniBill imaniBill, DateTime start, DateTime end) {
         WaterUtilizationCharge waterUtilizationCharge = WaterUtilizationCharge.builder()
                 .utilizationStart(start)
                 .utilizationEnd(end)
+                .imaniBill(imaniBill)
                 .build();
 
-        if (imaniBill.isPresent()) {
-            Optional<WaterUtilizationCharge> optionalWaterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), start, end);
+        if (imaniBill.getId() != null) { // Make sure object is persisted before this check
+            Optional<WaterUtilizationCharge> optionalWaterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill, start, end);
 
             if(optionalWaterUtilizationCharge.isPresent()) {
-                // A water charge already exists for this bll so use that
                 LOGGER.info("Found an already existing utilization charge => {} ", optionalWaterUtilizationCharge.get());
                 waterUtilizationCharge = optionalWaterUtilizationCharge.get();
             }
