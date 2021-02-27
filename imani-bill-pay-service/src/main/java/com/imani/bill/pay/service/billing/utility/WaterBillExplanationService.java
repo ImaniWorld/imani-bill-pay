@@ -64,7 +64,7 @@ public class WaterBillExplanationService implements IBillExplanationService<Wate
             executionResult.setResult(imaniBillExplained.get());
 
             // Lookup all billing details to form explanation
-            Optional<WaterUtilizationCharge> waterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBill(imaniBill.get());
+            Optional<WaterUtilizationCharge> waterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), atStartOfQuarter, atEndOfQuarter);
             if (waterUtilizationCharge.isPresent()) {
                 List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement.getId(), atStartOfQuarter, atEndOfQuarter);
                 WaterBillingDetail waterBillingDetail = WaterBillingDetail.builder()

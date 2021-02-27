@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.billing;
 
+import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
@@ -36,14 +37,19 @@ public class ImaniBillService implements IImaniBillService {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ImaniBillService.class);
 
 
-
     @Override
-    public Optional<ImaniBill> findByID(Long id) {
-        Assert.notNull(id, "id cannot be null");
-        LOGGER.debug("Finding ImaniBill with id:=> {}", id);
-        return imaniBillRepository.findById(id);
-    }
+    public boolean isBillPaymentLate(ImaniBill imaniBill, EmbeddedAgreement embeddedAgreement) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        Assert.notNull(embeddedAgreement, "EmbeddedAgreement cannot be null");
 
+        // Get scheduled date ant the number of days till considered late on the agreement
+        DateTime billScheduleDate = imaniBill.getBillScheduleDate();
+        Integer maxDaysTillLate = embeddedAgreement.getNumberOfDaysTillLate();
+
+        Integer daysBetweenDueAndNow = iDateTimeUtil.getDaysBetweenDates(billScheduleDate, DateTime.now());
+        LOGGER.info("Late check. maxDaysTillLate => {} daysBetweenDueAndNow => {}", maxDaysTillLate, daysBetweenDueAndNow);
+        return daysBetweenDueAndNow > maxDaysTillLate;
+    }
 
     @Override
     public Optional<ImaniBill> findByUserCurrentMonthBill(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE) {

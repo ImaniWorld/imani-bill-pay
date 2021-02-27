@@ -13,6 +13,8 @@ public interface IWaterUtilizationService {
 
     public WaterUtilizationCharge computeWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement);
 
+    public WaterUtilizationCharge computeWaterUtilizationChargeWithScheduledFees(ImaniBill imaniBill);
+
     public double computeUtilizationChargeWithFees(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill, double waterChargeOnUtilization);
 
     public void logWaterUtilization(WaterUtilization waterUtilization, ExecutionResult executionResult);

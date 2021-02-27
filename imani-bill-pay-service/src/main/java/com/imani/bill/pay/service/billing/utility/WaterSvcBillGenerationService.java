@@ -86,6 +86,9 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
                     waterUtilizationCharge.setImaniBill(persistedBill);
                     iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
                 }
+            } else {
+                // Bill has already been created, apply late fees where applicable
+
             }
         }
 

@@ -12,6 +12,7 @@ import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilization;
 import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
+import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
@@ -36,6 +37,9 @@ public class WaterUtilizationService implements IWaterUtilizationService {
     private IBillPayFeeRepository iBillPayFeeRepository;
 
     @Autowired
+    private IWaterUtilizationChargeRepository iWaterUtilizationChargeRepository;
+
+    @Autowired
     private IWaterUtilizationRepository iWaterUtilizationRepository;
 
     @Autowired
@@ -53,15 +57,15 @@ public class WaterUtilizationService implements IWaterUtilizationService {
     @Override
     public WaterUtilizationCharge computeWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-
-        // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
-        DateTime atStartOfQuarter = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-        DateTime atEndOfQuarter = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
-
-        // First compute total # of gallons that have currently been used in the quater.
-        // Cost is determined by #of gallons used and charged per 1,000 gallons on agreement
-        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, atStartOfQuarter, atEndOfQuarter);
+        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, Optional.empty());
         LOGGER.info("Computed water utilization charge of: {}", waterUtilizationCharge);
+        return waterUtilizationCharge;
+    }
+
+    @Override
+    public WaterUtilizationCharge computeWaterUtilizationChargeWithScheduledFees(ImaniBill imaniBill) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilizationWithSchdFees(imaniBill.getWaterServiceAgreement(), Optional.of(imaniBill));
         return waterUtilizationCharge;
     }
 
@@ -69,7 +73,10 @@ public class WaterUtilizationService implements IWaterUtilizationService {
     public double computeUtilizationChargeWithFees(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill, double waterChargeOnUtilization) {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
         LOGGER.info("Applying all scheduled fees to current waterChargeOnUtilization=> {}", waterChargeOnUtilization);
+
         BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
+
+        // Look up only the scheduled fees here. Late fees are applied seperately
         List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
         double utilizationChargePlusFees = computeTotalPaymentWithFees(billPayFees, waterChargeOnUtilization, imaniBill);
         return utilizationChargePlusFees;
@@ -106,8 +113,14 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         }
     }
 
-    WaterUtilizationCharge computeChargeOnUtilization(WaterServiceAgreement waterServiceAgreement, DateTime start, DateTime end) {
+    WaterUtilizationCharge computeChargeOnUtilization(WaterServiceAgreement waterServiceAgreement, Optional<ImaniBill> imaniBill) {
+        // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
+        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        DateTime end = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
+        WaterUtilizationCharge waterUtilizationCharge = getDefaultWaterUtilizationCharge(imaniBill, start, end);
+
         LOGGER.info("Attempting to compute water utilization charges with DateRange[{} - {}]", start, end);
+
         long totalGallonsUsed = 0;
 
         List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement, start, end);
@@ -118,19 +131,31 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         double fixCostPer1000Galls = waterServiceAgreement.getEmbeddedAgreement().getFixedCost(); // Per agreement this will be the (fixed cost/1000 gallons)
         LOGGER.info("Total current water utilization computed to [{} gallons], figuring out chare on FixCostPer1000Galls[{}]", totalGallonsUsed, fixCostPer1000Galls);
 
-        WaterUtilizationCharge waterUtilizationCharge = WaterUtilizationCharge.builder()
-                .totalGallonsUsed(totalGallonsUsed)
-                .utilizationStart(start)
-                .utilizationEnd(end)
-                .build();
-
         if(totalGallonsUsed > 0) {
             double waterChargeOnUtilization = (totalGallonsUsed * fixCostPer1000Galls) / 1000;
+            waterUtilizationCharge.setTotalGallonsUsed(totalGallonsUsed);
             waterUtilizationCharge.setCharge(waterChargeOnUtilization);
         } else {
+            // Since we computed 0 total utilization it means there was no utilization at all
             waterUtilizationCharge.setCharge(0d);
         }
 
+        return waterUtilizationCharge;
+    }
+
+    WaterUtilizationCharge computeChargeOnUtilizationWithSchdFees(WaterServiceAgreement waterServiceAgreement, Optional<ImaniBill> imaniBill) {
+        WaterUtilizationCharge waterUtilizationCharge = computeChargeOnUtilization(waterServiceAgreement, imaniBill);
+        double waterChargeOnUtilization = waterUtilizationCharge.getCharge();
+
+        // Look up only the scheduled fees here. Late fees are applied seperately
+        BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
+        List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
+
+        for(BillPayFee billPayFee : billPayFees) {
+            waterChargeOnUtilization = billPayFee.calculatePaymentWithFees(waterChargeOnUtilization);
+        }
+
+        waterUtilizationCharge.setCharge(waterChargeOnUtilization);
         return waterUtilizationCharge;
     }
 
@@ -145,5 +170,23 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         return waterChargeOnUtilization;
     }
 
+    WaterUtilizationCharge getDefaultWaterUtilizationCharge(Optional<ImaniBill> imaniBill, DateTime start, DateTime end) {
+        WaterUtilizationCharge waterUtilizationCharge = WaterUtilizationCharge.builder()
+                .utilizationStart(start)
+                .utilizationEnd(end)
+                .build();
+
+        if (imaniBill.isPresent()) {
+            Optional<WaterUtilizationCharge> optionalWaterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), start, end);
+
+            if(optionalWaterUtilizationCharge.isPresent()) {
+                // A water charge already exists for this bll so use that
+                LOGGER.info("Found an already existing utilization charge => {} ", optionalWaterUtilizationCharge.get());
+                waterUtilizationCharge = optionalWaterUtilizationCharge.get();
+            }
+        }
+
+        return waterUtilizationCharge;
+    }
 
 }

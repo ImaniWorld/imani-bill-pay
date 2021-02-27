@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.billing;
 
+import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.education.TuitionAgreement;
@@ -13,7 +14,7 @@ import java.util.Set;
  */
 public interface IImaniBillService {
 
-    public Optional<ImaniBill> findByID(Long id);
+    public boolean isBillPaymentLate(ImaniBill imaniBill, EmbeddedAgreement embeddedAgreement);
 
     public Optional<ImaniBill> findByUserCurrentMonthBill(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE);
 
