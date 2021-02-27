@@ -11,6 +11,7 @@ import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepos
 import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
+import com.imani.bill.pay.service.billing.fee.IBillFeeChargeService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import com.imani.bill.pay.service.utility.IWaterUtilizationService;
@@ -44,6 +45,10 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     private IWaterUtilizationService iWaterUtilizationService;
 
     @Autowired
+    @Qualifier(WaterBillFeeChargeService.SPRING_BEAN)
+    IBillFeeChargeService<WaterServiceAgreement> iBillFeeChargeService;
+
+    @Autowired
     private IWaterUtilizationChargeRepository iWaterUtilizationChargeRepository;
 
     @Autowired
@@ -64,7 +69,7 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     @Override
     public boolean generateImaniBill(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-        LOGGER.info("Attempting to generate a quarterly ImaniBill on {}", waterServiceAgreement.describeAgreement());
+        LOGGER.info("Attempting to generate a quarterly ImaniBill on WaterServiceAgreement[ID: {}]", waterServiceAgreement.getId());
 
         if(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE() == BillScheduleTypeE.QUARTERLY) {
             // Check to see IF a bill has already been created for the start of the quarter on this agreement
@@ -87,8 +92,8 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
                     iWaterUtilizationChargeRepository.save(waterUtilizationCharge);
                 }
             } else {
-                // Bill has already been created, apply late fees where applicable
-
+                LOGGER.info("ImaniBill already created in current quater.");
+                iBillFeeChargeService.chargeWaterBillLateFees(waterServiceAgreement);
             }
         }
 

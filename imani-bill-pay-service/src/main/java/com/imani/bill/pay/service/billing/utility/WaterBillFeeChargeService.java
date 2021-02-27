@@ -68,9 +68,9 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
     public void chargeWaterBillLateFees(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
 
-        LOGGER.info("Attempting to apply late fees on ImaniBill's for {}", waterServiceAgreement.describeAgreement());
+        LOGGER.info("Attempting to apply late fees on ImaniBill's for agreemet {}", waterServiceAgreement.getId());
 
-        List<ImaniBill> imaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement);
+        List<ImaniBill> imaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement.getId());
         imaniBills.forEach(imaniBill -> {
             boolean feeCharged = chargeWaterBillLateFee(imaniBill);
             if (feeCharged) {

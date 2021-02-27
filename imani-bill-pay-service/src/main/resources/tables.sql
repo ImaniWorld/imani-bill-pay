@@ -233,7 +233,7 @@ create table PropertyLeaseAgreement (
 create table ImaniBill (
        ID bigint not null auto_increment,
         AmountOwed double precision,
-        AmountPaid double precision,
+        AmountPaid double default 0,
         BillScheduleDate datetime,
         BillScheduleTypeE varchar(25) not null,
         BillServiceRenderedTypeE varchar(25) not null,

@@ -37,12 +37,12 @@ public class ImaniBill extends AuditableRecord {
 
 
     // Tracks the total amount that is owed on this bill
-    @Column(name="AmountOwed", nullable=true)
+    @Column(name="AmountOwed", nullable=false)
     private Double amountOwed;
 
 
     // Tracks the total amount that has currently been paid on this MonthlyRentalBill
-    @Column(name="AmountPaid", nullable=true)
+    @Column(name="AmountPaid", columnDefinition = "double default 0")
     private Double amountPaid;
 
     // Defines the schedule of billing. This is sourced directly from agreement

@@ -23,6 +23,9 @@ public interface IImaniBillWaterSvcAgreementRepository extends JpaRepository<Ima
     @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.billedUser = ?1 and imaniBill.waterServiceAgreement = ?2 and imaniBill.billScheduleDate = ?3")
     public Optional<ImaniBill> getImaniBillForAgreement(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate);
 
+    @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.waterServiceAgreement.id = ?1 and imaniBill.amountPaid < imaniBill.amountOwed")
+    public List<ImaniBill> findAllAgreementUnPaidBills(Long id);
+
     @Query("Select imaniBill From ImaniBill imaniBill Where imaniBill.waterServiceAgreement = ?1 and imaniBill.amountPaid < imaniBill.amountOwed")
     public List<ImaniBill> findAllAgreementUnPaidBills(WaterServiceAgreement waterServiceAgreement);
 
