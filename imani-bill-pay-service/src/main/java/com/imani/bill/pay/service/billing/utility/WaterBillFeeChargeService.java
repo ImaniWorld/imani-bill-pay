@@ -2,6 +2,7 @@ package com.imani.bill.pay.service.billing.utility;
 
 import com.imani.bill.pay.domain.billing.*;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
+import com.imani.bill.pay.domain.billing.repository.IImaniBillToFeeRepository;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IImaniBillService;
@@ -19,9 +20,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Default implementation for applying late fees to all Imani BillPay agreement types.
@@ -55,6 +56,9 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
     private IBillPayFeeRepository iBillPayFeeRepository;
 
     @Autowired
+    private IImaniBillToFeeRepository iImaniBillToFeeRepository;
+
+    @Autowired
     private IImaniBillWaterSvcAgreementRepository imaniBillWaterSvcAgreementRepository;
 
 
@@ -63,22 +67,40 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterBillFeeChargeService.class);
 
 
+    @Transactional
     @Override
     public void chargeWaterBillLateFees(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
 
-        LOGGER.info("Attempting to apply late fees on ImaniBill's for agreemet {}", waterServiceAgreement.getId());
+        LOGGER.info("Attempting to apply late fees on ImaniBill's on ", waterServiceAgreement.describeAgreement());
 
+        final DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        final DateTime end = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
+
+        // Find all unpaid bills on the WaterServiceAgreement and try to apply late fee where applicable
         List<ImaniBill> imaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement.getId());
+
         imaniBills.forEach(imaniBill -> {
-            boolean feeCharged = chargeWaterBillLateFee(imaniBill);
-            if (feeCharged) {
-                imaniBillService.save(imaniBill);
+            // Lookup configured late fee by the utility provider on this agreement
+            Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
+
+            if (lateBillPayFee.isPresent()) {
+                // IF late fee already applied in this quarter then skip
+                Optional<ImaniBillToFee> imaniBillToLateFee = iImaniBillToFeeRepository.findLateFeeInQtr(imaniBill, lateBillPayFee.get(), start, end);
+
+                if (!imaniBillToLateFee.isPresent()) { // This ensures that we only apply 1 late fee in the quarter
+                    chargeWaterBillLateFee(imaniBill, lateBillPayFee.get());
+                    imaniBillService.save(imaniBill);
+                } else {
+                    LOGGER.info("Detected that a late fee already applied to the bill in current quarter");
+                }
+            } else {
+                LOGGER.warn("ImaniBill[ID: {}] is late however no configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
             }
         });
     }
 
-    boolean chargeWaterBillLateFee(ImaniBill imaniBill) {
+    void chargeWaterBillLateFee(ImaniBill imaniBill, BillPayFee lateBillPayFee) {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
         Assert.notNull(imaniBill.getWaterServiceAgreement(), "WaterServiceAgreement cannot be null");
 
@@ -90,51 +112,23 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
             // Check to see if Bill is late in order to apply a late fee
             boolean isBillLate = imaniBillService.isBillPaymentLate(imaniBill, waterServiceAgreement.getEmbeddedAgreement());
             if(isBillLate) {
-                // Load up the late fee for this business
-                Optional<BillPayFee> billPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
+                BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
 
-                if(billPayFee.isPresent()) {
-                    BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
-
-                    if(billScheduleTypeE == BillScheduleTypeE.QUARTERLY) { // TODO we only currently support quarterly billing for water, make more flexible
-                        // Get the current water charge based on current utilization
-                        double chargeWithScheduledFees = iWaterUtilizationService.computeUtilizationChargeWithSchdFees(imaniBill);
-                        boolean feeLevied = applyQuarterlyLateFee(chargeWithScheduledFees, imaniBill, billPayFee.get());
-                        return feeLevied;
-                    }
-                } else {
-                    LOGGER.warn("ImaniBill[ID: {}] is late however no configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
+                if(billScheduleTypeE == BillScheduleTypeE.QUARTERLY) { // TODO we only currently support quarterly billing for water, make more flexible
+                    // Get the current water charge based on current utilization
+                    double chargeWithScheduledFees = iWaterUtilizationService.computeUtilizationChargeWithSchdFees(imaniBill);
+                    applyQuarterlyLateFee(chargeWithScheduledFees, imaniBill, lateBillPayFee);
                 }
             }
         }
-
-        return false;
     }
 
-    boolean applyQuarterlyLateFee(Double actualBillCharge, ImaniBill imaniBill, BillPayFee billPayFee) {
-        // Get all fee's that have been applied to see if there is already a fee in the quarter. IF not we want to apply a new quarterly fee
-        Set<ImaniBillToFee> imaniBillToFees = imaniBill.getBillPayFeesByFeeTypeE(FeeTypeE.LATE_FEE);
-        boolean chargeFee = true;
-        for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
-            DateTime feeChargedDate = imaniBillToFee.getCreateDate();
-            boolean isDateTimeInCurrentQuarter = iDateTimeUtil.isDateTimeInCurrentQuarter(feeChargedDate);
-
-            if((isDateTimeInCurrentQuarter)) {
-                LOGGER.info("Detected that a late fee already applied to bill in current quarter on Date[{}]", feeChargedDate);
-                chargeFee = false;
-                break;
-            }
-        }
-
-        if(chargeFee) {
-            // Very critical, we compute the fee amount off the original actual bill charge not the amount owed since that will keep changing
-            Double feeAmount = billPayFee.calculatFeeCharge(actualBillCharge);
-            double newAmountOwed = actualBillCharge + feeAmount;
-            imaniBill.setAmountOwed(newAmountOwed);
-            imaniBill.addImaniBillToFee(billPayFee, feeAmount);
-        }
-
-        return chargeFee;
+    void applyQuarterlyLateFee(Double actualBillCharge, ImaniBill imaniBill, BillPayFee billPayFee) {
+        // Very critical, we compute the fee amount off the original actual bill charge not the amount owed since that will keep changing
+        Double feeAmount = billPayFee.calculatFeeCharge(actualBillCharge);
+        double newAmountOwed = actualBillCharge + feeAmount;
+        imaniBill.setAmountOwed(newAmountOwed);
+        imaniBill.addImaniBillToFee(billPayFee, feeAmount);
     }
 
 }

@@ -82,6 +82,7 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     private ImaniBill generateImaniBill(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime dateAtStartOfQtr) {
         LOGGER.info("Generating a new WaterServiceAgreement ImaniBill for User({}) with dateAtStartOfQtr:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), dateAtStartOfQtr);
         ImaniBill imaniBill = ImaniBill.builder()
+                .amountPaid(0d)
                 .billScheduleDate(dateAtStartOfQtr)
                 .billScheduleTypeE(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
                 .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility)
