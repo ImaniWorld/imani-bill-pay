@@ -3,9 +3,7 @@ package com.imani.bill.pay.service.utility;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.business.repository.IBusinessRepository;
-import com.imani.bill.pay.domain.contact.Address;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.geographical.Community;
 import com.imani.bill.pay.domain.geographical.repository.ICommunityRepository;
 import com.imani.bill.pay.domain.property.Property;
@@ -141,40 +139,6 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
         }
 
         return Optional.empty();
-    }
-
-    void validateBusiness(Business utilityProviderBusiness, ExecutionResult executionResult) {
-        if(utilityProviderBusiness == null) {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to find the Water Utility Business provided for this agreement."));
-        }
-    }
-
-    void validateServiceAddress(Address serviceAddress, ExecutionResult executionResult) {
-        if(serviceAddress == null) {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to find the Service Address provided for agreement."));
-        }
-    }
-
-    void enrichAgreement(Optional<UserRecord> userRecord, Optional<Property> property, Optional<Business> agreementBusiness, Optional<Community> community, EmbeddedAgreement embeddedAgreement, ExecutionResult executionResult) {
-        if(userRecord.isPresent()) {
-            // We expect a specific Property to be specified here for this kind of agreement
-            if(property.isPresent()) {
-                LOGGER.info("Creating a new WaterServiceAgreement for User[{}] on Property[{}]", userRecord.get().getEmbeddedContactInfo().getEmail(), property.get().getAddress().getPrintableAddress());
-                embeddedAgreement.setAgreementUserRecord(userRecord.get());
-                embeddedAgreement.setAgreementProperty(property.get());
-            } else {
-                executionResult.addValidationAdvice(ValidationAdvice.newInstance("Failed to find the Service Address provided for agreement."));
-            }
-        } else {
-            if(agreementBusiness.isPresent()) {
-                LOGGER.info("Creating a new WaterServiceAgreement for Business[{}] ", agreementBusiness.get().getName());
-                embeddedAgreement.setAgreementBusiness(agreementBusiness.get());
-            }
-            if(community.isPresent()) {
-                LOGGER.info("Creating a new WaterServiceAgreement for Community[{}] ", community.get().getCommunityName());
-                embeddedAgreement.setAgreementCommunity(community.get());
-            }
-        }
     }
 
 }

@@ -6,7 +6,7 @@ import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 /**
  * @author manyce400
  */
-public interface IWaterSvcAgreementService {
+public interface IWaterSvcAgreementService extends IUtilitySvcAgreementService {
 
     public void createAgreement(WaterServiceAgreement waterServiceAgreement, ExecutionResult executionResult);
 

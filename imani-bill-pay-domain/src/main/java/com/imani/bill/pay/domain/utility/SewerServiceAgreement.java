@@ -12,7 +12,7 @@ import javax.persistence.*;
  * @author manyce400
  */
 @Entity
-@Table(name="WaterServiceAgreement")
+@Table(name="SewerServiceAgreement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SewerServiceAgreement extends AuditableRecord implements IHasBillingAgreement {
 
@@ -24,10 +24,10 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
     private Long id;
 
     @Embedded
-    private EmbeddedUtilityService embeddedUtilityService;
+    private EmbeddedAgreement embeddedAgreement;
 
     @Embedded
-    private EmbeddedAgreement embeddedAgreement;
+    private EmbeddedUtilityService embeddedUtilityService;
 
 
     public SewerServiceAgreement() {
@@ -42,14 +42,6 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
         this.id = id;
     }
 
-    public EmbeddedUtilityService getEmbeddedUtilityService() {
-        return embeddedUtilityService;
-    }
-
-    public void setEmbeddedUtilityService(EmbeddedUtilityService embeddedUtilityService) {
-        this.embeddedUtilityService = embeddedUtilityService;
-    }
-
     @Override
     public EmbeddedAgreement getEmbeddedAgreement() {
         return embeddedAgreement;
@@ -57,6 +49,14 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
 
     public void setEmbeddedAgreement(EmbeddedAgreement embeddedAgreement) {
         this.embeddedAgreement = embeddedAgreement;
+    }
+
+    public EmbeddedUtilityService getEmbeddedUtilityService() {
+        return embeddedUtilityService;
+    }
+
+    public void setEmbeddedUtilityService(EmbeddedUtilityService embeddedUtilityService) {
+        this.embeddedUtilityService = embeddedUtilityService;
     }
 
     @Override
@@ -68,22 +68,26 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("embeddedUtilityService", embeddedUtilityService)
                 .append("embeddedAgreement", embeddedAgreement)
+                .append("embeddedUtilityService", embeddedUtilityService)
                 .toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
 
         private SewerServiceAgreement sewerServiceAgreement = new SewerServiceAgreement();
 
-        public Builder embeddedUtilityService(EmbeddedUtilityService embeddedUtilityService) {
-            sewerServiceAgreement.embeddedUtilityService = embeddedUtilityService;
+        public Builder embeddedAgreement(EmbeddedAgreement embeddedAgreement) {
+            sewerServiceAgreement.embeddedAgreement = embeddedAgreement;
             return this;
         }
 
-        public Builder embeddedAgreement(EmbeddedAgreement embeddedAgreement) {
-            sewerServiceAgreement.embeddedAgreement = embeddedAgreement;
+        public Builder embeddedUtilityService(EmbeddedUtilityService embeddedUtilityService) {
+            sewerServiceAgreement.embeddedUtilityService = embeddedUtilityService;
             return this;
         }
 

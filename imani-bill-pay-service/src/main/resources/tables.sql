@@ -153,21 +153,23 @@ create table WaterServiceAgreement (
         primary key (ID)
     )
 
-create table WaterServiceAgreement (
+create table SewerServiceAgreement (
        ID bigint not null auto_increment,
-        BusinessCustomerAcctID varchar(100),
+        UtilityProviderBusinessID bigint not null,
+        SvcCustomerAcctID varchar(100),
+        SvcDescription varchar(300),
+        UtilityServiceAreaID bigint,
         FixedCost double precision,
-        NumberOfGallonsPerFixedCost bigint,
-        BillScheduleTypeE varchar(20) not null,
         NumberOfDaysTillLate integer,
+        BillScheduleTypeE varchar(20) not null,
         AgreementInForce TINYINT,
-        AgreementDocument varchar(100),
-        UserRecordID bigint not null,
-        BusinessID bigint not null,
-        ServiceAddressID bigint not null,
-        CommunityID bigint,
         EffectiveDate datetime not null,
         TerminationDate datetime,
+        AgreementDocument varchar(100),
+        AgreementUserRecordID bigint not null,
+        AgreementPropertyID bigint,
+        AgreementBusinessID bigint,
+        AgreementCommunityID bigint,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)
