@@ -29,6 +29,8 @@ public interface IDateTimeUtil {
 
     public DateTime getDateTimeAEndOfCurrentQuarter();
 
+    public DateTime getDateTimeAStartOfNextQuarter();
+
     public Integer getCurrentQuaterOfCurrentYear();
 
     public Integer getDateTimeQuarter(DateTime dateTime);

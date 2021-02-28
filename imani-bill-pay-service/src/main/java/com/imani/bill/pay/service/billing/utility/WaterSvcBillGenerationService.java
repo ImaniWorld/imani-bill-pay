@@ -62,13 +62,14 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
 
         if(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE() == BillScheduleTypeE.QUARTERLY) {
             // Check to see IF a bill has already been created for the start of the quarter on this agreement
-            DateTime dateAtStartOfQtr = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-            Optional<ImaniBill> imaniBill = imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, dateAtStartOfQtr);
+            // For Water bill in this quarter, it will be due at the start of next quarter
+            DateTime billScheduleDate = iDateTimeUtil.getDateTimeAStartOfNextQuarter();
+            Optional<ImaniBill> imaniBill = imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, billScheduleDate);
 
             if(!imaniBill.isPresent()) {
                 // Compute charges with fees and persist bill.
-                LOGGER.info("Generating new ImaniBill for quarter start Date[{}] ", dateAtStartOfQtr);
-                ImaniBill persistedBill = generateImaniBill(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, dateAtStartOfQtr);
+                LOGGER.info("Generating new ImaniBill for quarter Schedule-Date[{}] ", billScheduleDate);
+                ImaniBill persistedBill = generateImaniBill(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, billScheduleDate);
                 iWaterUtilizationService.computeUtilizationChargeWithSchdFees(persistedBill);
             } else {
                 LOGGER.info("ImaniBill already created in current quater.");
@@ -79,11 +80,10 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
         return false;
     }
 
-    private ImaniBill generateImaniBill(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime dateAtStartOfQtr) {
-        LOGGER.info("Generating a new WaterServiceAgreement ImaniBill for User({}) with dateAtStartOfQtr:=> {}", userRecord.getEmbeddedContactInfo().getEmail(), dateAtStartOfQtr);
+    private ImaniBill generateImaniBill(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate) {
         ImaniBill imaniBill = ImaniBill.builder()
                 .amountPaid(0d)
-                .billScheduleDate(dateAtStartOfQtr)
+                .billScheduleDate(billScheduleDate)
                 .billScheduleTypeE(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
                 .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility)
                 .billedUser(userRecord)

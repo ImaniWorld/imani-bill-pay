@@ -212,6 +212,14 @@ public class DateTimeUtil implements IDateTimeUtil {
     }
 
     @Override
+    public DateTime getDateTimeAStartOfNextQuarter() {
+        // Get date at end of this current qtr and advance by 1month
+        DateTime dateTime = getDateTimeAEndOfCurrentQuarter();
+        dateTime.plusMonths(1);
+        return dateTime;
+    }
+
+    @Override
     public Integer getCurrentQuaterOfCurrentYear() {
         DateTime now = DateTime.now();
         int monthOfYear = now.getMonthOfYear();
