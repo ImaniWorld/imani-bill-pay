@@ -54,16 +54,17 @@ public class WaterBillExplanationService implements IBillExplanationService<Wate
 
         ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
 
-        // Get the current quarter start date, this will be the scheduled date on the current bill for this agreement
-        DateTime atStartOfQuarter = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-        DateTime atEndOfQuarter = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
-        Optional<ImaniBill> imaniBill = iImaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getId(), atStartOfQuarter);
+        DateTime billScheduleDate = iDateTimeUtil.getDateTimeAStartOfNextQuarter();
+        Optional<ImaniBill> imaniBill = iImaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getId(), billScheduleDate);
         Optional<ImaniBillExplained> imaniBillExplained = explainImaniBill(imaniBill);
 
         if(imaniBillExplained.isPresent()) {
             executionResult.setResult(imaniBillExplained.get());
 
             // Lookup all billing details to form explanation
+            // Get the current quarter start date, this will be the scheduled date on the current bill for this agreement
+            DateTime atStartOfQuarter = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+            DateTime atEndOfQuarter = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
             Optional<WaterUtilizationCharge> waterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), atStartOfQuarter, atEndOfQuarter);
             if (waterUtilizationCharge.isPresent()) {
                 List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement.getId(), atStartOfQuarter, atEndOfQuarter);

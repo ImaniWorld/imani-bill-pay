@@ -81,6 +81,9 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
         List<ImaniBill> imaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement.getId());
 
         imaniBills.forEach(imaniBill -> {
+            // This will recompute utilization with scheduled fees again in case new utilizations have been added before attempting to add late fee
+            iWaterUtilizationService.computeUtilizationChargeWithSchdFees(imaniBill);
+
             // Lookup configured late fee by the utility provider on this agreement
             Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
 
@@ -115,18 +118,16 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
                 BillScheduleTypeE billScheduleTypeE = waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE();
 
                 if(billScheduleTypeE == BillScheduleTypeE.QUARTERLY) { // TODO we only currently support quarterly billing for water, make more flexible
-                    // Get the current water charge based on current utilization
-                    double chargeWithScheduledFees = iWaterUtilizationService.computeUtilizationChargeWithSchdFees(imaniBill);
-                    applyQuarterlyLateFee(chargeWithScheduledFees, imaniBill, lateBillPayFee);
+                    applyQuarterlyLateFee(imaniBill, lateBillPayFee);
                 }
             }
         }
     }
 
-    void applyQuarterlyLateFee(Double actualBillCharge, ImaniBill imaniBill, BillPayFee billPayFee) {
+    void applyQuarterlyLateFee(ImaniBill imaniBill, BillPayFee billPayFee) {
         // Very critical, we compute the fee amount off the original actual bill charge not the amount owed since that will keep changing
-        Double feeAmount = billPayFee.calculatFeeCharge(actualBillCharge);
-        double newAmountOwed = actualBillCharge + feeAmount;
+        Double feeAmount = billPayFee.calculatFeeCharge(imaniBill.getAmountOwed());
+        double newAmountOwed = imaniBill.getAmountOwed() + feeAmount;
         imaniBill.setAmountOwed(newAmountOwed);
         imaniBill.addImaniBillToFee(billPayFee, feeAmount);
     }
