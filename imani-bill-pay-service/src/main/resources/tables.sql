@@ -175,6 +175,15 @@ create table SewerServiceAgreement (
         primary key (ID)
     )
 
+create table AgreementToScheduleBillPayFee (
+       ID bigint not null auto_increment,
+        Enforced TINYINT,
+        SewerServiceAgreementID bigint,
+        WaterServiceAgreementID bigint,
+        BillPayFeeID bigint,
+        primary key (ID)
+    )
+
 create table WaterUtilization (
        ID bigint not null auto_increment,
         NumberOfGallonsUsed bigint,
@@ -239,8 +248,8 @@ create table ImaniBill (
         BillScheduleDate datetime,
         BillScheduleTypeE varchar(25) not null,
         BillServiceRenderedTypeE varchar(25) not null,
-        UserRecordID bigint not null,
         WaterServiceAgreementID bigint,
+        SewerServiceAgreementID bigint,
         TuitionAgreementID bigint,
         ChildCareAgreementID bigint,
         PropertyLeaseAgreementID bigint,

@@ -4,13 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.imani.bill.pay.domain.contact.ContactTypeE;
-import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
-import com.imani.bill.pay.domain.property.PropertyManager;
+import com.google.common.collect.ImmutableList;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Super class of all Imani BillPay API Gateway request implementations
@@ -21,18 +23,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class APIGatewayRequest<O> {
 
-
-
     protected O requestObject;
 
-    // User for which this request is being executed.
     protected UserRecord onBehalfOf;
 
-    // This is an optional field to track the user requesting this execution.
-    // IF its the same as the onBehalfOf then this should not be set.
-    protected UserRecord requestedBy;
-
     protected UserRecordLite userRecordLite;
+
+    private List<BillPayFee> billPayFees = new ArrayList<>();
 
 
     public APIGatewayRequest() {
@@ -41,10 +38,9 @@ public class APIGatewayRequest<O> {
 
     // Full blown constructor.  Customized for object instantiation through JacksonMapper
     @JsonCreator
-    public APIGatewayRequest(@JsonProperty("requestObject") O requestObject, @JsonProperty("onBehalfOf") UserRecord onBehalfOf, @JsonProperty("requestedBy") UserRecord requestedBy) {
+    public APIGatewayRequest(@JsonProperty("requestObject") O requestObject, @JsonProperty("onBehalfOf") UserRecord onBehalfOf) {
         this.requestObject = requestObject;
         this.onBehalfOf = onBehalfOf;
-        this.requestedBy = requestedBy;
     }
 
     public O getRequestObject() {
@@ -63,14 +59,6 @@ public class APIGatewayRequest<O> {
         this.onBehalfOf = onBehalfOf;
     }
 
-    public UserRecord getRequestedBy() {
-        return requestedBy;
-    }
-
-    public void setRequestedBy(UserRecord requestedBy) {
-        this.requestedBy = requestedBy;
-    }
-
     public UserRecordLite getUserRecordLite() {
         return userRecordLite;
     }
@@ -79,43 +67,22 @@ public class APIGatewayRequest<O> {
         this.userRecordLite = userRecordLite;
     }
 
+    public List<BillPayFee> getBillPayFees() {
+        return ImmutableList.copyOf(billPayFees);
+    }
+
+    public void addBillPayFee(BillPayFee billPayFee) {
+        Assert.notNull(billPayFee, "BillPayFee cannot be null");
+        billPayFees.add(billPayFee);
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("requestObject", requestObject)
                 .append("onBehalfOf", onBehalfOf)
-                .append("requestedBy", requestedBy)
                 .append("userRecordLite", userRecordLite)
                 .toString();
-    }
-
-    public static void main(String[] args) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        APIGatewayRequest<PropertyManager> propertyRequest = new APIGatewayRequest<PropertyManager>();
-
-        EmbeddedContactInfo embeddedContactInfo = EmbeddedContactInfo.builder()
-                .email("sales@tencentproperties.com")
-                .mobilePhone(2123458987L)
-                .phone(2123458987L)
-                .preferredContactType(ContactTypeE.Email)
-                .build();
-
-        PropertyManager propertyManager = PropertyManager.builder()
-                .name("Tencent Property Holdings")
-                .embeddedContactInfo(embeddedContactInfo)
-                .build();
-        propertyRequest.setRequestObject(propertyManager);
-
-        try {
-            String s = objectMapper.writeValueAsString(propertyRequest);
-            System.out.println("JSON String = " + s);
-            
-            // Convert back to Object
-            APIGatewayRequest<PropertyManager> newObj =  objectMapper.readValue(s, APIGatewayRequest.class);
-            //System.out.println("newObj = " + newObj);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
 }

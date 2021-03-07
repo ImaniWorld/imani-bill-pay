@@ -1,9 +1,14 @@
 package com.imani.bill.pay.service.utility;
 
+import com.imani.bill.pay.domain.agreement.AgreementToScheduleBillPayFee;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
+import com.imani.bill.pay.domain.agreement.repository.IAgreementToBillPayFeeRepository;
+import com.imani.bill.pay.domain.billing.BillPayFee;
+import com.imani.bill.pay.domain.billing.FeeTypeE;
 import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.business.repository.IBusinessRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
+import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.geographical.Community;
 import com.imani.bill.pay.domain.geographical.repository.ICommunityRepository;
 import com.imani.bill.pay.domain.property.Property;
@@ -11,7 +16,9 @@ import com.imani.bill.pay.domain.property.repository.IPropertyRepository;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import com.imani.bill.pay.domain.utility.EmbeddedUtilityService;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.repository.IUtilityServiceAreaRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
 import com.imani.bill.pay.service.util.DateTimeUtil;
@@ -22,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,6 +37,8 @@ import java.util.Optional;
  */
 @Service(WaterSvcAgreementService.SPRING_BEAN)
 public class WaterSvcAgreementService implements IWaterSvcAgreementService {
+
+
 
     @Autowired
     private IUserRecordRepository iUserRecordRepository;
@@ -43,10 +53,16 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
     private ICommunityRepository iCommunityRepository;
 
     @Autowired
+    private IUtilityServiceAreaRepository iUtilityServiceAreaRepository;
+
+    @Autowired
     private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
     @Autowired
     private IWaterUtilizationRepository iWaterUtilizationRepository;
+
+    @Autowired
+    private IAgreementToBillPayFeeRepository iAgreementToBillPayFeeRepository;
 
     @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
@@ -59,16 +75,22 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
 
     @Transactional
     @Override
-    public void createAgreement(WaterServiceAgreement waterServiceAgreement, ExecutionResult executionResult) {
-        Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-        Assert.isNull(waterServiceAgreement.getId(), "WaterServiceAgreement is already persisted");
+    public void createAgreement(ExecutionResult<WaterServiceAgreement> executionResult, List<BillPayFee> billPayFees) {
+        Assert.notNull(executionResult, "ExecutionResult cannot be null");
+        Assert.notNull(executionResult.getResult().get(), "WaterServiceAgreement cannot be null");
+        Assert.isNull(executionResult.getResult().get().getId(), "WaterServiceAgreement is already persisted");
+
+        LOGGER.info("Creating new WaterServiceAgreement with billPayFees...");
+
+        WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
 
         // Fetch persisted pieces to make sure that they are all valid
         Business utilityProviderBusiness = iBusinessRepository.getOne(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
 
 
-        // Validate to make sure all good to proceed
+        // Execute validations before proceeding
         validateBusiness(utilityProviderBusiness, executionResult);
+        validateBillPayFees(billPayFees, executionResult);
 
         if(!executionResult.hasValidationAdvice()) {
             // Try to associate this water service agreement with a user, property, business or community
@@ -76,6 +98,7 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
             Optional<Property> property = findWaterSvcProperty(waterServiceAgreement);
             Optional<Business> agreementBusiness = findWaterSvcBusiness(waterServiceAgreement);
             Optional<Community> community = findWaterSvcCommunity(waterServiceAgreement);
+            Optional<UtilityServiceArea> utilityServiceArea = findWaterSvcUtilityServiceArea(waterServiceAgreement);
 
             EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
                     .agreementInForce(true)
@@ -94,13 +117,36 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
                         .svcCustomerAcctID(waterServiceAgreement.getEmbeddedUtilityService().getSvcCustomerAcctID())
                         .svcDescription(waterServiceAgreement.getEmbeddedUtilityService().getSvcDescription())
                         .build();
+                enrichUtilityService(embeddedUtilityService, utilityServiceArea);
 
                 WaterServiceAgreement newWaterServiceAgreement = WaterServiceAgreement.builder()
                         .embeddedAgreement(embeddedAgreement)
                         .embeddedUtilityService(embeddedUtilityService)
                         .nbrOfGallonsPerFixedCost(waterServiceAgreement.getNbrOfGallonsPerFixedCost())
                         .build();
+
+                // Apply all the late fees
+                for(BillPayFee billPayFee : billPayFees) {
+                    AgreementToScheduleBillPayFee agreementToScheduleBillPayFee = AgreementToScheduleBillPayFee.builder()
+                            .waterServiceAgreement(newWaterServiceAgreement)
+                            .billPayFee(billPayFee)
+                            .enforced(true)
+                            .build();
+                    newWaterServiceAgreement.addAgreementToScheduleBillPayFee(agreementToScheduleBillPayFee);
+                }
+
                 iWaterServiceAgreementRepository.save(newWaterServiceAgreement);
+            }
+        }
+    }
+
+    void validateBillPayFees(List<BillPayFee> billPayFees, ExecutionResult<WaterServiceAgreement> executionResult) {
+        LOGGER.info("Validating bill pay fee's to be applied on agreement.  Only scheduled fees allowed");
+
+        for(BillPayFee billPayFee : billPayFees) {
+            if(FeeTypeE.Scheduled_Fee != billPayFee.getFeeTypeE()) {
+                executionResult.addValidationAdvice(ValidationAdvice.newInstance("Only Scheduled fee's can be applied to an agreement"));
+                break;
             }
         }
     }
@@ -127,6 +173,15 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
         if (waterServiceAgreement.getEmbeddedAgreement().getAgreementCommunity() != null) {
             Community community = iCommunityRepository.getOne(waterServiceAgreement.getEmbeddedAgreement().getAgreementCommunity().getId());
             return Optional.of(community);
+        }
+
+        return Optional.empty();
+    }
+
+    Optional<UtilityServiceArea> findWaterSvcUtilityServiceArea(WaterServiceAgreement waterServiceAgreement) {
+        if (waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea() != null) {
+            UtilityServiceArea utilityServiceArea = iUtilityServiceAreaRepository.getOne(waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea().getId());
+            return Optional.of(utilityServiceArea);
         }
 
         return Optional.empty();

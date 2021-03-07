@@ -86,6 +86,8 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
         Assert.notNull(imaniBill.getWaterServiceAgreement(), "WaterServiceAgreement on bill cannot be null");
 
+        WaterServiceAgreement waterServiceAgreement = imaniBill.getWaterServiceAgreement();
+
         // Get and update the current water utilization charge
         WaterUtilizationCharge waterUtilizationCharge = computeUtilizationCharge(imaniBill);
 
@@ -101,7 +103,7 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         } else {
             // Compute and apply scheduled fees. Look up only the scheduled fees here. Late fees are applied seperately
             BillScheduleTypeE billScheduleTypeE = imaniBill.getWaterServiceAgreement().getEmbeddedAgreement().getBillScheduleTypeE();
-            List<BillPayFee> billPayFees = iBillPayFeeRepository.findBillPayFeeBySchedule(imaniBill.getWaterServiceAgreement().getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.Scheduled_Fee, billScheduleTypeE);
+            List<BillPayFee> billPayFees = waterServiceAgreement.getScheduledBillPayFees();
             chargeWithScheduledFees = computeTotalChargeWithFees(billPayFees, waterUtilizationCharge, imaniBill);
         }
 
@@ -165,6 +167,9 @@ public class WaterUtilizationService implements IWaterUtilizationService {
             double finalChargeOnUtilization = (totalGallonsUsed * fixCostPer1000Galls) / 1000;
             waterUtilizationCharge.setTotalGallonsUsed(totalGallonsUsed);
             waterUtilizationCharge.setCharge(finalChargeOnUtilization);
+        } else {
+            waterUtilizationCharge.setTotalGallonsUsed(0L);
+            waterUtilizationCharge.setCharge(0d);
         }
     }
 

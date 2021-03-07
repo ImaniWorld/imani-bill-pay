@@ -9,10 +9,9 @@ import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.leasemanagement.PropertyLeaseAgreement;
 import com.imani.bill.pay.domain.payment.EmbeddedPayment;
 import com.imani.bill.pay.domain.payment.record.ImaniBillPayRecord;
-import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
@@ -64,12 +63,6 @@ public class ImaniBill extends AuditableRecord {
     private DateTime billScheduleDate;
 
 
-    // Tracks the user that this bill was generated for
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "UserRecordID", nullable = false)
-    private UserRecord billedUser;
-
-
     // Tracks optional LeaseAgreement linked to this generated bill. Only IF residential leases
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ChildCareAgreementID")
@@ -90,6 +83,11 @@ public class ImaniBill extends AuditableRecord {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "WaterServiceAgreementID")
     private WaterServiceAgreement waterServiceAgreement;
+
+    // Tracks optional UtilityServiceAgreement linked to this generated bill.
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "SewerServiceAgreementID")
+    private SewerServiceAgreement sewerServiceAgreement;
 
 
     // Tracks all additional fees that should be applied to this bill
@@ -153,14 +151,6 @@ public class ImaniBill extends AuditableRecord {
         this.billScheduleDate = billScheduleDate;
     }
 
-    public UserRecord getBilledUser() {
-        return billedUser;
-    }
-
-    public void setBilledUser(UserRecord billedUser) {
-        this.billedUser = billedUser;
-    }
-
     public ChildCareAgreement getChildCareAgreement() {
         return childCareAgreement;
     }
@@ -191,6 +181,14 @@ public class ImaniBill extends AuditableRecord {
 
     public void setWaterServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
         this.waterServiceAgreement = waterServiceAgreement;
+    }
+
+    public SewerServiceAgreement getSewerServiceAgreement() {
+        return sewerServiceAgreement;
+    }
+
+    public void setSewerServiceAgreement(SewerServiceAgreement sewerServiceAgreement) {
+        this.sewerServiceAgreement = sewerServiceAgreement;
     }
 
     public boolean isPaidInFull() {
@@ -283,7 +281,6 @@ public class ImaniBill extends AuditableRecord {
                 .amountOwed(amountOwed)
                 .amountPaid(amountPaid)
                 .billPurposeExplained(billPurposeExplained)
-                .userBilled(billedUser.toUserRecordLite())
                 .build();
 
         // Get any applied fees to buid a fee explanation
@@ -303,17 +300,18 @@ public class ImaniBill extends AuditableRecord {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+        return new ToStringBuilder(this)
                 .append("id", id)
                 .append("amountOwed", amountOwed)
                 .append("amountPaid", amountPaid)
                 .append("billScheduleTypeE", billScheduleTypeE)
                 .append("billServiceRenderedTypeE", billServiceRenderedTypeE)
                 .append("billScheduleDate", billScheduleDate)
-                .append("billedUser", billedUser)
                 .append("childCareAgreement", childCareAgreement)
                 .append("propertyLeaseAgreement", propertyLeaseAgreement)
                 .append("tuitionAgreement", tuitionAgreement)
+                .append("waterServiceAgreement", waterServiceAgreement)
+                .append("sewerServiceAgreement", sewerServiceAgreement)
                 .toString();
     }
 
@@ -349,11 +347,6 @@ public class ImaniBill extends AuditableRecord {
             return this;
         }
 
-        public Builder billedUser(UserRecord billedUser) {
-            imaniBill.billedUser = billedUser;
-            return this;
-        }
-
         public Builder childCareAgreement(ChildCareAgreement childCareAgreement) {
             imaniBill.childCareAgreement = childCareAgreement;
             return this;
@@ -376,6 +369,11 @@ public class ImaniBill extends AuditableRecord {
 
         public Builder waterServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
             imaniBill.waterServiceAgreement = waterServiceAgreement;
+            return this;
+        }
+
+        public Builder sewerServiceAgreement(SewerServiceAgreement sewerServiceAgreement) {
+            imaniBill.sewerServiceAgreement = sewerServiceAgreement;
             return this;
         }
 

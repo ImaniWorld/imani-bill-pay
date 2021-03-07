@@ -96,7 +96,6 @@ public class TuitionBillGenerationService implements IBillGenerationService {
                 .billScheduleDate(dateTimeAtStartOfMonth)
                 .billScheduleTypeE(tuitionAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
                 .billServiceRenderedTypeE(BillServiceRenderedTypeE.Tuition)
-                .billedUser(userRecord)
                 .amountOwed(tuitionAgreement.getEmbeddedAgreement().getFixedCost())
                 .tuitionAgreement(tuitionAgreement)
                 .amountPaid(0.0)

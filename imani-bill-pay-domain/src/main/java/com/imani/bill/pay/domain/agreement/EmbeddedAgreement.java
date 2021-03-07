@@ -67,7 +67,7 @@ public class EmbeddedAgreement {
 
     // Optional UserRecord for agreement.  User will be responsible for payments.
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "AgreementUserRecordID", nullable = false)
+    @JoinColumn(name = "AgreementUserRecordID")
     private UserRecord agreementUserRecord;
 
     // Optional Community for agreement.  Community will be responsible for payments.
@@ -176,6 +176,32 @@ public class EmbeddedAgreement {
 
     public void setAgreementCommunity(Community agreementCommunity) {
         this.agreementCommunity = agreementCommunity;
+    }
+
+    public boolean isBilledEntityUser() {
+        return agreementUserRecord != null;
+    }
+
+    public boolean isBilledEntityBusiness() {
+        return agreementBusiness != null;
+    }
+
+    public boolean isBilledEntityCommunity() {
+        return agreementCommunity != null;
+    }
+
+    public String getBilledEntity() {
+        StringBuffer sb = new StringBuffer("");
+
+        if(isBilledEntityUser()) {
+            sb.append("User(").append(agreementUserRecord.getEmbeddedContactInfo().getEmail()).append(")");
+        } else if(isBilledEntityBusiness()) {
+            sb.append("Business(").append(agreementBusiness.getName()).append(")");
+        } else if(isBilledEntityCommunity()) {
+            sb.append("Community(").append(agreementCommunity.getCommunityName()).append(")");
+        }
+
+        return sb.toString();
     }
 
     @Override

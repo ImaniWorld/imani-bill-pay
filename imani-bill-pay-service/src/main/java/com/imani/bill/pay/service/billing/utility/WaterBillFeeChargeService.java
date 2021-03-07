@@ -98,7 +98,7 @@ public class WaterBillFeeChargeService implements IBillFeeChargeService<WaterSer
                     LOGGER.info("Detected that a late fee already applied to the bill in current quarter");
                 }
             } else {
-                LOGGER.warn("ImaniBill[ID: {}] is late however no configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
+                LOGGER.warn("No configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
             }
         });
     }

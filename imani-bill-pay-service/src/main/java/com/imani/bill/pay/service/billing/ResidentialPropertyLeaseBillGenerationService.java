@@ -113,7 +113,6 @@ public class ResidentialPropertyLeaseBillGenerationService implements IBillGener
                 .billScheduleDate(dateTimeAtStartOfMonth)
                 .billScheduleTypeE(BillScheduleTypeE.MONTHLY)
                 .billServiceRenderedTypeE(BillServiceRenderedTypeE.Residential_Lease)
-                .billedUser(userRecord)
                 .amountOwed(propertyLeaseAgreement.getEmbeddedAgreement().getFixedCost())
                 .propertyLeaseAgreement(propertyLeaseAgreement)
                 .amountPaid(0.0)

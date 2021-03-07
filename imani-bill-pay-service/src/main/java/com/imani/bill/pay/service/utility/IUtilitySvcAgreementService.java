@@ -8,6 +8,8 @@ import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.geographical.Community;
 import com.imani.bill.pay.domain.property.Property;
 import com.imani.bill.pay.domain.user.UserRecord;
+import com.imani.bill.pay.domain.utility.EmbeddedUtilityService;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 
 import java.util.Optional;
 
@@ -44,6 +46,12 @@ public interface IUtilitySvcAgreementService {
             if(community.isPresent()) {
                 embeddedAgreement.setAgreementCommunity(community.get());
             }
+        }
+    }
+
+    default void enrichUtilityService(EmbeddedUtilityService embeddedUtilityService, Optional<UtilityServiceArea> utilityServiceArea) {
+        if(utilityServiceArea.isPresent()) {
+            embeddedUtilityService.setUtilityServiceArea(utilityServiceArea.get());
         }
     }
 

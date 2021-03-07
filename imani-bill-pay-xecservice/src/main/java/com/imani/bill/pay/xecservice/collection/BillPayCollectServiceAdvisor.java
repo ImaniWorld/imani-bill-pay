@@ -4,7 +4,6 @@ import com.imani.bill.pay.domain.APICallTimeRecord;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
-import com.imani.bill.pay.domain.execution.ExecutionError;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.payment.ACHPaymentInfo;
@@ -144,26 +143,26 @@ public class BillPayCollectServiceAdvisor {
     }
 
     void bankBalanceAdvice(Double amtBeingPaid, ImaniBillPayRecord imaniBillPayRecord, ExecutionResult<ImaniBillExplained> paymentExecutionResult) {
-        UserRecord userRecord = imaniBillPayRecord.getImaniBill().getBilledUser();
-
-        APICallTimeRecord apiCallTimeRecord = APICallTimeRecord.start();
-        Optional<PlaidBankAcctBalance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
-        apiCallTimeRecord.endApiCall();
-
-        System.out.println("\nbalance = " + balance + "\n");
-
-        if(balance.isPresent() && !balance.get().hasAvailableBalanceForPayment(amtBeingPaid)) {
-            Double acctBalance = balance.get().getAvailable();
-            LOGGER.info("Matching account available balance is not enough to cover transaction amount");
-            StringBuffer sb = new StringBuffer("You available account balance: ")
-                    .append(acctBalance)
-                    .append(" is not enough to cover payment");
-            paymentExecutionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
-        } else {
-            LOGGER.warn("Failed to retrieve bank account balance for user: {}", userRecord.getEmbeddedContactInfo().getEmail());
-            StringBuffer sb = new StringBuffer("Imani BillPay was unable to verify your available balance.");
-            paymentExecutionResult.addExecutionError(ExecutionError.of(sb.toString()));
-        }
+//        UserRecord userRecord = imaniBillPayRecord.getImaniBill().getBilledUser();
+//
+//        APICallTimeRecord apiCallTimeRecord = APICallTimeRecord.start();
+//        Optional<PlaidBankAcctBalance> balance = iPlaidAccountBalanceService.getACHPaymentInfoBalances(userRecord);
+//        apiCallTimeRecord.endApiCall();
+//
+//        System.out.println("\nbalance = " + balance + "\n");
+//
+//        if(balance.isPresent() && !balance.get().hasAvailableBalanceForPayment(amtBeingPaid)) {
+//            Double acctBalance = balance.get().getAvailable();
+//            LOGGER.info("Matching account available balance is not enough to cover transaction amount");
+//            StringBuffer sb = new StringBuffer("You available account balance: ")
+//                    .append(acctBalance)
+//                    .append(" is not enough to cover payment");
+//            paymentExecutionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+//        } else {
+//            LOGGER.warn("Failed to retrieve bank account balance for user: {}", userRecord.getEmbeddedContactInfo().getEmail());
+//            StringBuffer sb = new StringBuffer("Imani BillPay was unable to verify your available balance.");
+//            paymentExecutionResult.addExecutionError(ExecutionError.of(sb.toString()));
+//        }
     }
 
 }

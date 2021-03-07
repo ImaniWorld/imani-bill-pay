@@ -64,12 +64,12 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
             // Check to see IF a bill has already been created for the start of the quarter on this agreement
             // For Water bill in this quarter, it will be due at the start of next quarter
             DateTime billScheduleDate = iDateTimeUtil.getDateTimeAStartOfNextQuarter();
-            Optional<ImaniBill> imaniBill = imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, billScheduleDate);
+            Optional<ImaniBill> imaniBill = getImaniBillForEntity(waterServiceAgreement, billScheduleDate);
 
             if(!imaniBill.isPresent()) {
                 // Compute charges with fees and persist bill.
                 LOGGER.info("Generating new ImaniBill for quarter Schedule-Date[{}] ", billScheduleDate);
-                ImaniBill persistedBill = generateImaniBill(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, billScheduleDate);
+                ImaniBill persistedBill = generateImaniBill(waterServiceAgreement, billScheduleDate);
                 iWaterUtilizationService.computeUtilizationChargeWithSchdFees(persistedBill);
             } else {
                 LOGGER.info("ImaniBill already created in current quater.");
@@ -80,13 +80,31 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
         return false;
     }
 
-    private ImaniBill generateImaniBill(UserRecord userRecord, WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate) {
+    private Optional<ImaniBill> getImaniBillForEntity(WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate) {
+        if(waterServiceAgreement.getEmbeddedAgreement().isBilledEntityUser()) {
+            LOGGER.info("Agreement is billed to User. Finding existing bill in current Quarter....");
+            return imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementUserRecord(), waterServiceAgreement, billScheduleDate);
+        } else if(waterServiceAgreement.getEmbeddedAgreement().isBilledEntityBusiness()) {
+            LOGGER.info("Agreement is billed to a Business. Finding existing bill in current Quarter....");
+            return imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementBusiness(), waterServiceAgreement, billScheduleDate);
+        } else if(waterServiceAgreement.getEmbeddedAgreement().isBilledEntityCommunity()) {
+            LOGGER.info("Agreement is billed to a Community. Finding existing bill in current Quarter....");
+            return imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedAgreement().getAgreementCommunity(), waterServiceAgreement, billScheduleDate);
+        } else if(waterServiceAgreement.getEmbeddedUtilityService().hasBilledUtilityServiceArea()) {
+            LOGGER.info("Agreement is billed at a UtilityServiceArea. Finding existing bill in current Quarter....");
+            return imaniBillWaterSvcAgreementRepository.getImaniBillForAgreement(waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea(), waterServiceAgreement, billScheduleDate);
+        }
+
+        LOGGER.info("No prior saved ImaniBill found for WaterServiceAgreement");
+        return Optional.empty();
+    }
+
+    private ImaniBill generateImaniBill(WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate) {
         ImaniBill imaniBill = ImaniBill.builder()
                 .amountPaid(0d)
                 .billScheduleDate(billScheduleDate)
                 .billScheduleTypeE(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
-                .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility)
-                .billedUser(userRecord)
+                .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility_Water)
                 .waterServiceAgreement(waterServiceAgreement)
                 .build();
         return imaniBill;

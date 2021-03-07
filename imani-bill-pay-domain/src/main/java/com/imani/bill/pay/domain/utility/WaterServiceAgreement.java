@@ -8,8 +8,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.agreement.AgreementToScheduleBillPayFee;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
@@ -20,7 +22,9 @@ import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,6 +54,10 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
     @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "waterServiceAgreement")
     private Set<WaterUtilization> waterUtilizations = new HashSet<>();
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "waterServiceAgreement")
+    private Set<AgreementToScheduleBillPayFee> agreementToScheduleBillPayFees = new HashSet<>();
+
 
     public WaterServiceAgreement() {
 
@@ -98,10 +106,27 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
         waterUtilizations.add(waterUtilization);
     }
 
+    public Set<AgreementToScheduleBillPayFee> getAgreementToScheduleBillPayFees() {
+        return ImmutableSet.copyOf(agreementToScheduleBillPayFees);
+    }
+
+    public List<BillPayFee> getScheduledBillPayFees() {
+        final List<BillPayFee> billPayFees = new ArrayList<>();
+        agreementToScheduleBillPayFees.forEach(agreementToScheduleBillPayFee -> {
+            billPayFees.add(agreementToScheduleBillPayFee.getBillPayFee());
+        });
+        return billPayFees;
+    }
+
+    public void addAgreementToScheduleBillPayFee(AgreementToScheduleBillPayFee agreementToScheduleBillPayFee) {
+        Assert.notNull(agreementToScheduleBillPayFee, "AgreementToScheduleBillPayFee cannot be null");
+        agreementToScheduleBillPayFees.add(agreementToScheduleBillPayFee);
+    }
+
     @Override
     public String describeAgreement() {
-        StringBuffer sb = new StringBuffer("WaterServiceAgreement[BillPayer: ")
-                .append(embeddedAgreement.getAgreementUserRecord().getEmbeddedContactInfo().getEmail())
+        StringBuffer sb = new StringBuffer("WaterServiceAgreement[Billed Entity: ")
+                .append(embeddedAgreement.getBilledEntity())
                 .append("; FixedCost: ")
                 .append(embeddedAgreement.getFixedCost())
                 .append("; numberOfGallonsPerFixedCost: ")
@@ -143,6 +168,11 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
         public Builder nbrOfGallonsPerFixedCost(Long nbrOfGallonsPerFixedCost) {
             waterServiceAgreement.nbrOfGallonsPerFixedCost = nbrOfGallonsPerFixedCost;
+            return this;
+        }
+
+        public Builder agreementToScheduleBillPayFee(AgreementToScheduleBillPayFee agreementToScheduleBillPayFee) {
+            waterServiceAgreement.addAgreementToScheduleBillPayFee(agreementToScheduleBillPayFee);
             return this;
         }
 

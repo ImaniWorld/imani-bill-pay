@@ -33,10 +33,6 @@ public class UtilityServiceArea extends AuditableRecord {
     @Column(name="AreaDescription", length = 400)
     private String areaDescription;
 
-    @Column(name="UtilityTypeE", nullable=false, length=25)
-    @Enumerated(EnumType.STRING)
-    private UtilityTypeE utilityTypeE;
-
     @Column(name="Active", nullable = true, columnDefinition = "TINYINT", length = 1)
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean active;
@@ -82,14 +78,6 @@ public class UtilityServiceArea extends AuditableRecord {
         this.areaDescription = areaDescription;
     }
 
-    public UtilityTypeE getUtilityTypeE() {
-        return utilityTypeE;
-    }
-
-    public void setUtilityTypeE(UtilityTypeE utilityTypeE) {
-        this.utilityTypeE = utilityTypeE;
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -128,7 +116,6 @@ public class UtilityServiceArea extends AuditableRecord {
                 .append("id", id)
                 .append("areaName", areaName)
                 .append("areaDescription", areaDescription)
-                .append("utilityTypeE", utilityTypeE)
                 .append("active", active)
                 .append("property", property)
                 .append("business", business)

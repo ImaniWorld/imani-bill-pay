@@ -73,6 +73,10 @@ public class EmbeddedUtilityService {
         this.utilityServiceArea = utilityServiceArea;
     }
 
+    public boolean hasBilledUtilityServiceArea() {
+        return utilityServiceArea != null;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

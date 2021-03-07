@@ -1,7 +1,6 @@
 package com.imani.bill.pay.service.billing;
 
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
-import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,7 +60,7 @@ public class ImaniBillService implements IImaniBillService {
 
         // Using Fetch records from repository object to load all bill payment records for this bill
         LOGGER.info("Finding Current_Month[{}] BillServiceRenderedTypeE[{}]  for user: {}", dateString, billServiceRenderedTypeE, userRecord.getEmbeddedContactInfo().getEmail());
-        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, billServiceRenderedTypeE);
+        Optional<ImaniBill> imaniBill = Optional.empty();//imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, billServiceRenderedTypeE);
         return imaniBill;
     }
 
@@ -75,7 +75,7 @@ public class ImaniBillService implements IImaniBillService {
         String end = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfCurrentMonth);
 
         LOGGER.info("Finding entire YTD residential property lease bills for User: {} between [{} - {}]", userRecord.getEmbeddedContactInfo().getEmail(), start, end);
-        Set<ImaniBill> imaniBills = imaniBillRepository.getYTDImaniBillsFetchRecords(userRecord, atStartOfYear, dateTimeAtStartOfCurrentMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
+        Set<ImaniBill> imaniBills =  new HashSet<>();//imaniBillRepository.getYTDImaniBillsFetchRecords(userRecord, atStartOfYear, dateTimeAtStartOfCurrentMonth, BillScheduleTypeE.MONTHLY, BillServiceRenderedTypeE.Residential_Lease);
         return imaniBills;
     }
 
@@ -91,7 +91,7 @@ public class ImaniBillService implements IImaniBillService {
         String end = iDateTimeUtil.toDisplayFriendlyNoTime(atEndOfYear);
 
         LOGGER.info("Finding entire YTD unpaid tuition agreement bills for User: {} between [{} - {}]", userRecord.getEmbeddedContactInfo().getEmail(), start, end);
-        return imaniBillRepository.getYTDUnPaidImaniBillsForUser(userRecord, atStartOfYear, atEndOfYear, tuitionAgreement);
+        return new HashSet<>();//imaniBillRepository.getYTDUnPaidImaniBillsForUser(userRecord, atStartOfYear, atEndOfYear, tuitionAgreement);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ImaniBillService implements IImaniBillService {
         String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
 
         LOGGER.info("Finding current month({}) TuitionAgreement[ID: {}] bill for User => {}", dateString, tuitionAgreement.getId(), userRecord.getEmbeddedContactInfo().getEmail());
-        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillForTuitionAndUser(userRecord, tuitionAgreement);
+        Optional<ImaniBill> imaniBill = Optional.empty();//imaniBillRepository.getImaniBillForTuitionAndUser(userRecord, tuitionAgreement);
         return imaniBill;
     }
 

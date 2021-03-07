@@ -38,7 +38,7 @@ public class UtilityServiceAgreementController {
     public APIGatewayResponse newWaterSvcAgreement(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
         LOGGER.info("Received a request to create a new Water Service Agreement.");
         ExecutionResult<WaterServiceAgreement> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
-        iWaterSvcAgreementExecService.processWaterSvcAgreement(executionResult);
+        iWaterSvcAgreementExecService.processWaterSvcAgreement(executionResult, apiGatewayRequest.getBillPayFees());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

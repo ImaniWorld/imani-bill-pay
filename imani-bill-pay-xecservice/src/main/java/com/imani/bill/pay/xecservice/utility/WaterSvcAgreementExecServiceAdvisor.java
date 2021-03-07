@@ -1,15 +1,19 @@
 package com.imani.bill.pay.xecservice.utility;
 
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.contact.Address;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
+import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author manyce400
@@ -22,17 +26,17 @@ public class WaterSvcAgreementExecServiceAdvisor {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterSvcAgreementExecServiceAdvisor.class);
 
-    @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterSvcAgreement(..)) and args(executionResult)")
-    public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterServiceAgreement> executionResult) {
-        LOGGER.debug("Executing advice on waterServiceAgreementExecutionResult => {}", executionResult);
+    @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterSvcAgreement(..)) and args(executionResult, billPayFees)")
+    public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterServiceAgreement> executionResult, List<BillPayFee> billPayFees) {
+        LOGGER.info("Executing AOP advice on new WaterServiceAgreement request....");
 
+        // Get agreement and perform basic validations on the data that we have been given
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
-        validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), executionResult);
         validateUtilityServiceProvider(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), executionResult);
-//        validateServiceAddress(waterServiceAgreement.getEmbeddedUtilityService().getSvcCustomerAddress(), executionResult);
+        validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea(), executionResult);
     }
 
-    void validateEmbeddedAgreement(EmbeddedAgreement embeddedAgreement, ExecutionResult<WaterServiceAgreement> executionResult) {
+    void validateEmbeddedAgreement(EmbeddedAgreement embeddedAgreement, UtilityServiceArea utilityServiceArea, ExecutionResult<WaterServiceAgreement> executionResult) {
         if(embeddedAgreement == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement with details is required."));
         } else {
@@ -51,8 +55,9 @@ public class WaterSvcAgreementExecServiceAdvisor {
             if(embeddedAgreement.getAgreementUserRecord() == null
                     && embeddedAgreement.getAgreementBusiness() == null
                     && embeddedAgreement.getAgreementProperty() == null
-                    && embeddedAgreement.getAgreementCommunity() == null) {
-                executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement is missing details on Agreement-Entity[User, Business, Property, Community]"));
+                    && embeddedAgreement.getAgreementCommunity() == null
+                    && utilityServiceArea == null) {
+                executionResult.addValidationAdvice(ValidationAdvice.newInstance("EmbeddedAgreement is missing details on Agreement-Entity[User, Business, Property, Community, UtilityServiceArea]"));
             }
         }
     }
