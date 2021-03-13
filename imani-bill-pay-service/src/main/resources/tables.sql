@@ -135,7 +135,6 @@ create table WaterServiceAgreement (
        UtilityProviderBusinessID bigint not null,
        SvcCustomerAcctID varchar(100),
        SvcDescription varchar(300),
-       UtilityServiceAreaID bigint,
         FixedCost double precision,
         NbrOfGallonsPerFixedCost bigint,
         NumberOfDaysTillLate integer,
@@ -147,6 +146,7 @@ create table WaterServiceAgreement (
         AgreementUserRecordID bigint not null,
         AgreementPropertyID bigint,
         AgreementBusinessID bigint,
+        UtilityServiceAreaID bigint,
         AgreementCommunityID bigint,
         CreateDate datetime not null,
         ModifyDate datetime,
@@ -189,6 +189,7 @@ create table WaterUtilization (
         NumberOfGallonsUsed bigint,
         Description varchar(200),
         WaterServiceAgreementID bigint not null,
+        UtilizationDate datetime not null,
         CreateDate datetime not null,
         ModifyDate datetime,
         primary key (ID)

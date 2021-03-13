@@ -133,6 +133,10 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
                 .append(nbrOfGallonsPerFixedCost)
                 .append("; Business: ")
                 .append(embeddedUtilityService.getUtilityProviderBusiness().getName())
+                .append("; Effective Date: ")
+                .append(embeddedAgreement.getEffectiveDate())
+                .append("; Termination Date: ")
+                .append(embeddedAgreement.getTerminationDate())
                 .append("]");
         return sb.toString();
     }

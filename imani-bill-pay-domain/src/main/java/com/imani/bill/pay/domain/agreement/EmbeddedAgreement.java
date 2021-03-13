@@ -10,7 +10,6 @@ import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 
@@ -49,7 +48,6 @@ public class EmbeddedAgreement {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "EffectiveDate", nullable = false)
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @CreatedDate
     private DateTime effectiveDate;
 
 
@@ -57,7 +55,6 @@ public class EmbeddedAgreement {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "TerminationDate")
     @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    @CreatedDate
     private DateTime terminationDate;
 
 

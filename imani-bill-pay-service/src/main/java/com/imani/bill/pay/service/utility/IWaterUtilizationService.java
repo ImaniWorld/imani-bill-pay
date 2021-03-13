@@ -14,6 +14,6 @@ public interface IWaterUtilizationService {
 
     public double computeUtilizationChargeWithSchdFees(ImaniBill imaniBill);
 
-    public void logWaterUtilization(WaterUtilization waterUtilization, ExecutionResult executionResult);
+    public void logWaterUtilization(ExecutionResult<WaterUtilization> executionResult);
 
 }

@@ -1,9 +1,11 @@
 package com.imani.bill.pay.domain.utility;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 
@@ -27,10 +29,14 @@ public class WaterUtilization extends AuditableRecord {
     @Column(name="Description", length = 200)
     private String description;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "WaterServiceAgreementID", nullable = false)
     private WaterServiceAgreement waterServiceAgreement;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "UtilizationDate", nullable = false)
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime utilizationDate;
 
     public WaterUtilization() {
 
@@ -68,6 +74,14 @@ public class WaterUtilization extends AuditableRecord {
         this.waterServiceAgreement = waterServiceAgreement;
     }
 
+    public DateTime getUtilizationDate() {
+        return utilizationDate;
+    }
+
+    public void setUtilizationDate(DateTime utilizationDate) {
+        this.utilizationDate = utilizationDate;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -75,6 +89,7 @@ public class WaterUtilization extends AuditableRecord {
                 .append("numberOfGallonsUsed", numberOfGallonsUsed)
                 .append("description", description)
                 .append("waterServiceAgreement", waterServiceAgreement)
+                .append("utilizationDate", utilizationDate)
                 .toString();
     }
 
@@ -97,6 +112,11 @@ public class WaterUtilization extends AuditableRecord {
 
         public Builder waterServiceAgreement(WaterServiceAgreement waterServiceAgreement) {
             waterUtilization.waterServiceAgreement = waterServiceAgreement;
+            return this;
+        }
+
+        public Builder utilizationDate(DateTime utilizationDate) {
+            waterUtilization.utilizationDate = utilizationDate;
             return this;
         }
 

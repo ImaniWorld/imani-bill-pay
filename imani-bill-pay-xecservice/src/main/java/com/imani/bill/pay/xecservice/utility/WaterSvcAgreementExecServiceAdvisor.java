@@ -8,6 +8,7 @@ import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.WaterUtilization;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -28,7 +29,7 @@ public class WaterSvcAgreementExecServiceAdvisor {
 
     @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterSvcAgreement(..)) and args(executionResult, billPayFees)")
     public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterServiceAgreement> executionResult, List<BillPayFee> billPayFees) {
-        LOGGER.info("Executing AOP advice on new WaterServiceAgreement request....");
+        LOGGER.info("Executing AOP advice on new WaterServiceAgreement creation request");
 
         // Validate the billpay fees
         validateBillPayFees(billPayFees, executionResult);
@@ -37,6 +38,25 @@ public class WaterSvcAgreementExecServiceAdvisor {
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
         validateUtilityServiceProvider(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), executionResult);
         validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea(), executionResult);
+    }
+
+    @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterUtilization(..)) and args(executionResult)")
+    public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterUtilization> executionResult) {
+        LOGGER.info("Executing AOP advice on new water utilization");
+
+        WaterUtilization waterUtilization = executionResult.getResult().get();
+
+        if(waterUtilization.getWaterServiceAgreement() == null) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing a WaterServiceAgreement"));
+        }
+
+        if(waterUtilization.getNumberOfGallonsUsed() == null) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing number of gallons used"));
+        }
+
+        if(waterUtilization.getUtilizationDate() == null) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing a utilization date"));
+        }
     }
 
     void validateEmbeddedAgreement(EmbeddedAgreement embeddedAgreement, UtilityServiceArea utilityServiceArea, ExecutionResult<WaterServiceAgreement> executionResult) {

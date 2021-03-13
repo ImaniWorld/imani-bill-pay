@@ -117,32 +117,34 @@ public class WaterUtilizationService implements IWaterUtilizationService {
 
     @Transactional
     @Override
-    public void logWaterUtilization(WaterUtilization waterUtilization, ExecutionResult executionResult) {
-        Assert.notNull(waterUtilization, "WaterUtilization cannot be null");
+    public void logWaterUtilization(ExecutionResult<WaterUtilization> executionResult) {
         Assert.notNull(executionResult, "ExecutionResult cannot be null");
-        Assert.isNull(waterUtilization.getId(), "WaterUtilization is not a new non persisted instance");
+        Assert.isTrue(executionResult.getResult().isPresent(), "WaterUtilization cannot be empty");
+        Assert.isNull(executionResult.getResult().get().getId(), "WaterUtilization is not a new non persisted instance");
+
+        WaterUtilization waterUtilization = executionResult.getResult().get();
+
+        LOGGER.info("Logging new water utilization => {}", waterUtilization);
 
         Optional<WaterServiceAgreement> waterServiceAgreement = iWaterServiceAgreementRepository.findById(waterUtilization.getWaterServiceAgreement().getId());
 
         if (waterServiceAgreement.isPresent()) {
-            DateTime start = iDateTimeUtil.getDateTimeAtStartOfCurrentDay();
-            DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentDay();
-
             // Check to see if utilization has already been logged for the day.  We only allow one utilization log per day.
-            List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement.get(), start, end);
+            Optional<WaterUtilization> prevPersistedUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilization.getUtilizationDate());
 
-            if (waterUtilizations.isEmpty()) {
+            if (!prevPersistedUtilization.isPresent()) {
                 WaterUtilization persistedUtilization = WaterUtilization.builder()
                         .waterServiceAgreement(waterServiceAgreement.get())
                         .description(waterUtilization.getDescription())
                         .numberOfGallonsUsed(waterUtilization.getNumberOfGallonsUsed())
+                        .utilizationDate(waterUtilization.getUtilizationDate())
                         .build();
                 iWaterUtilizationRepository.save(persistedUtilization);
             } else {
-                executionResult.addValidationAdvice(ValidationAdvice.newInstance("Water utilization already logged for day on this agreement."));
+                executionResult.addValidationAdvice(ValidationAdvice.newInstance("Water utilization already logged for utilization date provided"));
             }
         } else {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No existing water service agreement found"));
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No existing water service agreement found for provided utilization."));
         }
     }
 

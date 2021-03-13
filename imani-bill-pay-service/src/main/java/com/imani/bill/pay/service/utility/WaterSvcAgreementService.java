@@ -80,9 +80,8 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
         Assert.notNull(executionResult.getResult().get(), "WaterServiceAgreement cannot be null");
         Assert.isNull(executionResult.getResult().get().getId(), "WaterServiceAgreement is already persisted");
 
-        LOGGER.info("Creating new WaterServiceAgreement with billPayFees...");
-
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
+        LOGGER.info("Creating new WaterServiceAgreement with billPayFees => {}", waterServiceAgreement.describeAgreement());
 
         // Fetch persisted pieces to make sure that they are all valid
         Business utilityProviderBusiness = iBusinessRepository.getOne(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());

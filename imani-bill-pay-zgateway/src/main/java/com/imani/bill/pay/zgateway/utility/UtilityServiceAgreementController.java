@@ -5,6 +5,7 @@ import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
 import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.WaterUtilization;
 import com.imani.bill.pay.xecservice.utility.ISewerSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.IWaterSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.SewerSvcAgreementExecService;
@@ -36,15 +37,23 @@ public class UtilityServiceAgreementController {
 
     @PostMapping("/new/water")
     public APIGatewayResponse newWaterSvcAgreement(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
-        LOGGER.info("Received a request to create a new Water Service Agreement.");
+        LOGGER.info("Received a request to create a new Water Service Agreement...");
         ExecutionResult<WaterServiceAgreement> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
         iWaterSvcAgreementExecService.processWaterSvcAgreement(executionResult, apiGatewayRequest.getBillPayFees());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 
+    @PostMapping("/new/water/utilization")
+    public APIGatewayResponse newWaterUtilization(@RequestBody APIGatewayRequest<WaterUtilization> apiGatewayRequest) {
+        LOGGER.info("Received a request to log Water Service Agreement utilization....");
+        ExecutionResult<WaterUtilization> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
+        iWaterSvcAgreementExecService.processWaterUtilization(executionResult);
+        return APIGatewayResponse.fromExecutionResult(executionResult);
+    }
+
     @PostMapping("/new/sewer")
     public APIGatewayResponse newSewerSvcAgreement(@RequestBody APIGatewayRequest<SewerServiceAgreement> apiGatewayRequest) {
-        LOGGER.info("Received a request to create a new Sewer Service Agreement.");
+        LOGGER.info("Received a request to create a new Sewer Service Agreement...");
         ExecutionResult<SewerServiceAgreement> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
         iSewerSvcAgreementExecService.processSewerSvcAgreement(executionResult);
         return APIGatewayResponse.fromExecutionResult(executionResult);
