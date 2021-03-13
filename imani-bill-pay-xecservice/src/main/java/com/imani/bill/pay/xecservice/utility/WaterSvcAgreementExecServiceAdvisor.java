@@ -30,6 +30,9 @@ public class WaterSvcAgreementExecServiceAdvisor {
     public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterServiceAgreement> executionResult, List<BillPayFee> billPayFees) {
         LOGGER.info("Executing AOP advice on new WaterServiceAgreement request....");
 
+        // Validate the billpay fees
+        validateBillPayFees(billPayFees, executionResult);
+
         // Get agreement and perform basic validations on the data that we have been given
         WaterServiceAgreement waterServiceAgreement = executionResult.getResult().get();
         validateUtilityServiceProvider(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), executionResult);
@@ -71,6 +74,12 @@ public class WaterSvcAgreementExecServiceAdvisor {
     void validateServiceAddress(Address address, ExecutionResult<WaterServiceAgreement> executionResult) {
         if(address == null || address.getId() == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("Valid Service Address for Water Svc Agreement is missing."));
+        }
+    }
+
+    void validateBillPayFees(List<BillPayFee> billPayFees, ExecutionResult<WaterServiceAgreement> executionResult) {
+        if(billPayFees == null || billPayFees.size() == 0) {
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance("Water Svc Agreement is missing required bill pay fees."));
         }
     }
 
