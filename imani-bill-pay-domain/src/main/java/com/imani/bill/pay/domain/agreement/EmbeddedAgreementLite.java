@@ -2,6 +2,7 @@ package com.imani.bill.pay.domain.agreement;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
+import com.imani.bill.pay.domain.property.PropertyLite;
 import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -30,6 +31,8 @@ public class EmbeddedAgreementLite {
     private String agreementDocument;
 
     private UserRecordLite agreementUserRecord;
+
+    private PropertyLite agreementProperty;
 
 
     public EmbeddedAgreementLite() {
@@ -100,6 +103,14 @@ public class EmbeddedAgreementLite {
         this.agreementUserRecord = agreementUserRecord;
     }
 
+    public PropertyLite getAgreementProperty() {
+        return agreementProperty;
+    }
+
+    public void setAgreementProperty(PropertyLite agreementProperty) {
+        this.agreementProperty = agreementProperty;
+    }
+
     public EmbeddedAgreement toEmbeddedAgreement(UserRecord billedUser) {
         EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
                 .fixedCost(fixedCost)
@@ -162,6 +173,11 @@ public class EmbeddedAgreementLite {
             return this;
         }
 
+        public Builder agreementProperty(PropertyLite agreementProperty) {
+            embeddedAgreementLite.agreementProperty = agreementProperty;
+            return this;
+        }
+
         public EmbeddedAgreementLite build() {
             return embeddedAgreementLite;
         }
@@ -178,6 +194,7 @@ public class EmbeddedAgreementLite {
                 .append("terminationDate", terminationDate)
                 .append("agreementDocument", agreementDocument)
                 .append("agreementUserRecord", agreementUserRecord)
+                .append("agreementProperty", agreementProperty)
                 .toString();
     }
 

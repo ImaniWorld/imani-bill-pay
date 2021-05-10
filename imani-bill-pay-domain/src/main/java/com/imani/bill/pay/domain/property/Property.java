@@ -218,6 +218,23 @@ public class Property extends AuditableRecord {
 //    }
 
 
+    public PropertyLite toPropertyLite() {
+        PropertyLite propertyLite = PropertyLite.builder()
+                .id(id)
+                .block(block)
+                .lot(lot)
+                .buildingIdentificationNumber(buildingIdentificationNumber)
+                .latitude(latitude)
+                .longitude(longitude)
+                .propertyTypeE(propertyTypeE)
+                .mthlyNumberOfDaysPaymentLate(mthlyNumberOfDaysPaymentLate)
+                .addressLite(address.toAddressLite())
+                .communityLite(community.toCommunityLite())
+                .owner(owner.toUserRecordLite())
+                .build();
+        return propertyLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

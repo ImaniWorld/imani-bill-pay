@@ -130,6 +130,16 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
         return ImmutableSet.copyOf(utilityServiceAreas);
     }
 
+    public BusinessLite toBusinessLite() {
+        BusinessLite businessLite = BusinessLite.builder()
+                .id(id)
+                .businessTypeE(businessTypeE)
+                .name(name)
+                .embeddedContactInfo(embeddedContactInfo)
+                .build();
+        return businessLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

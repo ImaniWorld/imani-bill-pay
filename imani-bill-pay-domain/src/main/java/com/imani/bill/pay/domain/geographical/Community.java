@@ -98,6 +98,17 @@ public class Community extends AuditableRecord {
         return ImmutableSet.copyOf(utilityServiceAreas);
     }
 
+    public CommunityLite toCommunityLite() {
+        CommunityLite communityLite = CommunityLite.builder()
+                .id(id)
+                .communityName(communityName)
+                .communityTypeE(communityTypeE)
+                .city(city)
+                .managedByBusiness(managedByBusiness.toBusinessLite())
+                .build();
+        return communityLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

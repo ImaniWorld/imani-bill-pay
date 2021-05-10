@@ -211,6 +211,7 @@ public class EmbeddedAgreement {
                 .numberOfDaysTillLate(numberOfDaysTillLate)
                 .agreementDocument(agreementDocument)
                 .agreementUserRecord(agreementUserRecord.toUserRecordLite())
+                .agreementProperty(agreementProperty.toPropertyLite())
                 .build();
         return embeddedAgreementLite;
     }

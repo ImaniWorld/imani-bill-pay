@@ -135,7 +135,7 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
                 .businessCustomerAcctID(embeddedUtilityService.getSvcCustomerAcctID())
                 .numberOfGallonsPerFixedCost(nbrOfGallonsPerFixedCost)
                 .embeddedAgreement(embeddedAgreement.toEmbeddedLite())
-                //.business(embeddedUtilityService.getUtilityProviderBusiness().to)
+                .business(embeddedUtilityService.getUtilityProviderBusiness().toBusinessLite())
                 .build();
         return waterServiceAgreementLite;
     }
