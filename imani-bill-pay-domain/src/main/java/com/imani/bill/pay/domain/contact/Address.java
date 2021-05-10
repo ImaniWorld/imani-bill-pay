@@ -90,6 +90,16 @@ public class Address extends AuditableRecord {
         return sb.toString();
     }
 
+    public AddressLite toAddressLite() {
+        AddressLite addressLite = AddressLite.builder()
+                .id(id)
+                .zipCode(zipCode)
+                .streetAddress(streetAddress)
+                .postOfficeBoxNumber(postOfficeBoxNumber)
+                .build();
+        return addressLite;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

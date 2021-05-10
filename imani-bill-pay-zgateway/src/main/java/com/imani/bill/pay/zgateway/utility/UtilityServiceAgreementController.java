@@ -12,10 +12,7 @@ import com.imani.bill.pay.xecservice.utility.SewerSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author manyce400

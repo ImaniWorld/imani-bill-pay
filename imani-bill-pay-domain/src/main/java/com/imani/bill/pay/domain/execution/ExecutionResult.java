@@ -22,6 +22,8 @@ public class ExecutionResult<O> {
 
     private O result;
 
+    private Object output;
+
     private Set<ValidationAdvice> validationAdvices = new HashSet<>();
 
     private Set<ExecutionError> executionErrors = new HashSet<>();
@@ -122,41 +124,6 @@ public class ExecutionResult<O> {
         }
 
         return executionResult;
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-
-        private ExecutionResult executionResult = new ExecutionResult();
-
-        public <O> Builder result(O result) {
-            executionResult.result = result;
-            return this;
-        }
-
-        public Builder addValidationAdvice(ValidationAdvice validationAdvice) {
-            executionResult.addValidationAdvice(validationAdvice);
-            return this;
-        }
-
-        public Builder addValidationAdvice(String advice) {
-            Assert.notNull(advice, "advice cannot be null");
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance(advice));
-            return this;
-        }
-
-        public Builder addPlatformActionRequiredE(PlatformActionRequiredE platformActionRequiredE) {
-            executionResult.addPlatformActionRequiredE(platformActionRequiredE);
-            return this;
-        }
-
-        public ExecutionResult build() {
-            return executionResult;
-        }
-
     }
 
 }

@@ -1,24 +1,13 @@
 package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.agreement.AgreementToScheduleBillPayFee;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
 import com.imani.bill.pay.domain.billing.BillPayFee;
-import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
-import com.imani.bill.pay.domain.business.Business;
-import com.imani.bill.pay.domain.contact.EmbeddedContactInfo;
-import com.imani.bill.pay.domain.property.Property;
-import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -141,6 +130,16 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
         return sb.toString();
     }
 
+    public WaterServiceAgreementLite toAgreementLite() {
+        WaterServiceAgreementLite waterServiceAgreementLite = WaterServiceAgreementLite.builder()
+                .businessCustomerAcctID(embeddedUtilityService.getSvcCustomerAcctID())
+                .numberOfGallonsPerFixedCost(nbrOfGallonsPerFixedCost)
+                .embeddedAgreement(embeddedAgreement.toEmbeddedLite())
+                //.business(embeddedUtilityService.getUtilityProviderBusiness().to)
+                .build();
+        return waterServiceAgreementLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -182,56 +181,6 @@ public class WaterServiceAgreement extends AuditableRecord implements IHasBillin
 
         public WaterServiceAgreement build() {
             return waterServiceAgreement;
-        }
-
-    }
-
-    public static void main(String[] args) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new Jdk8Module());
-        objectMapper.registerModule(new JodaModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        EmbeddedContactInfo embeddedContactInfo = EmbeddedContactInfo.builder()
-                .email("manyce400@gmail.com")
-                .build();
-        UserRecord userRecord = UserRecord.builder()
-                .embeddedContactInfo(embeddedContactInfo)
-                .build();
-
-        Property property = new Property();
-        property.setId(1L);
-
-        Business business = new Business();
-        business.setId(1L);
-
-        EmbeddedUtilityService embeddedUtilityService = EmbeddedUtilityService.builder()
-                .utilityProviderBusiness(business)
-                    .svcCustomerAcctID("LCCX-122")
-                    .svcDescription("Test utility agreement")
-                .build();
-
-        EmbeddedAgreement embeddedAgreement = EmbeddedAgreement.builder()
-                .fixedCost(3.50)
-                .agreementInForce(true)
-                .billScheduleTypeE(BillScheduleTypeE.QUARTERLY)
-                .numberOfDaysTillLate(15)
-                .effectiveDate(new DateTime())
-                .agreementUserRecord(userRecord)
-                .agreementProperty(property)
-                .build();
-
-        WaterServiceAgreement waterServiceAgreement = WaterServiceAgreement.builder()
-                .embeddedAgreement(embeddedAgreement)
-                .embeddedUtilityService(embeddedUtilityService)
-                .nbrOfGallonsPerFixedCost(1000L)
-                .build();
-
-        try {
-            String json = objectMapper.writeValueAsString(waterServiceAgreement);
-            System.out.println("json = " + json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
         }
 
     }

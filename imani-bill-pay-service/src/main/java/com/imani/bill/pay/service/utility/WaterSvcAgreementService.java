@@ -139,6 +139,15 @@ public class WaterSvcAgreementService implements IWaterSvcAgreementService {
         }
     }
 
+    @Override
+    public List<WaterServiceAgreement> findUserWaterSvcAgreements(Long userID) {
+        Assert.notNull(userID, "UserID cannot be null");
+        LOGGER.debug("Attempting to load all Water service agreements in force for userID=> [{}]", userID);
+        Optional<UserRecord> userRecord = iUserRecordRepository.findById(userID);
+        List<WaterServiceAgreement> waterServiceAgreements = iWaterServiceAgreementRepository.findAllInForceWaterServiceAgreement(userRecord.get());
+        return waterServiceAgreements;
+    }
+
     void validateBillPayFees(List<BillPayFee> billPayFees, ExecutionResult<WaterServiceAgreement> executionResult) {
         LOGGER.info("Validating bill pay fee's to be applied on agreement.  Only scheduled fees allowed");
 

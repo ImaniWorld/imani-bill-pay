@@ -201,6 +201,20 @@ public class EmbeddedAgreement {
         return sb.toString();
     }
 
+    public EmbeddedAgreementLite toEmbeddedLite() {
+        EmbeddedAgreementLite embeddedAgreementLite = EmbeddedAgreementLite.builder()
+                .fixedCost(fixedCost)
+                .billScheduleTypeE(billScheduleTypeE)
+                .agreementInForce(agreementInForce)
+                .effectiveDate(effectiveDate)
+                .terminationDate(terminationDate)
+                .numberOfDaysTillLate(numberOfDaysTillLate)
+                .agreementDocument(agreementDocument)
+                .agreementUserRecord(agreementUserRecord.toUserRecordLite())
+                .build();
+        return embeddedAgreementLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

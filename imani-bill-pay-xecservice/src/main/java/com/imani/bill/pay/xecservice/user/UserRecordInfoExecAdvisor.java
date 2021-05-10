@@ -4,8 +4,10 @@ import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.business.repository.IBusinessRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
+import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.user.UserRecordLite;
 import com.imani.bill.pay.domain.user.UserRecordTypeE;
+import com.imani.bill.pay.domain.user.repository.IUserRecordRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -27,6 +29,9 @@ public class UserRecordInfoExecAdvisor {
 
     @Autowired
     private IBusinessRepository iBusinessRepository;
+
+    @Autowired
+    private IUserRecordRepository iUserRecordRepository;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UserRecordInfoExecAdvisor.class);
 
@@ -52,6 +57,23 @@ public class UserRecordInfoExecAdvisor {
         if(!userRecordTypeE.isPresent()) {
             StringBuffer sb = new StringBuffer("No valid UserRecordTypeE found [")
                     .append(userType)
+                    .append("]");
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+        }
+    }
+
+    /**
+     * Executes a Before advice before {@linkplain com.imani.bill.pay.xecservice.user.UserRecordInfoExecService#findUsersWaterAgreements(Long, ExecutionResult)}  }
+     * This Advice will validate that the userid passed as argument is valid and exists.
+     */
+    @Before(value = "execution(* com.imani.bill.pay.xecservice.user.UserRecordInfoExecService.findUsersWaterAgreements(..)) and args(userID, executionResult)")
+    public void beforeAdvice(JoinPoint joinPoint, Long userID, ExecutionResult<List<UserRecordLite>> executionResult) {
+        LOGGER.debug("Executing beforeAdvice UserRecordInfoExecService#findUsersWaterAgreements ...");
+
+        Optional<UserRecord> userRecord = iUserRecordRepository.findById(userID);
+        if(!userRecord.isPresent()) {
+            StringBuffer sb = new StringBuffer("No valid User found with ID[")
+                    .append(userID)
                     .append("]");
             executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
         }

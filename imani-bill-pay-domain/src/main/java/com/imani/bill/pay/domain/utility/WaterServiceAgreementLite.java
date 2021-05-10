@@ -89,4 +89,48 @@ public class WaterServiceAgreementLite {
                 .append("serviceAddress", serviceAddress)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private WaterServiceAgreementLite waterServiceAgreementLite = new WaterServiceAgreementLite();
+
+        public Builder id(Long id) {
+            waterServiceAgreementLite.id = id;
+            return this;
+        }
+
+        public Builder businessCustomerAcctID(String businessCustomerAcctID) {
+            waterServiceAgreementLite.businessCustomerAcctID = businessCustomerAcctID;
+            return this;
+        }
+
+        public Builder numberOfGallonsPerFixedCost(Long numberOfGallonsPerFixedCost) {
+            waterServiceAgreementLite.numberOfGallonsPerFixedCost = numberOfGallonsPerFixedCost;
+            return this;
+        }
+
+        public Builder embeddedAgreement(EmbeddedAgreementLite embeddedAgreement) {
+            waterServiceAgreementLite.embeddedAgreement = embeddedAgreement;
+            return this;
+        }
+
+        public Builder business(BusinessLite business) {
+            waterServiceAgreementLite.business = business;
+            return this;
+        }
+
+        public Builder serviceAddress(AddressLite serviceAddress) {
+            waterServiceAgreementLite.serviceAddress = serviceAddress;
+            return this;
+        }
+
+        public WaterServiceAgreementLite build() {
+            return waterServiceAgreementLite;
+        }
+
+    }
 }

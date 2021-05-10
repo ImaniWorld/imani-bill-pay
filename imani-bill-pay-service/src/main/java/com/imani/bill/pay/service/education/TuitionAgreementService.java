@@ -80,7 +80,7 @@ public class TuitionAgreementService implements ITuitionAgreementService {
         Business business = iBusinessRepository.getOne(tuitionAgreementLite.getSchoolID());
         TuitionGrade tuitionGrade = iTuitionGradeRepository.getOne(tuitionAgreementLite.getTuitionGradeID());
         UserRecord student = iUserRecordRepository.findByUserEmail(tuitionAgreementLite.getStudent().getEmail());
-        UserRecord billedUser = iUserRecordRepository.findByUserEmail(tuitionAgreementLite.getEmbeddedAgreementLite().getUserBilled().getEmail());
+        UserRecord billedUser = iUserRecordRepository.findByUserEmail(tuitionAgreementLite.getEmbeddedAgreementLite().getAgreementUserRecord().getEmail());
 
         TuitionAgreement tuitionAgreement = TuitionAgreement.builder()
                 .student(student)

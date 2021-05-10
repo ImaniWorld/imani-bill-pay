@@ -18,6 +18,9 @@ public interface IWaterServiceAgreementRepository extends JpaRepository<WaterSer
     @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.agreementUserRecord = ?1")
     public Optional<WaterServiceAgreement> findWaterServiceAgreement(UserRecord userRecord);
 
+    @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.agreementUserRecord = ?1 and waterServiceAgreement.embeddedAgreement.agreementInForce = 1")
+    public List<WaterServiceAgreement> findAllInForceWaterServiceAgreement(UserRecord userRecord);
+
     @Query("Select waterServiceAgreement From WaterServiceAgreement waterServiceAgreement Where waterServiceAgreement.embeddedAgreement.agreementInForce = 1")
     public List<WaterServiceAgreement> findAllWhereAgreementInforce();
 

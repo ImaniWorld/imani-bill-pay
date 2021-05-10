@@ -13,4 +13,6 @@ public interface IWaterSvcAgreementService extends IUtilitySvcAgreementService {
 
     public void createAgreement(ExecutionResult<WaterServiceAgreement> executionResult, List<BillPayFee> billPayFees);
 
+    public List<WaterServiceAgreement> findUserWaterSvcAgreements(Long userID);
+
 }

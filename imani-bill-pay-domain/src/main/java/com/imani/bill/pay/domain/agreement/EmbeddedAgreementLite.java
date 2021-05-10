@@ -29,7 +29,7 @@ public class EmbeddedAgreementLite {
 
     private String agreementDocument;
 
-    private UserRecordLite userBilled;
+    private UserRecordLite agreementUserRecord;
 
 
     public EmbeddedAgreementLite() {
@@ -92,12 +92,12 @@ public class EmbeddedAgreementLite {
         this.agreementDocument = agreementDocument;
     }
 
-    public UserRecordLite getUserBilled() {
-        return userBilled;
+    public UserRecordLite getAgreementUserRecord() {
+        return agreementUserRecord;
     }
 
-    public void setUserBilled(UserRecordLite userBilled) {
-        this.userBilled = userBilled;
+    public void setAgreementUserRecord(UserRecordLite agreementUserRecord) {
+        this.agreementUserRecord = agreementUserRecord;
     }
 
     public EmbeddedAgreement toEmbeddedAgreement(UserRecord billedUser) {
@@ -114,6 +114,59 @@ public class EmbeddedAgreementLite {
         return embeddedAgreement;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    public static class Builder {
+        
+        private EmbeddedAgreementLite embeddedAgreementLite = new EmbeddedAgreementLite();
+        
+        public Builder fixedCost(Double fixedCost) {
+            embeddedAgreementLite.fixedCost = fixedCost;
+            return this;
+        }
+
+        public Builder billScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
+            embeddedAgreementLite.billScheduleTypeE = billScheduleTypeE;
+            return this;
+        }
+
+        public Builder agreementInForce(boolean agreementInForce) {
+            embeddedAgreementLite.agreementInForce = agreementInForce;
+            return this;
+        }
+
+        public Builder numberOfDaysTillLate(Integer numberOfDaysTillLate) {
+            embeddedAgreementLite.numberOfDaysTillLate = numberOfDaysTillLate;
+            return this;
+        }
+
+        public Builder effectiveDate(DateTime effectiveDate) {
+            embeddedAgreementLite.effectiveDate = effectiveDate;
+            return this;
+        }
+
+        public Builder terminationDate(DateTime terminationDate) {
+            embeddedAgreementLite.terminationDate = terminationDate;
+            return this;
+        }
+
+        public Builder agreementDocument(String agreementDocument) {
+            embeddedAgreementLite.agreementDocument = agreementDocument;
+            return this;
+        }
+
+        public Builder agreementUserRecord(UserRecordLite agreementUserRecord) {
+            embeddedAgreementLite.agreementUserRecord = agreementUserRecord;
+            return this;
+        }
+
+        public EmbeddedAgreementLite build() {
+            return embeddedAgreementLite;
+        }
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -124,6 +177,8 @@ public class EmbeddedAgreementLite {
                 .append("effectiveDate", effectiveDate)
                 .append("terminationDate", terminationDate)
                 .append("agreementDocument", agreementDocument)
+                .append("agreementUserRecord", agreementUserRecord)
                 .toString();
     }
+
 }

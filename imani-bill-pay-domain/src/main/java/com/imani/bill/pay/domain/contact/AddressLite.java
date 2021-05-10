@@ -63,4 +63,37 @@ public class AddressLite {
                 .append("postOfficeBoxNumber", postOfficeBoxNumber)
                 .toString();
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final AddressLite addressLite = new AddressLite();
+
+        public Builder id(Long id) {
+            addressLite.id = id;
+            return this;
+        }
+
+        public Builder streetAddress(String streetAddress) {
+            addressLite.streetAddress = streetAddress;
+            return this;
+        }
+
+        public Builder zipCode(String zipCode) {
+            addressLite.zipCode = zipCode;
+            return this;
+        }
+
+        public Builder postOfficeBoxNumber(String postOfficeBoxNumber) {
+            addressLite.postOfficeBoxNumber = postOfficeBoxNumber;
+            return this;
+        }
+
+        public AddressLite build() {
+            return addressLite;
+        }
+    }
 }
