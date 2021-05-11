@@ -15,4 +15,6 @@ public interface IWaterSvcAgreementService extends IUtilitySvcAgreementService {
 
     public List<WaterServiceAgreement> findUserWaterSvcAgreements(Long userID);
 
+    public List<WaterServiceAgreement> findCommunityPropertiesWaterSvcAgreements(Long communityID);
+
 }
