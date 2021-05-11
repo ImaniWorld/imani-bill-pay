@@ -29,11 +29,11 @@ public class AgreementInfoExecService implements IAgreementInfoExecService {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AgreementInfoExecService.class);
 
     @Override
-    public void findUsersWaterAgreements(Long communityID, ExecutionResult<List<WaterServiceAgreementLite>> executionResult) {
+    public void findCommunityPropertiesWaterAgreements(Long communityID, ExecutionResult<List<WaterServiceAgreementLite>> executionResult) {
         Assert.notNull(communityID, "CommunityID cannot be null");
         Assert.notNull(executionResult, "executionResult cannot be null");
 
-        LOGGER.info("Call #findUsersWaterAgreements() validation errors found=> [{}]", executionResult.hasExecutionError());
+        LOGGER.info("Call #findCommunityPropertiesWaterAgreements() validation errors found=> [{}]", executionResult.hasExecutionError());
 
         if(!executionResult.hasValidationAdvice()
                 && !executionResult.hasExecutionError()) {

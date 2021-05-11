@@ -11,6 +11,6 @@ import java.util.List;
 public interface IAgreementInfoExecService {
 
     // Finds and loads all the active water service agreements which are in force for all properties in a community
-    public void findUsersWaterAgreements(Long communityID, ExecutionResult<List<WaterServiceAgreementLite>> executionResult);
+    public void findCommunityPropertiesWaterAgreements(Long communityID, ExecutionResult<List<WaterServiceAgreementLite>> executionResult);
 
 }

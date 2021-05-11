@@ -48,7 +48,7 @@ public class BillingAgreementInfoController {
         LOGGER.info("Received request to find and return all water agreement for Community with id => [{}]", communityID);
 
         ExecutionResult<List<WaterServiceAgreementLite>> executionResult = new ExecutionResult<>();
-        iAgreementInfoExecService.findUsersWaterAgreements(communityID, executionResult);
+        iAgreementInfoExecService.findCommunityPropertiesWaterAgreements(communityID, executionResult);
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 
