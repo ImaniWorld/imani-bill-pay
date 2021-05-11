@@ -2,6 +2,8 @@ package com.imani.bill.pay.domain;
 
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreementLite;
+import com.imani.bill.pay.domain.utility.WaterUtilization;
+import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -24,6 +26,24 @@ public class DomainLiteConverterUtil {
         });
 
         return results;
+    }
+
+    public static List<WaterUtilizationLite> toWaterUtilizationLite(List<WaterUtilization> waterUtilizations) {
+        Assert.notNull(waterUtilizations, "WaterUtilization list cannot be null");
+        List<WaterUtilizationLite> results = new ArrayList<>();
+
+        waterUtilizations.forEach(waterUtilization -> {
+            WaterUtilizationLite waterUtilizationLite = toWaterUtilizationLite(waterUtilization);
+            results.add(waterUtilizationLite);
+        });
+
+        return results;
+    }
+
+    public static WaterUtilizationLite toWaterUtilizationLite(WaterUtilization waterUtilization) {
+        Assert.notNull(waterUtilization, "WaterUtilization cannot be null");
+        WaterUtilizationLite waterUtilizationLite = waterUtilization.toWaterUtilizationLite();
+        return waterUtilizationLite;
     }
 
 }

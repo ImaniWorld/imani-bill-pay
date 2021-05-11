@@ -82,6 +82,17 @@ public class WaterUtilization extends AuditableRecord {
         this.utilizationDate = utilizationDate;
     }
 
+    public WaterUtilizationLite toWaterUtilizationLite() {
+        WaterUtilizationLite waterUtilizationLite = WaterUtilizationLite.builder()
+                .id(id)
+                .description(description)
+                .numberOfGallonsUsed(numberOfGallonsUsed)
+                .utilizationDate(utilizationDate)
+                .waterServiceAgreementLite(waterServiceAgreement.toAgreementLite())
+                .build();
+        return waterUtilizationLite;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

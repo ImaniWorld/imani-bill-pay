@@ -6,11 +6,10 @@ import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.FeeTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
-import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilization;
 import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
+import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
@@ -117,37 +116,31 @@ public class WaterUtilizationService implements IWaterUtilizationService {
 
     @Transactional
     @Override
-    public void logWaterUtilization(ExecutionResult<WaterUtilization> executionResult) {
-        Assert.notNull(executionResult, "ExecutionResult cannot be null");
-        Assert.isTrue(executionResult.getResult().isPresent(), "WaterUtilization cannot be empty");
-        Assert.isNull(executionResult.getResult().get().getId(), "WaterUtilization is not a new non persisted instance");
+    public Optional<WaterUtilization> logWaterUtilization(WaterUtilizationLite waterUtilizationLite) {
+        Assert.notNull(waterUtilizationLite, "WaterUtilizationLite cannot be null");
 
-        WaterUtilization waterUtilization = executionResult.getResult().get();
+        LOGGER.debug("Processing and logging new waterUtilizationLite=> {}", waterUtilizationLite);
 
-        LOGGER.info("Logging new water utilization => {}", waterUtilization);
-
-        Optional<WaterServiceAgreement> waterServiceAgreement = iWaterServiceAgreementRepository.findById(waterUtilization.getWaterServiceAgreement().getId());
-
+        // Load the agreement associated with this logging event
+        Optional<WaterServiceAgreement> waterServiceAgreement = iWaterServiceAgreementRepository.findById(waterUtilizationLite.getWaterServiceAgreementLite().getId());
         if (waterServiceAgreement.isPresent()) {
+
             // Check to see if utilization has already been logged for the day.  We only allow one utilization log per day.
-            Optional<WaterUtilization> prevPersistedUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilization.getUtilizationDate());
-
-            if (!prevPersistedUtilization.isPresent()) {
-                WaterUtilization persistedUtilization = WaterUtilization.builder()
+            Optional<WaterUtilization> existingUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilizationLite.getUtilizationDate());
+            if (!existingUtilization.isPresent()) {
+                WaterUtilization newUtilization = WaterUtilization.builder()
                         .waterServiceAgreement(waterServiceAgreement.get())
-                        .description(waterUtilization.getDescription())
-                        .numberOfGallonsUsed(waterUtilization.getNumberOfGallonsUsed())
-                        .utilizationDate(waterUtilization.getUtilizationDate())
+                        .description(waterUtilizationLite.getDescription())
+                        .numberOfGallonsUsed(waterUtilizationLite.getNumberOfGallonsUsed())
+                        .utilizationDate(waterUtilizationLite.getUtilizationDate())
                         .build();
-                iWaterUtilizationRepository.save(persistedUtilization);
-            } else {
-                executionResult.addValidationAdvice(ValidationAdvice.newInstance("Water utilization already logged for utilization date provided"));
+                iWaterUtilizationRepository.save(newUtilization);
+                return Optional.of(newUtilization);
             }
-        } else {
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance("No existing water service agreement found for provided utilization."));
         }
-    }
 
+        return Optional.empty();
+    }
 
     void computeAndUpdateWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement, WaterUtilizationCharge waterUtilizationCharge) {
         // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible

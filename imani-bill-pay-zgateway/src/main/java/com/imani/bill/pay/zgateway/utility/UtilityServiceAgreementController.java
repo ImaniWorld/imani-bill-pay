@@ -5,14 +5,17 @@ import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
 import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
-import com.imani.bill.pay.domain.utility.WaterUtilization;
+import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
 import com.imani.bill.pay.xecservice.utility.ISewerSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.IWaterSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.SewerSvcAgreementExecService;
 import com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author manyce400
@@ -41,10 +44,10 @@ public class UtilityServiceAgreementController {
     }
 
     @PostMapping("/new/water/utilization")
-    public APIGatewayResponse newWaterUtilization(@RequestBody APIGatewayRequest<WaterUtilization> apiGatewayRequest) {
+    public APIGatewayResponse newWaterUtilization(@RequestBody APIGatewayRequest<WaterUtilizationLite> apiGatewayRequest) {
         LOGGER.info("Received a request to log Water Service Agreement utilization....");
-        ExecutionResult<WaterUtilization> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
-        iWaterSvcAgreementExecService.processWaterUtilization(executionResult);
+        ExecutionResult<WaterUtilizationLite> executionResult = new ExecutionResult<>();
+        iWaterSvcAgreementExecService.processWaterUtilization(apiGatewayRequest.getRequestObject(), executionResult);
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

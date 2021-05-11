@@ -9,12 +9,17 @@ import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilization;
+import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
+import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
+import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author manyce400
@@ -24,6 +29,11 @@ import java.util.List;
 public class WaterSvcAgreementExecServiceAdvisor {
 
 
+    @Autowired
+    private IWaterUtilizationRepository iWaterUtilizationRepository;
+
+    @Autowired
+    private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterSvcAgreementExecServiceAdvisor.class);
 
@@ -40,21 +50,38 @@ public class WaterSvcAgreementExecServiceAdvisor {
         validateEmbeddedAgreement(waterServiceAgreement.getEmbeddedAgreement(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea(), executionResult);
     }
 
-    @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterUtilization(..)) and args(executionResult)")
-    public void beforeAdvice(JoinPoint joinPoint, ExecutionResult<WaterUtilization> executionResult) {
+    @Before(value = "execution(* com.imani.bill.pay.xecservice.utility.WaterSvcAgreementExecService.processWaterUtilization(..)) and args(waterUtilizationLite, executionResult)")
+    public void beforeAdvice(JoinPoint joinPoint, WaterUtilizationLite waterUtilizationLite, ExecutionResult<WaterUtilizationLite> executionResult) {
         LOGGER.info("Executing AOP advice on new water utilization");
 
-        WaterUtilization waterUtilization = executionResult.getResult().get();
+        // Verify that there is an existing WaterServiceAgreement for this new utilization reques
+        Optional<WaterServiceAgreement> waterServiceAgreement = iWaterServiceAgreementRepository.findById(waterUtilizationLite.getWaterServiceAgreementLite().getId());
+        if(!waterServiceAgreement.isPresent()) {
+            StringBuffer sb = new StringBuffer("No WaterServiceAgeement found for => ID[")
+                    .append(waterUtilizationLite.getWaterServiceAgreementLite().getId())
+                    .append("]");
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+        }
 
-        if(waterUtilization.getWaterServiceAgreement() == null) {
+        // Verify that a utilization hasn't already been logged for the specified utilization date.
+        Optional<WaterUtilization> existingUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilizationLite.getUtilizationDate());
+        if(existingUtilization.isPresent()) {
+            StringBuffer sb = new StringBuffer("An existing water utilization found [")
+                    .append(existingUtilization.get().getNumberOfGallonsUsed()).append("gallons")
+                    .append(" : Date> ").append(existingUtilization.get().getUtilizationDate());
+            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+        }
+
+        if(waterUtilizationLite.getWaterServiceAgreementLite() == null
+                || waterUtilizationLite.getWaterServiceAgreementLite().getId() == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing a WaterServiceAgreement"));
         }
 
-        if(waterUtilization.getNumberOfGallonsUsed() == null) {
+        if(waterUtilizationLite.getNumberOfGallonsUsed() == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing number of gallons used"));
         }
 
-        if(waterUtilization.getUtilizationDate() == null) {
+        if(waterUtilizationLite.getUtilizationDate() == null) {
             executionResult.addValidationAdvice(ValidationAdvice.newInstance("WaterUtilization is missing a utilization date"));
         }
     }

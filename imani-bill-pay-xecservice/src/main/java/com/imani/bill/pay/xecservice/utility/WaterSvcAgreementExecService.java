@@ -1,10 +1,12 @@
 package com.imani.bill.pay.xecservice.utility;
 
+import com.imani.bill.pay.domain.DomainLiteConverterUtil;
 import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilization;
+import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
 import com.imani.bill.pay.service.utility.IWaterSvcAgreementService;
 import com.imani.bill.pay.service.utility.IWaterUtilizationService;
 import com.imani.bill.pay.service.utility.WaterSvcAgreementService;
@@ -12,6 +14,7 @@ import com.imani.bill.pay.service.utility.WaterUtilizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +62,19 @@ public class WaterSvcAgreementExecService implements IWaterSvcAgreementExecServi
     }
 
     @Override
-    public void processWaterUtilization(ExecutionResult<WaterUtilization> executionResult) {
+    public void processWaterUtilization(WaterUtilizationLite waterUtilizationLite, ExecutionResult<WaterUtilizationLite> executionResult) {
+        Assert.notNull(waterUtilizationLite, "WaterUtilizationLite cannot be null");
+        Assert.notNull(executionResult, "executionResult cannot be null");
+
+        LOGGER.info("Call #processWaterUtilization() validation errors found=> [{}]", executionResult.hasExecutionError());
+
         if(!executionResult.hasValidationAdvice()) {
-            iWaterUtilizationService.logWaterUtilization(executionResult);
+            Optional<WaterUtilization> waterUtilization = iWaterUtilizationService.logWaterUtilization(waterUtilizationLite);
+            if(waterUtilization.isPresent()) {
+                WaterUtilizationLite loggedUtilization = DomainLiteConverterUtil.toWaterUtilizationLite(waterUtilization.get());
+                executionResult.setResult(waterUtilizationLite);
+            }
         }
     }
+
 }
