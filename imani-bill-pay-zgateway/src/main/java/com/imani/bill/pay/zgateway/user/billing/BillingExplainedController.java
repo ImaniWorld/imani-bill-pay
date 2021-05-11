@@ -8,10 +8,14 @@ import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillExplanationService;
 import com.imani.bill.pay.service.billing.education.TuitionBillExplanationService;
-import com.imani.bill.pay.service.billing.utility.WaterBillExplanationService;
+import com.imani.bill.pay.xecservice.billing.IImaniBillExplanationService;
+import com.imani.bill.pay.xecservice.billing.WaterImaniBillExplanationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -32,8 +36,8 @@ public class BillingExplainedController {
     private IBillExplanationService tuitionBillExplanationService;
 
     @Autowired
-    @Qualifier(WaterBillExplanationService.SPRING_BEAN)
-    private IBillExplanationService waterBillExplanationService;
+    @Qualifier(WaterImaniBillExplanationService.SPRING_BEAN)
+    private IImaniBillExplanationService waterImaniBillExplanationService;
 
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingExplainedController.class);
@@ -54,7 +58,7 @@ public class BillingExplainedController {
 
     @PostMapping("/water/current")
     public APIGatewayResponse getCurrentWaterBill(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
-        ExecutionResult<ImaniBillExplained> executionResult = waterBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getRequestObject());
+        ExecutionResult<ImaniBillExplained> executionResult = waterImaniBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getRequestObject());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 
