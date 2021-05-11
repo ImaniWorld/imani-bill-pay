@@ -15,8 +15,6 @@ public interface IBillExplanationService<O> {
 
 
     public default Optional<ImaniBillExplained> explainImaniBill(Optional<ImaniBill> imaniBill) {
-        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
-
         if(imaniBill.isPresent()) {
             ImaniBillExplained imaniBillExplained = imaniBill.get().toImaniBillExplained();
             return Optional.of(imaniBillExplained);

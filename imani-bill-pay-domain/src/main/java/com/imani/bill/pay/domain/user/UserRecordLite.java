@@ -14,6 +14,8 @@ import org.joda.time.DateTime;
 public class UserRecordLite {
 
 
+    private Long id;
+
     private String firstName;
 
     private String lastName;
@@ -38,6 +40,14 @@ public class UserRecordLite {
 
     public UserRecordLite() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -115,6 +125,7 @@ public class UserRecordLite {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .append("id", id)
                 .append("firstName", firstName)
                 .append("lastName", lastName)
                 .append("email", email)
@@ -132,7 +143,13 @@ public class UserRecordLite {
     }
 
     public static class Builder {
+
         private final UserRecordLite userRecordLite = new UserRecordLite();
+
+        public Builder id(Long id) {
+            userRecordLite.id = id;
+            return this;
+        }
 
         public Builder firstName(String firstName) {
             userRecordLite.firstName = firstName;

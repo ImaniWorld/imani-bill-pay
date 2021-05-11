@@ -291,6 +291,7 @@ public class UserRecord extends AuditableRecord implements IHasPaymentInfo {
 
     public UserRecordLite toUserRecordLite() {
         UserRecordLite userRecordLite = UserRecordLite.builder()
+                .id(id)
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(embeddedContactInfo.getEmail())

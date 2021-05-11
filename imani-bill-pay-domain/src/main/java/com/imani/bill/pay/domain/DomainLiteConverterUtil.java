@@ -28,7 +28,7 @@ public class DomainLiteConverterUtil {
         return results;
     }
 
-    public static List<WaterUtilizationLite> toWaterUtilizationLite(List<WaterUtilization> waterUtilizations) {
+    public static List<WaterUtilizationLite> toWaterUtilizationLites(List<WaterUtilization> waterUtilizations) {
         Assert.notNull(waterUtilizations, "WaterUtilization list cannot be null");
         List<WaterUtilizationLite> results = new ArrayList<>();
 

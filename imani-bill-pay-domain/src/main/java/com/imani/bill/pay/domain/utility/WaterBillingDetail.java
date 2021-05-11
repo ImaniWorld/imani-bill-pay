@@ -1,8 +1,6 @@
 package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -16,38 +14,36 @@ public class WaterBillingDetail {
 
 
 
-    private WaterUtilizationCharge waterUtilizationCharge;
+    private WaterUtilizationChargeLite waterUtilizationChargeLite;
 
-    private List<WaterUtilization> waterUtilizations = new ArrayList<>();
+    private List<WaterUtilizationLite> waterUtilizationLites = new ArrayList<>();
 
     public WaterBillingDetail() {
 
     }
 
-    public WaterUtilizationCharge getWaterUtilizationCharge() {
-        return waterUtilizationCharge;
+    public WaterUtilizationChargeLite getWaterUtilizationChargeLite() {
+        return waterUtilizationChargeLite;
     }
 
-    public void setWaterUtilizationCharge(WaterUtilizationCharge waterUtilizationCharge) {
-        this.waterUtilizationCharge = waterUtilizationCharge;
+    public void setWaterUtilizationChargeLite(WaterUtilizationChargeLite waterUtilizationChargeLite) {
+        this.waterUtilizationChargeLite = waterUtilizationChargeLite;
     }
 
-    public List<WaterUtilization> getWaterUtilizations() {
-        return ImmutableList.copyOf(waterUtilizations);
+    public List<WaterUtilizationLite> getWaterUtilizationLites() {
+        return waterUtilizationLites;
     }
 
-    public void addWaterUtilizations(WaterUtilization waterUtilization) {
-        Assert.notNull(waterUtilization, "WaterUtilization cannot be null");
-        this.waterUtilizations = waterUtilizations;
+    public void addWaterUtilizationLite(WaterUtilizationLite waterUtilizationLite) {
+        Assert.notNull(waterUtilizationLite, "WaterUtilizationLite cannot be null");
+        waterUtilizationLites.add(waterUtilizationLite);
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("waterUtilizationCharge", waterUtilizationCharge)
-                .append("waterUtilizations", waterUtilizations)
-                .toString();
+    public void addWaterUtilizationLites(List<WaterUtilizationLite> waterUtilizationLites) {
+        Assert.notNull(waterUtilizationLites, "WaterUtilizationLite list cannot be null");
+        this.waterUtilizationLites.addAll(waterUtilizationLites);
     }
+
 
     public static Builder builder() {
         return new Builder();
@@ -56,18 +52,18 @@ public class WaterBillingDetail {
     public static final class Builder {
         private final WaterBillingDetail waterBillingDetail = new WaterBillingDetail();
 
-        public Builder waterUtilizationCharge(WaterUtilizationCharge waterUtilizationCharge) {
-            waterBillingDetail.waterUtilizationCharge = waterUtilizationCharge;
+        public Builder waterUtilizationChargeLite(WaterUtilizationChargeLite waterUtilizationChargeLite) {
+            waterBillingDetail.waterUtilizationChargeLite = waterUtilizationChargeLite;
             return this;
         }
 
-        public Builder waterUtilization(WaterUtilization waterUtilization) {
-            waterBillingDetail.addWaterUtilizations(waterUtilization);
+        public Builder waterUtilizationLite(WaterUtilizationLite waterUtilizationLite) {
+            waterBillingDetail.addWaterUtilizationLite(waterUtilizationLite);
             return this;
         }
 
-        public Builder waterUtilizations(List<WaterUtilization> waterUtilizations) {
-            waterBillingDetail.waterUtilizations.addAll(waterUtilizations);
+        public Builder waterUtilizationLites(List<WaterUtilizationLite> waterUtilizationLites) {
+            waterBillingDetail.addWaterUtilizationLites(waterUtilizationLites);
             return this;
         }
 

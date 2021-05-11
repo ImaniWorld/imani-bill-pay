@@ -1,13 +1,11 @@
 package com.imani.bill.pay.service.billing.utility;
 
+import com.imani.bill.pay.domain.DomainLiteConverterUtil;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
-import com.imani.bill.pay.domain.utility.WaterBillingDetail;
-import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
-import com.imani.bill.pay.domain.utility.WaterUtilization;
-import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
+import com.imani.bill.pay.domain.utility.*;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
@@ -68,9 +66,10 @@ public class WaterBillExplanationService implements IBillExplanationService<Wate
             Optional<WaterUtilizationCharge> waterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), atStartOfQuarter, atEndOfQuarter);
             if (waterUtilizationCharge.isPresent()) {
                 List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement.getId(), atStartOfQuarter, atEndOfQuarter);
+                List<WaterUtilizationLite> waterUtilizationLites = DomainLiteConverterUtil.toWaterUtilizationLites(waterUtilizations);
                 WaterBillingDetail waterBillingDetail = WaterBillingDetail.builder()
-                        .waterUtilizationCharge(waterUtilizationCharge.get())
-                        .waterUtilizations(waterUtilizations)
+                        .waterUtilizationChargeLite(waterUtilizationCharge.get().toWaterUtilizationChargeLite())
+                        .waterUtilizationLites(waterUtilizationLites)
                         .build();
                 imaniBillExplained.get().setBillingDetail(waterBillingDetail);
             }

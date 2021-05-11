@@ -66,9 +66,9 @@ public class WaterSvcAgreementExecServiceAdvisor {
         // Verify that a utilization hasn't already been logged for the specified utilization date.
         Optional<WaterUtilization> existingUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilizationLite.getUtilizationDate());
         if(existingUtilization.isPresent()) {
-            StringBuffer sb = new StringBuffer("An existing water utilization found [")
+            StringBuffer sb = new StringBuffer("An existing water utilization found [Utilization: ")
                     .append(existingUtilization.get().getNumberOfGallonsUsed()).append("gallons")
-                    .append(" : Date> ").append(existingUtilization.get().getUtilizationDate());
+                    .append(" | Date: ").append(existingUtilization.get().getUtilizationDate()).append("]");
             executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
         }
 

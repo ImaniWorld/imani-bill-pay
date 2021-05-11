@@ -102,6 +102,19 @@ public class WaterUtilizationCharge {
         this.utilizationEnd = utilizationEnd;
     }
 
+
+    public WaterUtilizationChargeLite toWaterUtilizationChargeLite() {
+        WaterUtilizationChargeLite waterUtilizationChargeLite = WaterUtilizationChargeLite.builder()
+                .id(id)
+                .charge(charge)
+                .totalGallonsUsed(totalGallonsUsed)
+                .utilizationStart(utilizationStart)
+                .utilizationEnd(utilizationEnd)
+                .build();
+        return waterUtilizationChargeLite;
+    }
+
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
