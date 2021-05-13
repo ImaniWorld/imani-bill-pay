@@ -64,7 +64,7 @@ public class WaterImaniBillExplanationService implements IImaniBillExplanationSe
             // Lookup all billing details to form explanation
             // Get the current quarter start date, this will be the scheduled date on the current bill for this agreement
             DateTime atStartOfQuarter = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-            DateTime atEndOfQuarter = iDateTimeUtil.getDateTimeAEndOfCurrentQuarter();
+            DateTime atEndOfQuarter = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
             Optional<WaterUtilizationCharge> waterUtilizationCharge = iWaterUtilizationChargeRepository.findByImaniBillInQtr(imaniBill.get(), atStartOfQuarter, atEndOfQuarter);
             if (waterUtilizationCharge.isPresent()) {
                 List<WaterUtilization> waterUtilizations = iWaterUtilizationRepository.findUtilizationInPeriod(waterServiceAgreement.getId(), atStartOfQuarter, atEndOfQuarter);

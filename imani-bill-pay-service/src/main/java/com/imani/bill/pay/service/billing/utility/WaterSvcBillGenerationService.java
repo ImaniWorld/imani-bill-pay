@@ -4,14 +4,12 @@ import com.imani.bill.pay.domain.billing.BillScheduleTypeE;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
-import com.imani.bill.pay.domain.user.UserRecord;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
-import com.imani.bill.pay.service.billing.fee.IBillFeeChargeService;
+import com.imani.bill.pay.service.billing.compute.IBillingComputeService;
+import com.imani.bill.pay.service.billing.compute.WaterBillingComputeService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
-import com.imani.bill.pay.service.utility.IWaterUtilizationService;
-import com.imani.bill.pay.service.utility.WaterUtilizationService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,52 +27,51 @@ import java.util.Optional;
 public class WaterSvcBillGenerationService  implements IBillGenerationService<WaterServiceAgreement> {
 
 
+
+    @Autowired
+    private IImaniBillWaterSvcAgreementRepository imaniBillWaterSvcAgreementRepository;
+
     @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
 
     @Autowired
-    @Qualifier(WaterUtilizationService.SPRING_BEAN)
-    private IWaterUtilizationService iWaterUtilizationService;
-
-    @Autowired
-    @Qualifier(WaterBillFeeChargeService.SPRING_BEAN)
-    IBillFeeChargeService<WaterServiceAgreement> iBillFeeChargeService;
-
-    @Autowired
-    private IImaniBillWaterSvcAgreementRepository imaniBillWaterSvcAgreementRepository;
+    @Qualifier(WaterBillingComputeService.SPRING_BEAN)
+    private IBillingComputeService<WaterServiceAgreement> iBillingComputeService;
 
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterSvcBillGenerationService.class);
 
-    @Transactional
-    @Override
-    public boolean generateImaniBill(UserRecord userRecord) {
-        return false;
-    }
 
+
+    /**
+     *
+     * @param waterServiceAgreement
+     * @return
+     */
     @Transactional
     @Override
     public boolean generateImaniBill(WaterServiceAgreement waterServiceAgreement) {
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
-        LOGGER.info("Attempting to generate a quarterly ImaniBill on {}", waterServiceAgreement.describeAgreement());
 
         if(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE() == BillScheduleTypeE.QUARTERLY) {
-            // Check to see IF a bill has already been created for the start of the quarter on this agreement
-            // For Water bill in this quarter, it will be due at the start of next quarter
-            DateTime billScheduleDate = iDateTimeUtil.getDateTimeAStartOfNextQuarter();
+            DateTime billScheduleDate = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
             Optional<ImaniBill> imaniBill = getImaniBillForEntity(waterServiceAgreement, billScheduleDate);
 
             if(!imaniBill.isPresent()) {
-                // Compute charges with fees and persist bill.
-                LOGGER.info("Generating new ImaniBill for quarter Schedule-Date[{}] ", billScheduleDate);
+                LOGGER.info("Generating new WaterService ImaniBill in current quarter for Schedule-Date[{}] on {}", billScheduleDate, waterServiceAgreement.describeAgreement());
                 ImaniBill persistedBill = generateImaniBill(waterServiceAgreement, billScheduleDate);
-                iWaterUtilizationService.computeUtilizationChargeWithSchdFees(persistedBill);
+                iBillingComputeService.computeUpdateBill(waterServiceAgreement, persistedBill);
             } else {
-                LOGGER.info("ImaniBill already created in current quater.");
-                iBillFeeChargeService.chargeWaterBillLateFees(waterServiceAgreement);
+                LOGGER.info("A WaterService ImaniBill already created in current for Schedule-Date[{}]", billScheduleDate);
+
+                // Find all unpaid bills on the WaterServiceAgreement and recompute all fee's.  Expectation is late fees will be applied
+                List<ImaniBill> unPaidImaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement.getId());
+                unPaidImaniBills.forEach(unPaidImaniBill -> {
+                    iBillingComputeService.computeUpdateBill(waterServiceAgreement, imaniBill.get());
+                });
             }
         }
 

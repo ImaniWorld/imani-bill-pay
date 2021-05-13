@@ -7,6 +7,8 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.TimeZone;
+
 /**
  * @author manyce400
  */
@@ -24,6 +26,7 @@ public class JacksonMapperConfigurator {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new JodaModule());
+        mapper.setTimeZone(TimeZone.getTimeZone("America/New_York"));
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }

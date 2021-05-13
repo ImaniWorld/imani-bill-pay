@@ -14,6 +14,8 @@ public interface IWaterUtilizationService {
 
     public WaterUtilizationCharge computeUtilizationCharge(ImaniBill imaniBill);
 
+    public WaterUtilizationCharge computeUpdateWithUtilizationCharge(ImaniBill imaniBill);
+
     public double computeUtilizationChargeWithSchdFees(ImaniBill imaniBill);
 
     public Optional<WaterUtilization> logWaterUtilization(WaterUtilizationLite waterUtilizationLite);

@@ -37,7 +37,7 @@ public class WaterSvcBillGenerationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOGGER.info("Running automated Imani BillPay Tuition Bill generation .....");
+        LOGGER.info("Running automated Imani BillPay Water bill generation process.....");
 
         // Find all BillPayer user's in order to generate TuitionAgreement bills for them
         List<WaterServiceAgreement> waterServiceAgreements = iWaterServiceAgreementRepository.findAllWhereAgreementInforce();

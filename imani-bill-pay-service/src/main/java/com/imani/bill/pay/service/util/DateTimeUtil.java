@@ -1,5 +1,6 @@
 package com.imani.bill.pay.service.util;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.MutableDateTime;
@@ -114,7 +115,82 @@ public class DateTimeUtil implements IDateTimeUtil {
         DateTime now = DateTime.now();
         int currentYear = now.getYear();
         int currentQuarter = getCurrentQuaterOfCurrentYear();
+        return getQuarterStartDateTime(currentYear, currentQuarter);
+    }
 
+    @Override
+    public DateTime getDateTimeAtStartOfQuarter(DateTime dateTime) {
+        int year = dateTime.getYear();
+        int quarter = getDateTimeQuarter(dateTime);
+        return getQuarterStartDateTime(year, quarter);
+    }
+
+    @Override
+    public DateTime getDateTimeAtEndOfCurrentQuarter() {
+        DateTime now = DateTime.now();
+        int currentYear = now.getYear();
+        int currentQuarter = getCurrentQuaterOfCurrentYear();
+        return getQuarterEndDateTime(currentYear, currentQuarter);
+    }
+
+    @Override
+    public DateTime getDateTimeAtEndOfCurrentQuarter(DateTime dateTime) {
+        int year = dateTime.getYear();
+        int quarter = getDateTimeQuarter(dateTime);
+        return getQuarterEndDateTime(year, quarter);
+    }
+
+    @Override
+    public ImmutablePair<DateTime, DateTime> getQuarterStartEndDates(DateTime dateTime) {
+        DateTime qtrStart = getDateTimeAtStartOfQuarter(dateTime);
+        DateTime qtrEnd = getDateTimeAtEndOfCurrentQuarter();
+        return new ImmutablePair<>(qtrStart, qtrEnd);
+    }
+
+    @Override
+    public DateTime getDateTimeAStartOfNextQuarter() {
+        // Get date at end of this current qtr and advance by 1month
+        DateTime dateTime = getDateTimeAtEndOfCurrentQuarter();
+        dateTime.plusMonths(1);
+        return dateTime;
+    }
+
+    @Override
+    public Integer getCurrentQuaterOfCurrentYear() {
+        DateTime now = DateTime.now();
+        int monthOfYear = now.getMonthOfYear();
+        return getQuaterByMonthOfYear(monthOfYear);
+    }
+
+    @Override
+    public Integer getDateTimeQuarter(DateTime dateTime) {
+        Assert.notNull(dateTime, "DateTime cannot be null");
+        int monthOfYear = dateTime.getMonthOfYear();
+        return getQuaterByMonthOfYear(monthOfYear);
+    }
+
+    @Override
+    public boolean isDateTimeInCurrentQuarter(DateTime dateTime) {
+        int currentQuarter = getCurrentQuaterOfCurrentYear();
+        int dateTimeQuarter = getDateTimeQuarter(dateTime);
+        return currentQuarter == dateTimeQuarter;
+    }
+
+    private int getQuaterByMonthOfYear(int monthOfYear) {
+        if(monthOfYear >= 1 && monthOfYear <= 3) {
+            return 1; // 1 for First Quarter
+        } else if(monthOfYear >= 4 && monthOfYear <= 6) {
+            return 2; // 2 for Second Quarter
+        } else if(monthOfYear >= 7 && monthOfYear <= 9) {
+            return 3; // 3 for Third Quarter
+        } else if(monthOfYear >= 10 && monthOfYear <= 12) {
+            return 4; // 4 for Fourth Quarter
+        }
+
+        return -1;
+    }
+
+    private DateTime getQuarterStartDateTime(int currentYear, int currentQuarter) {
         if(currentQuarter == 1) {
             MutableDateTime mutableDateTime = new MutableDateTime();
             mutableDateTime.setYear(currentYear);
@@ -160,12 +236,7 @@ public class DateTimeUtil implements IDateTimeUtil {
         return null;
     }
 
-    @Override
-    public DateTime getDateTimeAEndOfCurrentQuarter() {
-        DateTime now = DateTime.now();
-        int currentYear = now.getYear();
-        int currentQuarter = getCurrentQuaterOfCurrentYear();
-
+    private DateTime getQuarterEndDateTime(int currentYear, int currentQuarter) {
         if(currentQuarter == 1) {
             MutableDateTime mutableDateTime = new MutableDateTime();
             mutableDateTime.setYear(currentYear);
@@ -175,7 +246,7 @@ public class DateTimeUtil implements IDateTimeUtil {
             mutableDateTime.setMinuteOfHour(0);
             mutableDateTime.setSecondOfMinute(0);
             mutableDateTime.setMillisOfSecond(0);
-            return mutableDateTime.toDateTime();
+            return mutableDateTime.toDateTime().dayOfMonth().withMaximumValue(); // Gurantees that we pick the last day of the calendar month
         } else if(currentQuarter == 2) {
             MutableDateTime mutableDateTime = new MutableDateTime();
             mutableDateTime.setYear(currentYear);
@@ -185,7 +256,7 @@ public class DateTimeUtil implements IDateTimeUtil {
             mutableDateTime.setMinuteOfHour(0);
             mutableDateTime.setSecondOfMinute(0);
             mutableDateTime.setMillisOfSecond(0);
-            return mutableDateTime.toDateTime();
+            return mutableDateTime.toDateTime().dayOfMonth().withMaximumValue(); // Gurantees that we pick the last day of the calendar month
         } else if(currentQuarter == 3) {
             MutableDateTime mutableDateTime = new MutableDateTime();
             mutableDateTime.setYear(currentYear);
@@ -195,7 +266,7 @@ public class DateTimeUtil implements IDateTimeUtil {
             mutableDateTime.setMinuteOfHour(0);
             mutableDateTime.setSecondOfMinute(0);
             mutableDateTime.setMillisOfSecond(0);
-            return mutableDateTime.toDateTime();
+            return mutableDateTime.toDateTime().dayOfMonth().withMaximumValue(); // Gurantees that we pick the last day of the calendar month
         } else if(currentQuarter == 4) {
             MutableDateTime mutableDateTime = new MutableDateTime();
             mutableDateTime.setYear(currentYear);
@@ -205,53 +276,10 @@ public class DateTimeUtil implements IDateTimeUtil {
             mutableDateTime.setMinuteOfHour(0);
             mutableDateTime.setSecondOfMinute(0);
             mutableDateTime.setMillisOfSecond(0);
-            return mutableDateTime.toDateTime();
+            return mutableDateTime.toDateTime().dayOfMonth().withMaximumValue(); // Gurantees that we pick the last day of the calendar month
         }
 
         return null;
-    }
-
-    @Override
-    public DateTime getDateTimeAStartOfNextQuarter() {
-        // Get date at end of this current qtr and advance by 1month
-        DateTime dateTime = getDateTimeAEndOfCurrentQuarter();
-        dateTime.plusMonths(1);
-        return dateTime;
-    }
-
-    @Override
-    public Integer getCurrentQuaterOfCurrentYear() {
-        DateTime now = DateTime.now();
-        int monthOfYear = now.getMonthOfYear();
-        return getQuaterByMonthOfYear(monthOfYear);
-    }
-
-    @Override
-    public Integer getDateTimeQuarter(DateTime dateTime) {
-        Assert.notNull(dateTime, "DateTime cannot be null");
-        int monthOfYear = dateTime.getMonthOfYear();
-        return getQuaterByMonthOfYear(monthOfYear);
-    }
-
-    @Override
-    public boolean isDateTimeInCurrentQuarter(DateTime dateTime) {
-        int currentQuarter = getCurrentQuaterOfCurrentYear();
-        int dateTimeQuarter = getDateTimeQuarter(dateTime);
-        return currentQuarter == dateTimeQuarter;
-    }
-
-    private int getQuaterByMonthOfYear(int monthOfYear) {
-        if(monthOfYear >= 1 && monthOfYear <= 3) {
-            return 1; // 1 for First Quarter
-        } else if(monthOfYear >= 4 && monthOfYear <= 6) {
-            return 2; // 2 for Second Quarter
-        } else if(monthOfYear >= 7 && monthOfYear <= 9) {
-            return 3; // 3 for Third Quarter
-        } else if(monthOfYear >= 10 && monthOfYear <= 12) {
-            return 4; // 4 for Fourth Quarter
-        }
-
-        return -1;
     }
 
     public static void main(String[] args) {
@@ -260,7 +288,10 @@ public class DateTimeUtil implements IDateTimeUtil {
         System.out.println("quarter = " + quarter);
 
         DateTime dateTime = dateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-        System.out.println("dateTime = " + dateTime);
+        System.out.println("StartOfQtr = " + dateTime);
+
+        dateTime = dateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
+        System.out.println("EndOfQtr = " + dateTime);
     }
 
     

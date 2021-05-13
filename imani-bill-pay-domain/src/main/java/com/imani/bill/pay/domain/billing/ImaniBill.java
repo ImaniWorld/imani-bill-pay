@@ -17,8 +17,7 @@ import org.joda.time.DateTime;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author manyce400
@@ -254,6 +253,34 @@ public class ImaniBill extends AuditableRecord {
         }
 
         return ImmutableSet.copyOf(billToFeeSet);
+    }
+
+    public Optional<ImaniBillToFee> getLateFeeBetweenPeriod(DateTime start, DateTime end) {
+        ImaniBillToFee feeInPeriod = null;
+
+        for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
+            if (FeeTypeE.LATE_FEE == imaniBillToFee.getBillPayFee().getFeeTypeE()) {
+                DateTime leviedDate = imaniBillToFee.getCreateDate();
+                if(leviedDate.isAfter(start) && leviedDate.isBefore(end)) {
+                    feeInPeriod = imaniBillToFee;
+                    break;
+                }
+            }
+        }
+
+        return feeInPeriod == null ? Optional.empty() : Optional.of(feeInPeriod);
+    }
+
+    public List<ImaniBillToFee> getScheduledFees() {
+        List<ImaniBillToFee> scheduledFees = new ArrayList<>();
+
+        for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
+            if (FeeTypeE.Scheduled_Fee == imaniBillToFee.getBillPayFee().getFeeTypeE()) {
+                scheduledFees.add(imaniBillToFee);
+            }
+        }
+
+        return scheduledFees;
     }
 
     public double computeTotalFeeAmountByFeeTypeE(FeeTypeE feeTypeE) {

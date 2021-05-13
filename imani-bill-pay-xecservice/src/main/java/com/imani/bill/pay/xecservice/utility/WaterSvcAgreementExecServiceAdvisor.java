@@ -8,7 +8,6 @@ import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.execution.ValidationAdvice;
 import com.imani.bill.pay.domain.utility.UtilityServiceArea;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
-import com.imani.bill.pay.domain.utility.WaterUtilization;
 import com.imani.bill.pay.domain.utility.WaterUtilizationLite;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationRepository;
@@ -64,13 +63,13 @@ public class WaterSvcAgreementExecServiceAdvisor {
         }
 
         // Verify that a utilization hasn't already been logged for the specified utilization date.
-        Optional<WaterUtilization> existingUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilizationLite.getUtilizationDate());
-        if(existingUtilization.isPresent()) {
-            StringBuffer sb = new StringBuffer("An existing water utilization found [Utilization: ")
-                    .append(existingUtilization.get().getNumberOfGallonsUsed()).append("gallons")
-                    .append(" | Date: ").append(existingUtilization.get().getUtilizationDate()).append("]");
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
-        }
+//        Optional<WaterUtilization> existingUtilization = iWaterUtilizationRepository.findUtilizationByDate(waterServiceAgreement.get(), waterUtilizationLite.getUtilizationDate());
+//        if(existingUtilization.isPresent()) {
+//            StringBuffer sb = new StringBuffer("An existing water utilization found [Utilization: ")
+//                    .append(existingUtilization.get().getNumberOfGallonsUsed()).append("gallons")
+//                    .append(" | Date: ").append(existingUtilization.get().getUtilizationDate()).append("]");
+//            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+//        }
 
         if(waterUtilizationLite.getWaterServiceAgreementLite() == null
                 || waterUtilizationLite.getWaterServiceAgreementLite().getId() == null) {

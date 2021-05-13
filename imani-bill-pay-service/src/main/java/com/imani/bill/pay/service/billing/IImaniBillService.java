@@ -14,6 +14,8 @@ import java.util.Set;
  */
 public interface IImaniBillService {
 
+    public boolean hasLateFeeBeenAppliedInCurrentQtr(ImaniBill imaniBill);
+
     public boolean isBillPaymentLate(ImaniBill imaniBill, EmbeddedAgreement embeddedAgreement);
 
     public Optional<ImaniBill> findByUserCurrentMonthBill(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE);

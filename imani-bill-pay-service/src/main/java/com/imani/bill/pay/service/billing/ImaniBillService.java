@@ -2,7 +2,9 @@ package com.imani.bill.pay.service.billing;
 
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.billing.BillServiceRenderedTypeE;
+import com.imani.bill.pay.domain.billing.FeeTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
+import com.imani.bill.pay.domain.billing.ImaniBillToFee;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
 import com.imani.bill.pay.domain.education.TuitionAgreement;
 import com.imani.bill.pay.domain.user.UserRecord;
@@ -36,6 +38,27 @@ public class ImaniBillService implements IImaniBillService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ImaniBillService.class);
 
+
+    @Override
+    public boolean hasLateFeeBeenAppliedInCurrentQtr(ImaniBill imaniBill) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+
+        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
+
+        boolean feeApplied = false;
+        LOGGER.info("Checking if late fee has been applied in quarter [ImaniBill: {} | Start: {} | End: {}]", imaniBill.getId(), start, end);
+
+        Set<ImaniBillToFee> imaniBillToFees = imaniBill.getBillPayFeesByFeeTypeE(FeeTypeE.LATE_FEE);
+        for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
+            DateTime leviedDate = imaniBillToFee.getCreateDate();
+            if(leviedDate.isAfter(start) && leviedDate.isBefore(end)) {
+                feeApplied = true;
+            }
+        }
+
+        return feeApplied;
+    }
 
     @Override
     public boolean isBillPaymentLate(ImaniBill imaniBill, EmbeddedAgreement embeddedAgreement) {
@@ -106,19 +129,6 @@ public class ImaniBillService implements IImaniBillService {
         Optional<ImaniBill> imaniBill = Optional.empty();//imaniBillRepository.getImaniBillForTuitionAndUser(userRecord, tuitionAgreement);
         return imaniBill;
     }
-
-//    @Override
-//    public Optional<ImaniBill> findCurrentMonthBillByServiceRendered(UserRecord userRecord, BillServiceRenderedTypeE billServiceRenderedTypeE) {
-//        Assert.notNull(userRecord, "userRecord cannot be null");
-//        Assert.notNull(billServiceRenderedTypeE, "billServiceRenderedTypeE cannot be null");
-//
-//        DateTime dateTimeAtStartOfMonth = iDateTimeUtil.getDateTimeAtStartOfMonth(DateTime.now());
-//        String dateString = iDateTimeUtil.toDisplayFriendlyNoTime(dateTimeAtStartOfMonth);
-//
-//        LOGGER.info("Finding current month({}) [{}] bill for user => {}", dateString, billServiceRenderedTypeE, userRecord.getEmbeddedContactInfo().getEmail());
-//        Optional<ImaniBill> imaniBill = imaniBillRepository.getImaniBillFetchRecords(userRecord, dateTimeAtStartOfMonth, BillScheduleTypeE.MONTHLY, billServiceRenderedTypeE);
-//        return imaniBill;
-//    }
 
     @Override
     public void save(ImaniBill imaniBill) {
