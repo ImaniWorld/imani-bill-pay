@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -65,13 +64,8 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
                 ImaniBill persistedBill = generateImaniBill(waterServiceAgreement, billScheduleDate);
                 iBillingComputeService.computeUpdateBill(waterServiceAgreement, persistedBill);
             } else {
-                LOGGER.info("A WaterService ImaniBill already created in current for Schedule-Date[{}]", billScheduleDate);
-
-                // Find all unpaid bills on the WaterServiceAgreement and recompute all fee's.  Expectation is late fees will be applied
-                List<ImaniBill> unPaidImaniBills = imaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(waterServiceAgreement.getId());
-                unPaidImaniBills.forEach(unPaidImaniBill -> {
-                    iBillingComputeService.computeUpdateBill(waterServiceAgreement, imaniBill.get());
-                });
+                // Compute and update all water bills for this agreement
+                iBillingComputeService.computeUpdateAgreementBills(waterServiceAgreement);
             }
         }
 

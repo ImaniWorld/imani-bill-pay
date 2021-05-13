@@ -56,7 +56,7 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
     public void computeUpdateAgreementBills(WaterServiceAgreement agreement) {
         Assert.notNull(agreement, "WaterServiceAgreement cannot be null");
 
-        LOGGER.info("Computing and updating all unpaid WaterService ImaniBills for ", agreement.describeAgreement());
+        LOGGER.info("Computing and updating all unpaid WaterService ImaniBills for {}", agreement.describeAgreement());
 
         // Find all unpaid bills on the WaterServiceAgreement and recompute all fee's.  Expectation is late fees will be applied
         List<ImaniBill> unPaidImaniBills = iImaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(agreement.getId());
