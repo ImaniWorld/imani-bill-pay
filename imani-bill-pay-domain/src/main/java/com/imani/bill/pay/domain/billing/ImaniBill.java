@@ -191,7 +191,7 @@ public class ImaniBill extends AuditableRecord {
     }
 
     public boolean isPaidInFull() {
-        return amountOwed.equals(amountPaid);
+        return amountOwed > 0 && amountOwed.equals(amountPaid);
     }
 
     public boolean isValidPaymentAmount(double amountToBePaid) {

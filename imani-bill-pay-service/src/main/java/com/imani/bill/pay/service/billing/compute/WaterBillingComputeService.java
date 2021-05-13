@@ -62,6 +62,7 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
         List<ImaniBill> unPaidImaniBills = iImaniBillWaterSvcAgreementRepository.findAllAgreementUnPaidBills(agreement.getId());
         unPaidImaniBills.forEach(unPaidImaniBill -> {
             computeUpdateBill(agreement, unPaidImaniBill);
+            LOGGER.info("========================================================================================");
         });
     }
 

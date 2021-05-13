@@ -143,7 +143,7 @@ public class DateTimeUtil implements IDateTimeUtil {
     @Override
     public ImmutablePair<DateTime, DateTime> getQuarterStartEndDates(DateTime dateTime) {
         DateTime qtrStart = getDateTimeAtStartOfQuarter(dateTime);
-        DateTime qtrEnd = getDateTimeAtEndOfCurrentQuarter();
+        DateTime qtrEnd = getDateTimeAtEndOfCurrentQuarter(dateTime);
         return new ImmutablePair<>(qtrStart, qtrEnd);
     }
 

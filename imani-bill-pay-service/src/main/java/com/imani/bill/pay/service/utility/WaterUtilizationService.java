@@ -16,6 +16,7 @@ import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -63,9 +64,10 @@ public class WaterUtilizationService implements IWaterUtilizationService {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
         Assert.notNull(imaniBill.getWaterServiceAgreement(), "WaterServiceAgreement on bill cannot be null");
 
-        // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
-        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-        DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
+        // Derive the start and end dates for utilizations to be based on the scheduled date of bill
+        ImmutablePair<DateTime, DateTime> dateTimeImmutablePair = iDateTimeUtil.getQuarterStartEndDates(imaniBill.getBillScheduleDate());
+        DateTime start = dateTimeImmutablePair.getLeft();
+        DateTime end = dateTimeImmutablePair.getRight();
 
         // Get existing WaterUtilizationCharge or create new and compute + update charges based on current utilization
         WaterUtilizationCharge waterUtilizationCharge = getDefaultWaterUtilizationCharge(imaniBill, start, end);
@@ -158,9 +160,8 @@ public class WaterUtilizationService implements IWaterUtilizationService {
     }
 
     void computeAndUpdateWaterUtilizationCharge(WaterServiceAgreement waterServiceAgreement, WaterUtilizationCharge waterUtilizationCharge) {
-        // TODO note that this currently only supports a quarterly utilization computation.  Make this more flexible
-        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
-        DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
+        DateTime start = waterUtilizationCharge.getUtilizationStart();
+        DateTime end = waterUtilizationCharge.getUtilizationEnd();
 
         LOGGER.info("Attempting to compute current water utilization charge with DateRange[{} - {}] on agreement", start, end);
 

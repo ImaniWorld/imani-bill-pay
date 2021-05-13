@@ -93,6 +93,7 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
 
     private ImaniBill generateImaniBill(WaterServiceAgreement waterServiceAgreement, DateTime billScheduleDate) {
         ImaniBill imaniBill = ImaniBill.builder()
+                .amountOwed(0d)
                 .amountPaid(0d)
                 .billScheduleDate(billScheduleDate)
                 .billScheduleTypeE(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
