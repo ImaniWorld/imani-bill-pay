@@ -241,6 +241,26 @@ create table PropertyLeaseAgreement (
         primary key (ID)
     )
 
+create table PropertyLeaseAgreement (
+       ID bigint not null auto_increment,
+        LeasedApartmentID bigint,
+        LeasedPropertyID bigint,
+        AgreementDocument varchar(100),
+        AgreementInForce TINYINT,
+        BillScheduleTypeE varchar(20) not null,
+        FixedCost double precision,
+        NumberOfDaysTillLate integer,
+        EffectiveDate datetime not null,
+        TerminationDate datetime,
+        AgreementUserRecordID bigint,
+        AgreementPropertyID bigint,
+        AgreementBusinessID bigint,
+        AgreementCommunityID bigint,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
+
 
 create table ImaniBill (
        ID bigint not null auto_increment,
@@ -259,6 +279,19 @@ create table ImaniBill (
         primary key (ID)
     )
 
+create table ImaniBillToFee (
+       ID bigint not null auto_increment,
+        FeeAmount double precision,
+        FeeEnforced TINYINT not null,
+        ImaniBillID bigint not null,
+        BillPayFeeID bigint not null,
+        UserApplyingFeeID bigint,
+        UserWavingFeeID bigint,
+        FeeLeviedDate datetime,
+        CreateDate datetime not null,
+        ModifyDate datetime,
+        primary key (ID)
+    )
 
 create table BillPayFee (
        ID bigint not null auto_increment,

@@ -4,18 +4,14 @@ import com.imani.bill.pay.domain.billing.ImaniBillExplained;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
 import com.imani.bill.pay.domain.gateway.APIGatewayRequest;
 import com.imani.bill.pay.domain.gateway.APIGatewayResponse;
-import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillExplanationService;
 import com.imani.bill.pay.service.billing.ResidentialPropertyLeaseBillExplanationService;
 import com.imani.bill.pay.service.billing.education.TuitionBillExplanationService;
-import com.imani.bill.pay.xecservice.billing.IImaniBillExplanationService;
-import com.imani.bill.pay.xecservice.billing.WaterImaniBillExplanationService;
+import com.imani.bill.pay.xecservice.billing.IImaniBillExplainExecService;
+import com.imani.bill.pay.xecservice.billing.WaterImaniBillExplainExecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,8 +32,8 @@ public class BillingExplainedController {
     private IBillExplanationService tuitionBillExplanationService;
 
     @Autowired
-    @Qualifier(WaterImaniBillExplanationService.SPRING_BEAN)
-    private IImaniBillExplanationService waterImaniBillExplanationService;
+    @Qualifier(WaterImaniBillExplainExecService.SPRING_BEAN)
+    private IImaniBillExplainExecService waterIImaniBillExplainExecService;
 
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingExplainedController.class);
@@ -56,9 +52,17 @@ public class BillingExplainedController {
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 
-    @PostMapping("/water/current")
-    public APIGatewayResponse getCurrentWaterBill(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
-        ExecutionResult<ImaniBillExplained> executionResult = waterImaniBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getRequestObject());
+//    @PostMapping("/water/current")
+//    public APIGatewayResponse getCurrentWaterBill(@RequestBody APIGatewayRequest<WaterServiceAgreement> apiGatewayRequest) {
+//        ExecutionResult<ImaniBillExplained> executionResult = waterImaniBillExplanationService.getCurrentBillExplanation(apiGatewayRequest.getRequestObject());
+//        return APIGatewayResponse.fromExecutionResult(executionResult);
+//    }
+
+    @RequestMapping(value = "/water/by/bill/{bill_id}", method = RequestMethod.GET)
+    public APIGatewayResponse getUserWaterSvcAgreements(@PathVariable(value="bill_id") Long imaniBillID) {
+        LOGGER.info("Received bill explanation request on ImaniBill[ID: {}]", imaniBillID);
+        ExecutionResult<ImaniBillExplained> executionResult = new ExecutionResult<>();
+        waterIImaniBillExplainExecService.explainImaniBill(imaniBillID, executionResult);
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

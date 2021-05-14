@@ -92,7 +92,6 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
 
         if (!imaniBill.isPaidInFull() && isBillLate) {
             // Lookup configured late fee by the utility provider on this agreement
-            LOGGER.info("Computing and updating amount owed on ImaniBill[ID: {} | AmountOwed: {}] based on configured late fee", imaniBill.getId(), imaniBill.getAmountOwed());
             Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
 
             if (lateBillPayFee.isPresent()) {
@@ -109,11 +108,14 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
 
                 if(!lateFeeLeviedInQuarter.isPresent()) {
                     LOGGER.info("No late fee has been levied in Qtr[Start: {} | End: {}] on ImaniBill", start, end);
-                    imaniBill.addImaniBillToFee(lateBillPayFee.get(), feeAmount);
+                    imaniBill.levyLateFee(lateBillPayFee.get(), feeAmount, end);
                 } else {
                     LOGGER.info("Detected a late fee levied in Qtr[Start: {} | End: {} | Fee: {}]", start, end, lateFeeLeviedInQuarter.get().getFeeAmount());
                     lateFeeLeviedInQuarter.get().setFeeAmount(feeAmount);
                 }
+
+                Object[] logArgs = {imaniBill.getId(), feeAmount, imaniBill.getAmountOwed()};
+                LOGGER.info("Computed late fee details ImaniBill[ID: {} | FeeAmount: {} | AmountOwed: {}]", logArgs);
 
             } else {
                 LOGGER.error("No configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());

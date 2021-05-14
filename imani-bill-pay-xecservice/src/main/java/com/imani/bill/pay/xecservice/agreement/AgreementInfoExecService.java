@@ -33,7 +33,7 @@ public class AgreementInfoExecService implements IAgreementInfoExecService {
         Assert.notNull(communityID, "CommunityID cannot be null");
         Assert.notNull(executionResult, "executionResult cannot be null");
 
-        LOGGER.info("Call #findCommunityPropertiesWaterAgreements() validation errors found=> [{}]", executionResult.hasExecutionError());
+        LOGGER.info("Call #findCommunityPropertiesWaterAgreements() validation errors found=> [{}]", executionResult.hasValidationAdvice());
 
         if(!executionResult.hasValidationAdvice()
                 && !executionResult.hasExecutionError()) {

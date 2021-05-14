@@ -215,12 +215,39 @@ public class ImaniBill extends AuditableRecord {
     public void addImaniBillToFee(BillPayFee billPayFee, Double feeAmount) {
         Assert.notNull(billPayFee, "BillPayFee cannot be null");
         Assert.notNull(feeAmount, "feeAmount cannot be null");
+
+        ImaniBillToFee imaniBillToFee = ImaniBillToFee.builder()
+                .billPayFee(billPayFee)
+                .imaniBill(this)
+                .feeEnforced(true)
+                .feeAmount(feeAmount)
+                .feeLeviedDate(DateTime.now())
+                .build();
+        imaniBillToFees.add(imaniBillToFee);
+    }
+
+    public void levyLateFee(BillPayFee billPayFee, Double feeAmount, DateTime qtrEndDateTime) {
+        Assert.notNull(billPayFee, "BillPayFee cannot be null");
+        Assert.isTrue(billPayFee.getFeeTypeE() == FeeTypeE.LATE_FEE, "Levied fee must be of type LATE_FEE");
+        Assert.notNull(feeAmount, "feeAmount cannot be null");
+        Assert.notNull(qtrEndDateTime, "qtrEndDateTime cannot be null");
+
         ImaniBillToFee imaniBillToFee = ImaniBillToFee.builder()
                 .billPayFee(billPayFee)
                 .imaniBill(this)
                 .feeEnforced(true)
                 .feeAmount(feeAmount)
                 .build();
+
+        // IF qtrEndDateTime > now then use now else use qtrEndDateTime.
+        // This ensures that IF now is after qtr end date, we will default to quarter end date
+        DateTime now = DateTime.now();
+        if(now.isAfter(qtrEndDateTime)) {
+            imaniBillToFee.setFeeLeviedDate(qtrEndDateTime);
+        } else {
+            imaniBillToFee.setFeeLeviedDate(now);
+        }
+
         imaniBillToFees.add(imaniBillToFee);
     }
 
@@ -260,8 +287,13 @@ public class ImaniBill extends AuditableRecord {
 
         for(ImaniBillToFee imaniBillToFee : imaniBillToFees) {
             if (FeeTypeE.LATE_FEE == imaniBillToFee.getBillPayFee().getFeeTypeE()) {
-                DateTime leviedDate = imaniBillToFee.getCreateDate();
-                if(leviedDate.isAfter(start) && leviedDate.isBefore(end)) {
+                DateTime leviedDate = imaniBillToFee.getFeeLeviedDate();
+
+                // Special case:  IF fee was levied after quarter ended, system defaults levied date to last day in quarter
+                if(leviedDate.equals(end)) {
+                    feeInPeriod = imaniBillToFee;
+                    break;
+                } else if(leviedDate.isAfter(start) && leviedDate.isBefore(end)) {
                     feeInPeriod = imaniBillToFee;
                     break;
                 }

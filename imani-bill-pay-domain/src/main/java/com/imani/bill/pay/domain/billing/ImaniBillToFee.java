@@ -1,11 +1,13 @@
 package com.imani.bill.pay.domain.billing;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.user.UserRecord;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 
@@ -59,6 +61,12 @@ public class ImaniBillToFee extends AuditableRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserWavingFeeID")
     private UserRecord userWavingFee;
+
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "FeeLeviedDate")
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime feeLeviedDate;
 
 
     public ImaniBillToFee() {
@@ -121,11 +129,19 @@ public class ImaniBillToFee extends AuditableRecord {
         this.userWavingFee = userWavingFee;
     }
 
+    public DateTime getFeeLeviedDate() {
+        return feeLeviedDate;
+    }
+
+    public void setFeeLeviedDate(DateTime feeLeviedDate) {
+        this.feeLeviedDate = feeLeviedDate;
+    }
+
     public BillPayFeeExplained toBillPayFeeExplained() {
         BillPayFeeExplained billPayFeeExplained = BillPayFeeExplained.builder()
                 .feeName(billPayFee.getFeeName())
                 .feeCharge(feeAmount)
-                .feeAppliedDate(createDate)
+                .feeAppliedDate(feeLeviedDate)
                 .build();
         return billPayFeeExplained;
     }
@@ -140,6 +156,7 @@ public class ImaniBillToFee extends AuditableRecord {
                 .append("billPayFee", billPayFee)
                 .append("userApplyingFee", userApplyingFee)
                 .append("userWavingFee", userWavingFee)
+                .append("feeLeviedDate", feeLeviedDate)
                 .toString();
     }
 
@@ -177,6 +194,11 @@ public class ImaniBillToFee extends AuditableRecord {
 
         public Builder userWavingFee(UserRecord userWavingFee) {
             imaniBillToFee.userWavingFee = userWavingFee;
+            return this;
+        }
+
+        public Builder feeLeviedDate(DateTime feeLeviedDate) {
+            imaniBillToFee.feeLeviedDate = feeLeviedDate;
             return this;
         }
 
