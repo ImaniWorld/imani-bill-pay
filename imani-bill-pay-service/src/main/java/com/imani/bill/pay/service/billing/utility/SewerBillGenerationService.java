@@ -6,6 +6,8 @@ import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillSewerSvcAgreementRepository;
 import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
+import com.imani.bill.pay.service.billing.compute.IBillingComputeService;
+import com.imani.bill.pay.service.billing.compute.UtilityBillingComputeService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import org.joda.time.DateTime;
@@ -30,6 +32,10 @@ public class SewerBillGenerationService implements IBillGenerationService<SewerS
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
 
+    @Autowired
+    @Qualifier(UtilityBillingComputeService.SPRING_BEAN)
+    private IBillingComputeService iBillingComputeService;
+
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.utility.SewerBillGenerationService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SewerBillGenerationService.class);
@@ -43,12 +49,14 @@ public class SewerBillGenerationService implements IBillGenerationService<SewerS
             Optional<ImaniBill> imaniBill = getImaniBillForEntity(sewerServiceAgreement, billScheduleDate);
 
             if(!imaniBill.isPresent()) {
-                LOGGER.info("Generating new WaterService ImaniBill in current quarter for Schedule-Date[{}] on {}", billScheduleDate, sewerServiceAgreement.describeAgreement());
+                LOGGER.info("Generating new SewerServiceAgreement ImaniBill in current quarter for Schedule-Date[{}] on {}", billScheduleDate, sewerServiceAgreement.describeAgreement());
                 ImaniBill persistedBill = generateImaniBill(sewerServiceAgreement, billScheduleDate);
-
+                iBillingComputeService.computeUpdateBill(sewerServiceAgreement, persistedBill);
+            } else {
+                // Compute and update all water bills for this agreement
+                iBillingComputeService.computeUpdateAgreementBills(sewerServiceAgreement);
             }
         }
-
 
         return false;
     }
@@ -69,7 +77,7 @@ public class SewerBillGenerationService implements IBillGenerationService<SewerS
             return iImaniBillSewerSvcAgreementRepository.getImaniBillForAgreement(sewerServiceAgreement.getEmbeddedUtilityService().getUtilityServiceArea(), sewerServiceAgreement, billScheduleDate);
         }
 
-        LOGGER.info("No prior saved ImaniBill found for sewerServiceAgreement");
+        LOGGER.info("No prior saved ImaniBill found for SewerServiceAgreement");
         return Optional.empty();
     }
 

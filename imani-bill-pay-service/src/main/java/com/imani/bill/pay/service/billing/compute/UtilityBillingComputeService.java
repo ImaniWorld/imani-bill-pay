@@ -1,8 +1,12 @@
 package com.imani.bill.pay.service.billing.compute;
 
+import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillRepository;
 import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementRepository;
+import com.imani.bill.pay.domain.utility.EmbeddedUtilityService;
+import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterUtilizationCharge;
 import com.imani.bill.pay.domain.utility.repository.IWaterUtilizationChargeRepository;
@@ -21,8 +25,8 @@ import java.util.List;
 /**
  * @author manyce400
  */
-@Service(WaterBillingComputeService.SPRING_BEAN)
-public class WaterBillingComputeService implements IBillingComputeService<WaterServiceAgreement> {
+@Service(UtilityBillingComputeService.SPRING_BEAN)
+public class UtilityBillingComputeService implements IBillingComputeService {
 
 
     @Autowired
@@ -46,9 +50,9 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
 
-    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.compute.WaterBillingComputeService";
+    public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.compute.UtilityBillingComputeService";
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterBillingComputeService.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(UtilityBillingComputeService.class);
 
 
     @Transactional
@@ -66,11 +70,29 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
         });
     }
 
+    @Override
+    public void computeUpdateAgreementBills(SewerServiceAgreement sewerServiceAgreement) {
+
+    }
+
+
+
     @Transactional
     @Override
-    public void computeUpdateBill(WaterServiceAgreement agreement, ImaniBill imaniBill) {
+    public void computeUpdateBill(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill) {
+        Assert.notNull(waterServiceAgreement, "waterServiceAgreement cannot be null");
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        computeUpdateBill(waterServiceAgreement.getEmbeddedAgreement(), waterServiceAgreement.getEmbeddedUtilityService(), imaniBill, waterServiceAgreement.getScheduledBillPayFees());
+    }
 
+    @Override
+    public void computeUpdateBill(SewerServiceAgreement sewerServiceAgreement, ImaniBill imaniBill) {
+        Assert.notNull(sewerServiceAgreement, "SewerServiceAgreement cannot be null");
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        computeUpdateBill(sewerServiceAgreement.getEmbeddedAgreement(), sewerServiceAgreement.getEmbeddedUtilityService(), imaniBill, sewerServiceAgreement.getScheduledBillPayFees());
+    }
+
+    private void computeUpdateBill(EmbeddedAgreement embeddedAgreement, EmbeddedUtilityService embeddedUtilityService, ImaniBill imaniBill, List<BillPayFee> billPayFees) {
         if (!imaniBill.isPaidInFull()) {
             Object[] args = {imaniBill.getId(), imaniBill.getAmountOwed(), imaniBill.getAmountPaid()};
             LOGGER.info("Recomputing full charges on ImaniBill[ID: {} || AmtOwed: {} | AmtPaid: {}]", args);
@@ -78,13 +100,13 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
 
 
             // Compute and update amount owed from scheduled fees
-            iBillingFeeComputeService.computeUpdateAmountOwedWithSchedFees(agreement.getScheduledBillPayFees(), imaniBill);
+            iBillingFeeComputeService.computeUpdateAmountOwedWithSchedFees(billPayFees, imaniBill);
 
             // Next compute the current water utilization in the quarter in order to add to computed charges
             WaterUtilizationCharge waterUtilizationCharge = iWaterUtilizationService.computeUpdateWithUtilizationCharge(imaniBill);
 
             // Last step, we can now compute late fees against new charges computed with scheduled fees. Save and flush all changes to Bill
-            iBillingFeeComputeService.computeUpdateAmountOwedWithLateFee(agreement.getEmbeddedAgreement(), agreement.getEmbeddedUtilityService(), imaniBill);
+            iBillingFeeComputeService.computeUpdateAmountOwedWithLateFee(embeddedAgreement, embeddedUtilityService, imaniBill);
 
             // Save all details
             imaniBillRepository.save(imaniBill);

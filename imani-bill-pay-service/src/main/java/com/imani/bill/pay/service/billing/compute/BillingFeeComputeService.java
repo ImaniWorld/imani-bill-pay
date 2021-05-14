@@ -49,7 +49,7 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
 
     @Override
     public void computeUpdateAmountOwedWithSchedFees(List<BillPayFee> billPayFees, ImaniBill imaniBill) {
-        Assert.notNull(billPayFees, "WaterServiceAgreement cannot be null");
+        Assert.notNull(billPayFees, "BillPay Fees cannot be null");
         Assert.isTrue(billPayFees.size() > 0, "Configured BillPayFee's required");
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
 

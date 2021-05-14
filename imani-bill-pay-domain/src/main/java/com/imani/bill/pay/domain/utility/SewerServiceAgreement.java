@@ -1,12 +1,20 @@
 package com.imani.bill.pay.domain.utility;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.ImmutableSet;
 import com.imani.bill.pay.domain.AuditableRecord;
+import com.imani.bill.pay.domain.agreement.AgreementToScheduleBillPayFee;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.agreement.IHasBillingAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.util.Assert;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author manyce400
@@ -28,6 +36,10 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
 
     @Embedded
     private EmbeddedUtilityService embeddedUtilityService;
+
+
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "sewerServiceAgreement")
+    private Set<AgreementToScheduleBillPayFee> agreementToScheduleBillPayFees = new HashSet<>();
 
 
     public SewerServiceAgreement() {
@@ -59,6 +71,23 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
         this.embeddedUtilityService = embeddedUtilityService;
     }
 
+    public Set<AgreementToScheduleBillPayFee> getAgreementToScheduleBillPayFees() {
+        return ImmutableSet.copyOf(agreementToScheduleBillPayFees);
+    }
+
+    public List<BillPayFee> getScheduledBillPayFees() {
+        final List<BillPayFee> billPayFees = new ArrayList<>();
+        agreementToScheduleBillPayFees.forEach(agreementToScheduleBillPayFee -> {
+            billPayFees.add(agreementToScheduleBillPayFee.getBillPayFee());
+        });
+        return billPayFees;
+    }
+
+    public void addAgreementToScheduleBillPayFee(AgreementToScheduleBillPayFee agreementToScheduleBillPayFee) {
+        Assert.notNull(agreementToScheduleBillPayFee, "AgreementToScheduleBillPayFee cannot be null");
+        agreementToScheduleBillPayFees.add(agreementToScheduleBillPayFee);
+    }
+
     @Override
     public String describeAgreement() {
         return null;
@@ -88,6 +117,11 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
 
         public Builder embeddedUtilityService(EmbeddedUtilityService embeddedUtilityService) {
             sewerServiceAgreement.embeddedUtilityService = embeddedUtilityService;
+            return this;
+        }
+
+        public Builder agreementToScheduleBillPayFee(AgreementToScheduleBillPayFee agreementToScheduleBillPayFee) {
+            sewerServiceAgreement.addAgreementToScheduleBillPayFee(agreementToScheduleBillPayFee);
             return this;
         }
 

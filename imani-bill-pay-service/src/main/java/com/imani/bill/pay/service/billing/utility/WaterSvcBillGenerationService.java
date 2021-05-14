@@ -7,7 +7,7 @@ import com.imani.bill.pay.domain.billing.repository.IImaniBillWaterSvcAgreementR
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.compute.IBillingComputeService;
-import com.imani.bill.pay.service.billing.compute.WaterBillingComputeService;
+import com.imani.bill.pay.service.billing.compute.UtilityBillingComputeService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import org.joda.time.DateTime;
@@ -35,8 +35,8 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
     private IDateTimeUtil iDateTimeUtil;
 
     @Autowired
-    @Qualifier(WaterBillingComputeService.SPRING_BEAN)
-    private IBillingComputeService<WaterServiceAgreement> iBillingComputeService;
+    @Qualifier(UtilityBillingComputeService.SPRING_BEAN)
+    private IBillingComputeService iBillingComputeService;
 
 
     public static final String SPRING_BEAN = "com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService";
