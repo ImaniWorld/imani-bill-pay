@@ -6,6 +6,7 @@ import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.repository.ISewerServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
+import com.imani.bill.pay.service.billing.utility.SewerBillGenerationService;
 import com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService;
 import com.imani.bill.pay.service.concurrency.AppConcurrencyConfigurator;
 import org.quartz.*;
@@ -34,7 +35,11 @@ public class AutoBillingExecutionJob implements Job {
 
     @Autowired
     @Qualifier(WaterSvcBillGenerationService.SPRING_BEAN)
-    private IBillGenerationService<WaterServiceAgreement> iBillGenerationService;
+    private IBillGenerationService<WaterServiceAgreement> iWaterBillGenerationService;
+
+    @Autowired
+    @Qualifier(SewerBillGenerationService.SPRING_BEAN)
+    private IBillGenerationService<SewerServiceAgreement> iSewerBillGenerationService;
 
     @Autowired
     @Qualifier(AppConcurrencyConfigurator.AUTO_BILLING_THREAD_POOL)
@@ -51,7 +56,7 @@ public class AutoBillingExecutionJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LOGGER.info("Running automated Imani BillPay billing and reconciliation services...");
-        execWaterBilling();
+//        execWaterBilling();
         execSewerBilling();
     }
 
@@ -60,7 +65,7 @@ public class AutoBillingExecutionJob implements Job {
         waterServiceAgreements.forEach(waterServiceAgreement -> {
             // Kick off each water billing generation on a different thread to free up Quartz threads for further processing
             Runnable runnable =() -> {
-                iBillGenerationService.generateImaniBill(waterServiceAgreement);
+                iWaterBillGenerationService.generateImaniBill(waterServiceAgreement);
             };
 
             listeningExecutorService.submit(runnable);
@@ -71,7 +76,7 @@ public class AutoBillingExecutionJob implements Job {
         List<SewerServiceAgreement> sewerServiceAgreements = iSewerServiceAgreementRepository.findAllWhereAgreementInforce();
         sewerServiceAgreements.forEach(sewerServiceAgreement -> {
             Runnable runnable =() -> {
-                System.out.println("sewerServiceAgreement = " + sewerServiceAgreement);
+                iSewerBillGenerationService.generateImaniBill(sewerServiceAgreement);
             };
 
             listeningExecutorService.submit(runnable);

@@ -87,7 +87,7 @@ public class SewerBillGenerationService implements IBillGenerationService<SewerS
                 .amountPaid(0d)
                 .billScheduleDate(billScheduleDate)
                 .billScheduleTypeE(sewerServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE())
-                .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility_Water)
+                .billServiceRenderedTypeE(BillServiceRenderedTypeE.Utility_Sewer)
                 .sewerServiceAgreement(sewerServiceAgreement)
                 .build();
         return imaniBill;

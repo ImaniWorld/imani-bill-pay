@@ -55,7 +55,7 @@ public class UtilityServiceAgreementController {
     public APIGatewayResponse newSewerSvcAgreement(@RequestBody APIGatewayRequest<SewerServiceAgreement> apiGatewayRequest) {
         LOGGER.info("Received a request to create a new Sewer Service Agreement...");
         ExecutionResult<SewerServiceAgreement> executionResult = new ExecutionResult<>(apiGatewayRequest.getRequestObject());
-        iSewerSvcAgreementExecService.processSewerSvcAgreement(executionResult);
+        iSewerSvcAgreementExecService.processSewerSvcAgreement(executionResult, apiGatewayRequest.getBillPayFees());
         return APIGatewayResponse.fromExecutionResult(executionResult);
     }
 

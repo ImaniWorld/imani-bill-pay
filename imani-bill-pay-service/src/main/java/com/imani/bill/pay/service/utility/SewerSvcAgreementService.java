@@ -1,6 +1,8 @@
 package com.imani.bill.pay.service.utility;
 
+import com.imani.bill.pay.domain.agreement.AgreementToScheduleBillPayFee;
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
+import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.business.Business;
 import com.imani.bill.pay.domain.business.repository.IBusinessRepository;
 import com.imani.bill.pay.domain.execution.ExecutionResult;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -48,7 +51,7 @@ public class SewerSvcAgreementService implements ISewerSvcAgreementService {
 
 
     @Override
-    public void createAgreement(SewerServiceAgreement sewerServiceAgreement, ExecutionResult executionResult) {
+    public void createAgreement(SewerServiceAgreement sewerServiceAgreement, ExecutionResult executionResult, List<BillPayFee> billPayFees) {
         Assert.notNull(sewerServiceAgreement, "SewerServiceAgreement cannot be null");
         Assert.isNull(sewerServiceAgreement.getId(), "SewerServiceAgreement is already persisted");
 
@@ -87,6 +90,17 @@ public class SewerSvcAgreementService implements ISewerSvcAgreementService {
                         .embeddedAgreement(embeddedAgreement)
                         .embeddedUtilityService(embeddedUtilityService)
                         .build();
+
+                // Apply all the late fees
+                for(BillPayFee billPayFee : billPayFees) {
+                    AgreementToScheduleBillPayFee agreementToScheduleBillPayFee = AgreementToScheduleBillPayFee.builder()
+                            .sewerServiceAgreement(newSewerServiceAgreementt)
+                            .billPayFee(billPayFee)
+                            .enforced(true)
+                            .build();
+                    newSewerServiceAgreementt.addAgreementToScheduleBillPayFee(agreementToScheduleBillPayFee);
+                }
+
                 iSewerServiceAgreementRepository.save(newSewerServiceAgreementt);
             }
         }

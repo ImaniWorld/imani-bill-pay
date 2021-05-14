@@ -88,6 +88,17 @@ public class SewerServiceAgreement extends AuditableRecord implements IHasBillin
         agreementToScheduleBillPayFees.add(agreementToScheduleBillPayFee);
     }
 
+    public SewerServiceAgreementLite toSewerServiceAgreementLite() {
+        SewerServiceAgreementLite sewerServiceAgreementLite = SewerServiceAgreementLite.builder()
+                .id(id)
+                .business(embeddedUtilityService.getUtilityProviderBusiness().toBusinessLite())
+                .embeddedAgreement(embeddedAgreement.toEmbeddedLite())
+                .businessCustomerAcctID(embeddedUtilityService.getSvcCustomerAcctID())
+                .build();
+        return sewerServiceAgreementLite;
+    }
+
+
     @Override
     public String describeAgreement() {
         return null;
