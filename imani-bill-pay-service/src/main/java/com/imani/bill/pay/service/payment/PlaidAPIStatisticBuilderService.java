@@ -23,7 +23,7 @@ public class PlaidAPIStatisticBuilderService implements IPlaidAPIStatisticBuilde
 
 
     @Autowired
-    @Qualifier(AppConcurrencyConfigurator.SERVICE_THREAD_POOL)
+    @Qualifier(AppConcurrencyConfigurator.STATISTICS_THREAD_POOL)
     private ListeningExecutorService listeningExecutorService;
 
     @Autowired

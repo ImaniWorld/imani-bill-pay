@@ -1,9 +1,11 @@
 package com.imani.bill.pay.svschedule.auto.billing;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService;
+import com.imani.bill.pay.service.concurrency.AppConcurrencyConfigurator;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +28,10 @@ public class WaterSvcBillGenerationJob implements Job {
     private IBillGenerationService<WaterServiceAgreement> iBillGenerationService;
 
     @Autowired
+    @Qualifier(AppConcurrencyConfigurator.AUTO_BILLING_THREAD_POOL)
+    private ListeningExecutorService listeningExecutorService;
+
+    @Autowired
     private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
     private static final String JOB_DETAIL = "WATER-SVC-BILL-GENERATION-JOB";
@@ -37,12 +43,17 @@ public class WaterSvcBillGenerationJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOGGER.info("Running automated Imani BillPay Water bill generation process.....");
+        LOGGER.info("Kicking off Imani BillPay automated billing services....");
 
         // Find all BillPayer user's in order to generate TuitionAgreement bills for them
         List<WaterServiceAgreement> waterServiceAgreements = iWaterServiceAgreementRepository.findAllWhereAgreementInforce();
         waterServiceAgreements.forEach(waterServiceAgreement -> {
-            iBillGenerationService.generateImaniBill(waterServiceAgreement);
+            // Kick off each water billing generation on a different thread to free up Quartz threads for further processing
+            Runnable runnable =() -> {
+                iBillGenerationService.generateImaniBill(waterServiceAgreement);
+            };
+
+            listeningExecutorService.submit(runnable);
         });
     }
 

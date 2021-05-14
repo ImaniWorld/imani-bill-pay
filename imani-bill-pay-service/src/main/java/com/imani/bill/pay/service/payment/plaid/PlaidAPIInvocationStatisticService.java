@@ -29,7 +29,7 @@ public class PlaidAPIInvocationStatisticService implements IPlaidAPIInvocationSt
     private IDateTimeUtil iDateTimeUtil;
 
     @Autowired
-    @Qualifier(AppConcurrencyConfigurator.SERVICE_THREAD_POOL)
+    @Qualifier(AppConcurrencyConfigurator.STATISTICS_THREAD_POOL)
     private ListeningExecutorService listeningExecutorService;
 
     @Autowired
