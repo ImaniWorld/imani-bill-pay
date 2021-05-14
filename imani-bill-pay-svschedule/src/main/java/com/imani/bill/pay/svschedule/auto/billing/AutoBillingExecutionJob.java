@@ -1,7 +1,9 @@
 package com.imani.bill.pay.svschedule.auto.billing;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.repository.ISewerServiceAgreementRepository;
 import com.imani.bill.pay.domain.utility.repository.IWaterServiceAgreementRepository;
 import com.imani.bill.pay.service.billing.IBillGenerationService;
 import com.imani.bill.pay.service.billing.utility.WaterSvcBillGenerationService;
@@ -20,8 +22,15 @@ import java.util.List;
  * @author manyce400
  */
 @Component
-public class WaterSvcBillGenerationJob implements Job {
+public class AutoBillingExecutionJob implements Job {
 
+
+
+    @Autowired
+    private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
+
+    @Autowired
+    private ISewerServiceAgreementRepository iSewerServiceAgreementRepository;
 
     @Autowired
     @Qualifier(WaterSvcBillGenerationService.SPRING_BEAN)
@@ -31,21 +40,22 @@ public class WaterSvcBillGenerationJob implements Job {
     @Qualifier(AppConcurrencyConfigurator.AUTO_BILLING_THREAD_POOL)
     private ListeningExecutorService listeningExecutorService;
 
-    @Autowired
-    private IWaterServiceAgreementRepository iWaterServiceAgreementRepository;
 
-    private static final String JOB_DETAIL = "WATER-SVC-BILL-GENERATION-JOB";
+    private static final String JOB_DETAIL = "AUTOMATED-BILL-GENERATION-JOB";
 
-    private static final String JOB_TRIGGER = "WATER-SVC-BILL-GENERATION-TRIGGER";
+    private static final String JOB_TRIGGER = "AUTOMATED-BILL-GENERATION-TRIGGER";
 
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterSvcBillGenerationJob.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(AutoBillingExecutionJob.class);
 
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOGGER.info("Kicking off Imani BillPay automated billing services....");
+        LOGGER.info("Running automated Imani BillPay billing and reconciliation services...");
+        execWaterBilling();
+        execSewerBilling();
+    }
 
-        // Find all BillPayer user's in order to generate TuitionAgreement bills for them
+    private void execWaterBilling() {
         List<WaterServiceAgreement> waterServiceAgreements = iWaterServiceAgreementRepository.findAllWhereAgreementInforce();
         waterServiceAgreements.forEach(waterServiceAgreement -> {
             // Kick off each water billing generation on a different thread to free up Quartz threads for further processing
@@ -57,18 +67,29 @@ public class WaterSvcBillGenerationJob implements Job {
         });
     }
 
-    @Bean(WaterSvcBillGenerationJob.JOB_DETAIL)
+    private void execSewerBilling() {
+        List<SewerServiceAgreement> sewerServiceAgreements = iSewerServiceAgreementRepository.findAllWhereAgreementInforce();
+        sewerServiceAgreements.forEach(sewerServiceAgreement -> {
+            Runnable runnable =() -> {
+                System.out.println("sewerServiceAgreement = " + sewerServiceAgreement);
+            };
+
+            listeningExecutorService.submit(runnable);
+        });
+    }
+
+    @Bean(AutoBillingExecutionJob.JOB_DETAIL)
     public JobDetail jobDetail() {
-        return JobBuilder.newJob().ofType(WaterSvcBillGenerationJob.class)
+        return JobBuilder.newJob().ofType(AutoBillingExecutionJob.class)
                 .storeDurably()
-                .withIdentity("Auto_Water_Service_Bill_Generation")
+                .withIdentity("Auto_Bill_Generation")
                 .build();
     }
 
-    @Bean(WaterSvcBillGenerationJob.JOB_TRIGGER)
-    public Trigger trigger(@Qualifier(WaterSvcBillGenerationJob.JOB_DETAIL) JobDetail job) {
+    @Bean(AutoBillingExecutionJob.JOB_TRIGGER)
+    public Trigger trigger(@Qualifier(AutoBillingExecutionJob.JOB_DETAIL) JobDetail job) {
         return TriggerBuilder.newTrigger().forJob(job)
-                .withIdentity("WATER-SVC_Bill_Trigger")
+                .withIdentity("AUTO_BillING_Trigger")
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().repeatForever().withIntervalInSeconds(60))
                 .build();
     }

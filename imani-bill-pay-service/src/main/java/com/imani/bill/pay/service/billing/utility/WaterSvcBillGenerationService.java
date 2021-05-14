@@ -67,6 +67,8 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
                 // Compute and update all water bills for this agreement
                 iBillingComputeService.computeUpdateAgreementBills(waterServiceAgreement);
             }
+
+            return true;
         }
 
         return false;

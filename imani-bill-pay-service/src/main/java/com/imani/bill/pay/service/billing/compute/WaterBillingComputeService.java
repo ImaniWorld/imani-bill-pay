@@ -78,13 +78,13 @@ public class WaterBillingComputeService implements IBillingComputeService<WaterS
 
 
             // Compute and update amount owed from scheduled fees
-            iBillingFeeComputeService.computeUpdateAmountOwedWithSchedFees(agreement, imaniBill);
+            iBillingFeeComputeService.computeUpdateAmountOwedWithSchedFees(agreement.getScheduledBillPayFees(), imaniBill);
 
             // Next compute the current water utilization in the quarter in order to add to computed charges
             WaterUtilizationCharge waterUtilizationCharge = iWaterUtilizationService.computeUpdateWithUtilizationCharge(imaniBill);
 
             // Last step, we can now compute late fees against new charges computed with scheduled fees. Save and flush all changes to Bill
-            iBillingFeeComputeService.computeUpdateAmountOwedWithLateFee(agreement, imaniBill);
+            iBillingFeeComputeService.computeUpdateAmountOwedWithLateFee(agreement.getEmbeddedAgreement(), agreement.getEmbeddedUtilityService(), imaniBill);
 
             // Save all details
             imaniBillRepository.save(imaniBill);

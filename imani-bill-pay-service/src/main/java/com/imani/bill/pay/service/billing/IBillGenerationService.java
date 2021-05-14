@@ -7,6 +7,6 @@ package com.imani.bill.pay.service.billing;
  */
 public interface IBillGenerationService<O> {
 
-    public boolean generateImaniBill(O generationObject);
+    public boolean generateImaniBill(O agreement);
 
 }

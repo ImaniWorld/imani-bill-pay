@@ -1,11 +1,12 @@
 package com.imani.bill.pay.service.billing.compute;
 
+import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
 import com.imani.bill.pay.domain.billing.BillPayFee;
 import com.imani.bill.pay.domain.billing.FeeTypeE;
 import com.imani.bill.pay.domain.billing.ImaniBill;
 import com.imani.bill.pay.domain.billing.ImaniBillToFee;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
-import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import com.imani.bill.pay.domain.utility.EmbeddedUtilityService;
 import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,9 +45,12 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(BillingFeeComputeService.class);
 
+
+
     @Override
-    public void computeUpdateAmountOwedWithSchedFees(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill) {
-        Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
+    public void computeUpdateAmountOwedWithSchedFees(List<BillPayFee> billPayFees, ImaniBill imaniBill) {
+        Assert.notNull(billPayFees, "WaterServiceAgreement cannot be null");
+        Assert.isTrue(billPayFees.size() > 0, "Configured BillPayFee's required");
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
 
         // Start with the current amount owed, get all scheduled fees appy and compute new amount owed.
@@ -66,7 +69,6 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
         } else {
             LOGGER.info("Model 2: Using preconfigured scheduled fees. No scheduled fees already applied to ImaniBill...");
             final double[] computedFinalAmt = {amountOwed};
-            List<BillPayFee> billPayFees = waterServiceAgreement.getScheduledBillPayFees();
             billPayFees.forEach(billPayFee -> {
                 computedFinalAmt[0] = billPayFee.calculatePaymentWithFees(computedFinalAmt[0]);
                 double feeAmount = billPayFee.calculatFeeCharge(computedFinalAmt[0]);
@@ -81,18 +83,18 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
         LOGGER.info("Result of computing scheduled fee charges => ImaniBill[ID: {} | AmountOwed: {}]", logArgs);
     }
 
-    @Transactional
     @Override
-    public void computeUpdateAmountOwedWithLateFee(WaterServiceAgreement waterServiceAgreement, ImaniBill imaniBill) {
-        Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
+    public void computeUpdateAmountOwedWithLateFee(EmbeddedAgreement embeddedAgreement, EmbeddedUtilityService embeddedUtilityService, ImaniBill imaniBill) {
+        Assert.notNull(embeddedAgreement, "EmbeddedAgreement cannot be null");
+        Assert.notNull(embeddedUtilityService, "EmbeddedUtilityService cannot be null");
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
 
         // Check to see if Bill is late in order to apply a late fee
-        boolean isBillLate = imaniBillService.isBillPaymentLate(imaniBill, waterServiceAgreement.getEmbeddedAgreement());
+        boolean isBillLate = imaniBillService.isBillPaymentLate(imaniBill, embeddedAgreement);
 
         if (!imaniBill.isPaidInFull() && isBillLate) {
             // Lookup configured late fee by the utility provider on this agreement
-            Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
+            Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(embeddedUtilityService.getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
 
             if (lateBillPayFee.isPresent()) {
                 // Compute the fee amount and update by adding it to the current amount owed on the bill
@@ -118,7 +120,7 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
                 LOGGER.info("Computed late fee details ImaniBill[ID: {} | FeeAmount: {} | AmountOwed: {}]", logArgs);
 
             } else {
-                LOGGER.error("No configured late fee was found for Business[{}]", imaniBill.getId(), waterServiceAgreement.getEmbeddedUtilityService().getUtilityProviderBusiness().getId());
+                LOGGER.error("No configured late fee was found for Business[{}]", imaniBill.getId(), embeddedUtilityService.getUtilityProviderBusiness().getId());
             }
         }
     }

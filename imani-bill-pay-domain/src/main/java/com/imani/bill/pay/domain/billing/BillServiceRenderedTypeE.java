@@ -13,7 +13,7 @@ public enum BillServiceRenderedTypeE {
 
     Utility_Water,
 
-    Utility_Sewage,
+    Utility_Sewer,
 
     Residential_Lease,
 
