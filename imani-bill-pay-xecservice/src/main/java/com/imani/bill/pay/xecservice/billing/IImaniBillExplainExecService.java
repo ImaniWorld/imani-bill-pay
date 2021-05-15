@@ -8,9 +8,6 @@ import com.imani.bill.pay.domain.execution.ExecutionResult;
  */
 public interface IImaniBillExplainExecService<O> {
 
-    public void getCurrentBillExplanation(O agreement, ExecutionResult<ImaniBillExplained> executionResult);
-
     public void explainImaniBill(Long imaniBillID, ExecutionResult<ImaniBillExplained> executionResult);
-
 
 }

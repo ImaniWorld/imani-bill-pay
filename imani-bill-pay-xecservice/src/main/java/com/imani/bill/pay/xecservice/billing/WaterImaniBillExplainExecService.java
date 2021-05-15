@@ -47,18 +47,11 @@ public class WaterImaniBillExplainExecService implements IImaniBillExplainExecSe
     private IWaterUtilizationRepository iWaterUtilizationRepository;
 
 
-
-
     public static final String SPRING_BEAN = "com.imani.bill.pay.xecservice.billing.WaterImaniBillExplainExecService";
 
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(WaterImaniBillExplainExecService.class);
 
 
-
-    @Override
-    public void getCurrentBillExplanation(WaterServiceAgreement agreement, ExecutionResult<ImaniBillExplained> executionResult) {
-
-    }
 
     @Override
     public void explainImaniBill(Long imaniBillID, ExecutionResult<ImaniBillExplained> executionResult) {
