@@ -39,20 +39,21 @@ public class WaterImaniBillExplainExecServiceAdvisor {
         LOGGER.debug("Executing beforeAdvice WaterImaniBillExplainExecServiceAdvisor#explainImaniBill() ...");
 
         Optional<ImaniBill> imaniBill = imaniBillRepository.findById(imaniBillID);
-        WaterServiceAgreement waterServiceAgreement = imaniBill.get().getWaterServiceAgreement();
+
 
         if(!imaniBill.isPresent()) {
             StringBuffer sb = new StringBuffer("No valid ImaniBill found with ID[")
                     .append(imaniBillID)
                     .append("]");
             executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
-        }
-
-        if(waterServiceAgreement == null) {
-            StringBuffer sb = new StringBuffer("ImaniBill found with ID[")
-                    .append(imaniBillID)
-                    .append("] has no attached WaterService Agreement.");
-            executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+        } else {
+            WaterServiceAgreement waterServiceAgreement = imaniBill.get().getWaterServiceAgreement();
+            if(waterServiceAgreement == null) {
+                StringBuffer sb = new StringBuffer("ImaniBill found with ID[")
+                        .append(imaniBillID)
+                        .append("] has no WaterService Agreement.");
+                executionResult.addValidationAdvice(ValidationAdvice.newInstance(sb.toString()));
+            }
         }
     }
 
