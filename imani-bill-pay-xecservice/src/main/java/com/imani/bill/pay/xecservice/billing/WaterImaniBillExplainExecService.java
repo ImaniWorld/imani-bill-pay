@@ -71,7 +71,7 @@ public class WaterImaniBillExplainExecService implements IImaniBillExplainExecSe
                 && !executionResult.hasExecutionError()) {
             Optional<ImaniBill> imaniBill = imaniBillRepository.findById(imaniBillID);
             WaterServiceAgreement waterServiceAgreement = imaniBill.get().getWaterServiceAgreement();
-            ImaniBillExplained imaniBillExplained = imaniBill.get().toImaniBillExplained();
+            ImaniBillExplained<WaterBillingDetail> imaniBillExplained = imaniBill.get().toImaniBillExplained();
 
             // Find water utilization details for this bill
             ImmutablePair<DateTime, DateTime> dateTimeImmutablePair = iDateTimeUtil.getQuarterStartEndDates(imaniBill.get().getBillScheduleDate());

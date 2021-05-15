@@ -328,14 +328,14 @@ public class ImaniBill extends AuditableRecord {
         return totalFeesLeviedAmount;
     }
 
-    public ImaniBillExplained toImaniBillExplained() {
+    public <O> ImaniBillExplained<O> toImaniBillExplained() {
         BillPurposeExplained billPurposeExplained = BillPurposeExplained.builder()
                 .billScheduleDate(billScheduleDate)
                 .billScheduleTypeE(billScheduleTypeE)
                 .billServiceRenderedTypeE(billServiceRenderedTypeE)
                 .build();
 
-        ImaniBillExplained imaniBillExplained = ImaniBillExplained.builder()
+        ImaniBillExplained<O> imaniBillExplained = ImaniBillExplained.<O>builder()
                 .imaniBillID(id)
                 .amountOwed(amountOwed)
                 .amountPaid(amountPaid)

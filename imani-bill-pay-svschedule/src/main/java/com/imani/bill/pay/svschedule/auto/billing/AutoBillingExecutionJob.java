@@ -56,7 +56,7 @@ public class AutoBillingExecutionJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LOGGER.info("Running automated Imani BillPay billing and reconciliation services...");
-//        execWaterBilling();
+        execWaterBilling();
         execSewerBilling();
     }
 

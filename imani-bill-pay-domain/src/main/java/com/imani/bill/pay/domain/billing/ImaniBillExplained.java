@@ -139,50 +139,50 @@ public class ImaniBillExplained<O> {
                 .toString();
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static <O> Builder<O> builder() {
+        return new Builder<O>();
     }
 
     public static class Builder<O> {
 
-        private ImaniBillExplained imaniBillExplained = new ImaniBillExplained();
+        private ImaniBillExplained<O> imaniBillExplained = new ImaniBillExplained<>();
 
-        public Builder imaniBillID(Long imaniBillID) {
+        public Builder<O> imaniBillID(Long imaniBillID) {
             imaniBillExplained.imaniBillID = imaniBillID;
             return this;
         }
 
-        public Builder amountOwed(Double amountOwed) {
+        public Builder<O> amountOwed(Double amountOwed) {
             imaniBillExplained.amountOwed = amountOwed;
             return this;
         }
 
-        public Builder amountPaid(Double amountPaid) {
+        public Builder<O> amountPaid(Double amountPaid) {
             imaniBillExplained.amountPaid = amountPaid;
             return this;
         }
 
-        public Builder amtBeingPaid(Double amtBeingPaid) {
+        public Builder<O> amtBeingPaid(Double amtBeingPaid) {
             imaniBillExplained.amtBeingPaid = amtBeingPaid;
             return this;
         }
 
-        public Builder billingDetail(O billingDetail) {
+        public Builder<O> billingDetail(O billingDetail) {
             imaniBillExplained.billingDetail = billingDetail;
             return this;
         }
 
-        public Builder billPurposeExplained(BillPurposeExplained billPurposeExplained) {
+        public Builder<O> billPurposeExplained(BillPurposeExplained billPurposeExplained) {
             imaniBillExplained.billPurposeExplained = billPurposeExplained;
             return this;
         }
 
-        public Builder userBilled(UserRecordLite userBilled) {
+        public Builder<O> userBilled(UserRecordLite userBilled) {
             imaniBillExplained.userBilled = userBilled;
             return this;
         }
 
-        public ImaniBillExplained build() {
+        public ImaniBillExplained<O> build() {
             return imaniBillExplained;
         }
     }
