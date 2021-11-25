@@ -3,6 +3,8 @@ package com.imani.bill.pay.domain.billing;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.imani.bill.pay.domain.AuditableRecord;
 import com.imani.bill.pay.domain.business.Business;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -172,6 +174,81 @@ public class BillPayFee extends AuditableRecord implements IFeePaymentModel {
                 .append("billServiceRenderedTypeE", billServiceRenderedTypeE)
                 .append("business", business)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BillPayFee that = (BillPayFee) o;
+
+        return new EqualsBuilder().append(id, that.id).append(feeName, that.feeName).append(feeDescription, that.feeDescription).append(optionalFlatAmount, that.optionalFlatAmount).append(optionalFlatRate, that.optionalFlatRate).append(feePaymentChargeTypeE, that.feePaymentChargeTypeE).append(feeTypeE, that.feeTypeE).append(billScheduleTypeE, that.billScheduleTypeE).append(billServiceRenderedTypeE, that.billServiceRenderedTypeE).append(business, that.business).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).append(feeName).append(feeDescription).append(optionalFlatAmount).append(optionalFlatRate).append(feePaymentChargeTypeE).append(feeTypeE).append(billScheduleTypeE).append(billServiceRenderedTypeE).append(business).toHashCode();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private BillPayFee billPayFee = new BillPayFee();
+
+        public Builder feeName(String feeName) {
+            billPayFee.feeName = feeName;
+            return this;
+        }
+
+        public Builder feeDescription(String feeDescription) {
+            billPayFee.feeDescription = feeDescription;
+            return this;
+        }
+
+        public Builder optionalFlatAmount(Double optionalFlatAmount) {
+            billPayFee.optionalFlatAmount = optionalFlatAmount;
+            return this;
+        }
+
+        public Builder optionalFlatRate(Double optionalFlatRate) {
+            billPayFee.optionalFlatRate = optionalFlatRate;
+            return this;
+        }
+
+        public Builder feePaymentChargeTypeE(FeePaymentChargeTypeE feePaymentChargeTypeE) {
+            billPayFee.feePaymentChargeTypeE = feePaymentChargeTypeE;
+            return this;
+        }
+
+        public Builder feeTypeE(FeeTypeE feeTypeE) {
+            billPayFee.feeTypeE = feeTypeE;
+            return this;
+        }
+
+        public Builder billScheduleTypeE(BillScheduleTypeE billScheduleTypeE) {
+            billPayFee.billScheduleTypeE = billScheduleTypeE;
+            return this;
+        }
+
+        public Builder billServiceRenderedTypeE(BillServiceRenderedTypeE billServiceRenderedTypeE) {
+            billPayFee.billServiceRenderedTypeE = billServiceRenderedTypeE;
+            return this;
+        }
+
+        public Builder business(Business business) {
+            billPayFee.business = business;
+            return this;
+        }
+
+        public BillPayFee build() {
+            return billPayFee;
+        }
+
     }
 
 }

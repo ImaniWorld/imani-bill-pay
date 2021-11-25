@@ -11,7 +11,10 @@ import com.imani.bill.pay.domain.payment.EmbeddedPayment;
 import com.imani.bill.pay.domain.payment.record.ImaniBillPayRecord;
 import com.imani.bill.pay.domain.utility.SewerServiceAgreement;
 import com.imani.bill.pay.domain.utility.WaterServiceAgreement;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 import org.springframework.util.Assert;
@@ -226,17 +229,22 @@ public class ImaniBill extends AuditableRecord {
         imaniBillToFees.add(imaniBillToFee);
     }
 
-    public void levyLateFee(BillPayFee billPayFee, Double feeAmount, DateTime qtrEndDateTime) {
+    public void levyLateFee(BillPayFee billPayFee, DateTime qtrEndDateTime) {
         Assert.notNull(billPayFee, "BillPayFee cannot be null");
         Assert.isTrue(billPayFee.getFeeTypeE() == FeeTypeE.LATE_FEE, "Levied fee must be of type LATE_FEE");
-        Assert.notNull(feeAmount, "feeAmount cannot be null");
         Assert.notNull(qtrEndDateTime, "qtrEndDateTime cannot be null");
+
+        // Compute the fee amount and update by adding it to the current amount owed on the bill
+        Double feeAmount = billPayFee.calculatFeeCharge(getAmountOwed());
+        double newAmountOwed = getAmountOwed() + feeAmount;
+        setAmountOwed(newAmountOwed);
 
         ImaniBillToFee imaniBillToFee = ImaniBillToFee.builder()
                 .billPayFee(billPayFee)
                 .imaniBill(this)
                 .feeEnforced(true)
                 .feeAmount(feeAmount)
+                .feeLeviedDate(qtrEndDateTime)
                 .build();
 
         // IF qtrEndDateTime > now then use now else use qtrEndDateTime.
@@ -254,6 +262,16 @@ public class ImaniBill extends AuditableRecord {
 
     public Set<ImaniBillToFee> getImaniBillFees() {
         return ImmutableSet.copyOf(imaniBillToFees);
+    }
+
+    public double totalFees() {
+        SummaryStatistics summaryStatistics = new SummaryStatistics();
+
+        imaniBillToFees.forEach(billToFee ->{
+            summaryStatistics.addValue(billToFee.getFeeAmount());
+        });
+
+        return summaryStatistics.getSum();
     }
 
     public boolean hasFees() {
@@ -355,6 +373,45 @@ public class ImaniBill extends AuditableRecord {
         });
 
         return imaniBillExplained;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImaniBill imaniBill = (ImaniBill) o;
+
+        return new EqualsBuilder()
+                .append(id, imaniBill.id)
+                .append(amountOwed, imaniBill.amountOwed)
+                .append(amountPaid, imaniBill.amountPaid)
+                .append(billScheduleTypeE, imaniBill.billScheduleTypeE)
+                .append(billServiceRenderedTypeE, imaniBill.billServiceRenderedTypeE)
+                .append(billScheduleDate, imaniBill.billScheduleDate)
+                .append(childCareAgreement, imaniBill.childCareAgreement)
+                .append(propertyLeaseAgreement, imaniBill.propertyLeaseAgreement)
+                .append(tuitionAgreement, imaniBill.tuitionAgreement)
+                .append(waterServiceAgreement, imaniBill.waterServiceAgreement)
+                .append(sewerServiceAgreement, imaniBill.sewerServiceAgreement)
+                .append(imaniBillToFees, imaniBill.imaniBillToFees)
+                .append(imaniBillPayRecords, imaniBill.imaniBillPayRecords)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(amountOwed)
+                .append(amountPaid)
+                .append(billScheduleTypeE)
+                .append(billServiceRenderedTypeE)
+                .append(billScheduleDate)
+                .append(childCareAgreement)
+                .append(propertyLeaseAgreement)
+                .append(tuitionAgreement).append(waterServiceAgreement).append(sewerServiceAgreement).append(imaniBillToFees).append(imaniBillPayRecords).toHashCode();
     }
 
     @Override

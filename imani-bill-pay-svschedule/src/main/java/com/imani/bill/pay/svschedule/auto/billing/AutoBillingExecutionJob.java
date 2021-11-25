@@ -55,8 +55,8 @@ public class AutoBillingExecutionJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        execWaterBilling();
-        execSewerBilling();
+        //execWaterBilling();
+        //execSewerBilling();
     }
 
     private void execWaterBilling() {

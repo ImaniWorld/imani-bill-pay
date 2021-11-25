@@ -9,6 +9,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * @author manyce400
  */
@@ -111,7 +114,15 @@ public class DateTimeUtil implements IDateTimeUtil {
     }
 
     @Override
-    public DateTime getDateTimeAStartOfCurrentQuarter() {
+    public DateTime getDateTimeAtStartOfPrevQuarter() {
+        Integer prevQtr = getPrevQuaterOfCurrentYear();
+        DateTime now = DateTime.now();
+        int currentYear = now.getYear();
+        return getQuarterStartDateTime(currentYear, prevQtr);
+    }
+
+    @Override
+    public DateTime getDateTimeAtStartOfCurrentQuarter() {
         DateTime now = DateTime.now();
         int currentYear = now.getYear();
         int currentQuarter = getCurrentQuaterOfCurrentYear();
@@ -123,6 +134,15 @@ public class DateTimeUtil implements IDateTimeUtil {
         int year = dateTime.getYear();
         int quarter = getDateTimeQuarter(dateTime);
         return getQuarterStartDateTime(year, quarter);
+    }
+
+    @Override
+    public DateTime getDateTimeAtStartOfNextQuarter(DateTime dateTime) {
+        Assert.notNull(dateTime, "dateTime cannot be null");
+        DateTime nextQtrStartDate = getDateTimeAtEndOfCurrentQuarter(dateTime);
+        nextQtrStartDate = nextQtrStartDate.plusMonths(1);
+        nextQtrStartDate = getDateTimeAtStartOfMonth(nextQtrStartDate);
+        return nextQtrStartDate;
     }
 
     @Override
@@ -141,6 +161,12 @@ public class DateTimeUtil implements IDateTimeUtil {
     }
 
     @Override
+    public ImmutablePair<DateTime, DateTime> getCurrQtrStartEndDates() {
+        DateTime dateTime = getDateTimeAtStartOfCurrentQuarter();
+        return getQuarterStartEndDates(dateTime);
+    }
+
+    @Override
     public ImmutablePair<DateTime, DateTime> getQuarterStartEndDates(DateTime dateTime) {
         DateTime qtrStart = getDateTimeAtStartOfQuarter(dateTime);
         DateTime qtrEnd = getDateTimeAtEndOfCurrentQuarter(dateTime);
@@ -151,8 +177,31 @@ public class DateTimeUtil implements IDateTimeUtil {
     public DateTime getDateTimeAStartOfNextQuarter() {
         // Get date at end of this current qtr and advance by 1month
         DateTime dateTime = getDateTimeAtEndOfCurrentQuarter();
-        dateTime.plusMonths(1);
+        dateTime = dateTime.plusMonths(1);
+        dateTime = getDateTimeAtStartOfMonth(dateTime);
         return dateTime;
+    }
+
+    @Override
+    public Set<DateTime> getAllQtrStartDatesBetween(DateTime start, DateTime end) {
+        Assert.notNull(start, "start cannot be null");
+        Assert.notNull(end, "end cannot be null");
+        Assert.isTrue(end.isAfter(start), "End date has to be after start");
+
+        Set<DateTime> startDateTimes = new LinkedHashSet<>();
+
+        // First normalize the start and end dates in range by getting at start of quarter
+        DateTime rangeStart = getDateTimeAtStartOfQuarter(start);
+        DateTime rangeEnd = getDateTimeAtStartOfQuarter(end);
+        startDateTimes.add(rangeStart);
+
+        DateTime nextInRange = getDateTimeAtStartOfNextQuarter(rangeStart);
+        do {
+            startDateTimes.add(nextInRange);
+            nextInRange = getDateTimeAtStartOfNextQuarter(nextInRange);
+        } while(!nextInRange.isAfter(rangeEnd));
+
+        return startDateTimes;
     }
 
     @Override
@@ -160,6 +209,17 @@ public class DateTimeUtil implements IDateTimeUtil {
         DateTime now = DateTime.now();
         int monthOfYear = now.getMonthOfYear();
         return getQuaterByMonthOfYear(monthOfYear);
+    }
+
+    @Override
+    public Integer getPrevQuaterOfCurrentYear() {
+        int currQtr = getCurrentQuaterOfCurrentYear();
+        if(currQtr == 1) {
+            // reset to 4
+            return 4;
+        }
+
+        return currQtr - 1;
     }
 
     @Override
@@ -287,7 +347,7 @@ public class DateTimeUtil implements IDateTimeUtil {
         int quarter = dateTimeUtil.getCurrentQuaterOfCurrentYear();
         System.out.println("quarter = " + quarter);
 
-        DateTime dateTime = dateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        DateTime dateTime = dateTimeUtil.getDateTimeAtStartOfCurrentQuarter();
         System.out.println("StartOfQtr = " + dateTime);
 
         dateTime = dateTimeUtil.getDateTimeAtEndOfCurrentQuarter();

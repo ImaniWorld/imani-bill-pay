@@ -43,7 +43,7 @@ public class ImaniBillService implements IImaniBillService {
     public boolean hasLateFeeBeenAppliedInCurrentQtr(ImaniBill imaniBill) {
         Assert.notNull(imaniBill, "ImaniBill cannot be null");
 
-        DateTime start = iDateTimeUtil.getDateTimeAStartOfCurrentQuarter();
+        DateTime start = iDateTimeUtil.getDateTimeAtStartOfCurrentQuarter();
         DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
 
         boolean feeApplied = false;

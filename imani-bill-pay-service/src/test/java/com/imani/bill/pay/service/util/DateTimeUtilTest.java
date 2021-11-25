@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Set;
+
 /**
  * @author manyce400 
  */
@@ -49,6 +51,14 @@ public class DateTimeUtilTest {
         String dateTimeAtEndOfMonth = DEFAULT_FORMATTER.print(dateTime);
         Assert.assertEquals("2019-09-30 00:00:00", dateTimeAtEndOfMonth);
     }
+    
+    @Test
+    public void testGetDateTimeAtStartOfNextQuarter() {
+        DateTime input = DateTime.parse("2021-09-05 00:00:00", DEFAULT_FORMATTER);
+        DateTime output = dateTimeUtil.getDateTimeAtStartOfNextQuarter(input);
+        String stringResult = DEFAULT_FORMATTER.print(output);
+        Assert.assertEquals("2021-10-01 00:00:00", stringResult);
+    }
 
     @Test
     public void testGetDateTimeAtStartOfYear() {
@@ -65,4 +75,14 @@ public class DateTimeUtilTest {
         int daysBetween = dateTimeUtil.getDaysBetweenDates(start, end);
         Assert.assertEquals(2, daysBetween);
     }
+    
+    @Test
+    public void testGetAllQtrStartDatesBetween() {
+        DateTime start = DateTime.parse("2021-01-01 00:00:00", DEFAULT_FORMATTER);
+        DateTime end = DateTime.parse("2021-09-05 00:00:00", DEFAULT_FORMATTER);
+
+        Set<DateTime> dateTimes = dateTimeUtil.getAllQtrStartDatesBetween(start, end);
+        System.out.println("dateTimes = " + dateTimes);
+    }
+    
 }

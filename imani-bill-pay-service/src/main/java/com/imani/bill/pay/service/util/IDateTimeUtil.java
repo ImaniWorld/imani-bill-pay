@@ -3,6 +3,8 @@ package com.imani.bill.pay.service.util;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.joda.time.DateTime;
 
+import java.util.Set;
+
 /**
  * @author manyce400
  */
@@ -26,11 +28,17 @@ public interface IDateTimeUtil {
 
     public String toDisplayDefault(DateTime dateTime);
 
-    public DateTime getDateTimeAStartOfCurrentQuarter();
+    public DateTime getDateTimeAtStartOfPrevQuarter();
+
+    public DateTime getDateTimeAtStartOfCurrentQuarter();
 
     public DateTime getDateTimeAtStartOfQuarter(DateTime dateTime);
 
+    public DateTime getDateTimeAtStartOfNextQuarter(DateTime dateTime);
+
     public DateTime getDateTimeAtEndOfCurrentQuarter();
+
+    public ImmutablePair<DateTime, DateTime> getCurrQtrStartEndDates();
 
     public ImmutablePair<DateTime, DateTime> getQuarterStartEndDates(DateTime dateTime);
 
@@ -38,7 +46,11 @@ public interface IDateTimeUtil {
 
     public DateTime getDateTimeAStartOfNextQuarter();
 
+    public Set<DateTime> getAllQtrStartDatesBetween(DateTime start, DateTime end);
+
     public Integer getCurrentQuaterOfCurrentYear();
+
+    public Integer getPrevQuaterOfCurrentYear();
 
     public Integer getDateTimeQuarter(DateTime dateTime);
 

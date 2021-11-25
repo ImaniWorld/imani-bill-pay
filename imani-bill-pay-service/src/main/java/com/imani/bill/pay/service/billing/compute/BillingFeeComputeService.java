@@ -1,14 +1,13 @@
 package com.imani.bill.pay.service.billing.compute;
 
 import com.imani.bill.pay.domain.agreement.EmbeddedAgreement;
-import com.imani.bill.pay.domain.billing.BillPayFee;
-import com.imani.bill.pay.domain.billing.FeeTypeE;
-import com.imani.bill.pay.domain.billing.ImaniBill;
-import com.imani.bill.pay.domain.billing.ImaniBillToFee;
+import com.imani.bill.pay.domain.billing.*;
 import com.imani.bill.pay.domain.billing.repository.IBillPayFeeRepository;
 import com.imani.bill.pay.domain.utility.EmbeddedUtilityService;
 import com.imani.bill.pay.service.billing.IImaniBillService;
 import com.imani.bill.pay.service.billing.ImaniBillService;
+import com.imani.bill.pay.service.billing.utility.IUtilityBillingDateService;
+import com.imani.bill.pay.service.billing.utility.UtilityBillingDateService;
 import com.imani.bill.pay.service.util.DateTimeUtil;
 import com.imani.bill.pay.service.util.IDateTimeUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -38,6 +37,10 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
     @Autowired
     @Qualifier(DateTimeUtil.SPRING_BEAN)
     private IDateTimeUtil iDateTimeUtil;
+
+    @Autowired
+    @Qualifier(UtilityBillingDateService.SPRING_BEAN)
+    private IUtilityBillingDateService iUtilityBillingDateService;
 
 
 
@@ -95,29 +98,33 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
         if (!imaniBill.isPaidInFull() && isBillLate) {
             // Lookup configured late fee by the utility provider on this agreement
             Optional<BillPayFee> lateBillPayFee = iBillPayFeeRepository.findBillPayFeeByFeeType(embeddedUtilityService.getUtilityProviderBusiness(), FeeTypeE.LATE_FEE);
+            LOGGER.info("ImaniBill[ID: {}, Owed: {}, Paid: {}] is late attempting to apply late fee...", imaniBill.getId(), imaniBill.getAmountOwed(), imaniBill.getAmountPaid());
 
             if (lateBillPayFee.isPresent()) {
-                // Compute the fee amount and update by adding it to the current amount owed on the bill
-                Double feeAmount = lateBillPayFee.get().calculatFeeCharge(imaniBill.getAmountOwed());
-                double newAmountOwed = imaniBill.getAmountOwed() + feeAmount;
-                imaniBill.setAmountOwed(newAmountOwed);
+                // Execute back fill logic.
+                // Starting from bill scheduled qtr date check till current qtr date for late fee applied in each qtr
+                // IF late fee is missing in a qtr go ahead and apply.
+                DateTime end = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
 
-                // Critical: Logic to make sure that only 1 late fee will be applied each quarter.  We don't levy more than 1 late fee in
-                ImmutablePair<DateTime, DateTime> quarterDates = iDateTimeUtil.getQuarterStartEndDates(imaniBill.getBillScheduleDate());
-                DateTime start = quarterDates.getLeft();
-                DateTime end = quarterDates.getRight();
-                Optional<ImaniBillToFee> lateFeeLeviedInQuarter = imaniBill.getLateFeeBetweenPeriod(start, end);
+                List<ImmutablePair<DateTime, DateTime>> qtlyBillingDatesTillNow = iUtilityBillingDateService.computeQtlyBillingDatesBetween(imaniBill.getBillScheduleDate(), end, BillScheduleTypeE.QUARTERLY);
+                qtlyBillingDatesTillNow.forEach(qtlyBillingDate ->{
+                    DateTime qtrStart = qtlyBillingDate.getLeft();
+                    DateTime qtrEnd = qtlyBillingDate.getRight();
 
-                if(!lateFeeLeviedInQuarter.isPresent()) {
-                    LOGGER.info("No late fee has been levied in Qtr[Start: {} | End: {}] on ImaniBill", start, end);
-                    imaniBill.levyLateFee(lateBillPayFee.get(), feeAmount, end);
-                } else {
-                    LOGGER.info("Detected a late fee levied in Qtr[Start: {} | End: {} | Fee: {}]", start, end, lateFeeLeviedInQuarter.get().getFeeAmount());
-                    lateFeeLeviedInQuarter.get().setFeeAmount(feeAmount);
-                }
+                    Optional<ImaniBillToFee> lateFeeLeviedInQuarter = imaniBill.getLateFeeBetweenPeriod(qtrStart, qtrEnd);
+                    if(!lateFeeLeviedInQuarter.isPresent()) {
+                        // time to levy a fee for this current quarter
+                        Object[] logArgs = {imaniBill.getId(), imaniBill.getAmountOwed(), qtrStart, qtrEnd};
+                        LOGGER.info("Applying late fee against ImaniBill[ID: {} | AmtOwed: {} | QtrStart: {} | QtrEnd: {}]", logArgs);
 
-                Object[] logArgs = {imaniBill.getId(), feeAmount, imaniBill.getAmountOwed()};
-                LOGGER.info("Computed late fee details ImaniBill[ID: {} | FeeAmount: {} | AmountOwed: {}]", logArgs);
+                        if(qtrStart.equals(imaniBill.getBillScheduleDate())) {
+                            DateTime levyDate = qtrStart.plusDays(embeddedAgreement.getNumberOfDaysTillLate());
+                            imaniBill.levyLateFee(lateBillPayFee.get(), levyDate);
+                        } else {
+                            imaniBill.levyLateFee(lateBillPayFee.get(), qtrStart);
+                        }
+                    }
+                });
 
             } else {
                 LOGGER.error("No configured late fee was found for Business[{}]", imaniBill.getId(), embeddedUtilityService.getUtilityProviderBusiness().getId());
@@ -125,4 +132,24 @@ public class BillingFeeComputeService implements IBillingFeeComputeService {
         }
     }
 
+    @Override
+    public boolean hasLateFeeBeenLeviedInCurrQtr(ImaniBill imaniBill) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        ImmutablePair<DateTime, DateTime> quarterDates = iDateTimeUtil.getCurrQtrStartEndDates();
+        DateTime start = quarterDates.getLeft();
+        DateTime end = quarterDates.getRight();
+        Optional<ImaniBillToFee> lateFeeLeviedInQuarter = imaniBill.getLateFeeBetweenPeriod(start, end);
+        return lateFeeLeviedInQuarter.isPresent();
+    }
+
+    @Override
+    public boolean hasLateFeeBeenLeviedInBillSchedQtr(ImaniBill imaniBill) {
+        Assert.notNull(imaniBill, "ImaniBill cannot be null");
+        Assert.notNull(imaniBill.getBillScheduleDate(), "ImaniBill scheduled date cannot be null");
+        ImmutablePair<DateTime, DateTime> quarterDates = iDateTimeUtil.getQuarterStartEndDates(imaniBill.getBillScheduleDate());
+        DateTime start = quarterDates.getLeft();
+        DateTime end = quarterDates.getRight();
+        Optional<ImaniBillToFee> lateFeeLeviedInSchedQuarter = imaniBill.getLateFeeBetweenPeriod(start, end);
+        return lateFeeLeviedInSchedQuarter.isPresent();
+    }
 }

@@ -9,6 +9,8 @@ import com.imani.bill.pay.domain.education.SchoolToTuitionGrade;
 import com.imani.bill.pay.domain.education.TuitionGrade;
 import com.imani.bill.pay.domain.payment.IHasPaymentInfo;
 import com.imani.bill.pay.domain.utility.UtilityServiceArea;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.Assert;
 
@@ -138,6 +140,36 @@ public class Business extends AuditableRecord implements IHasPaymentInfo {
                 .embeddedContactInfo(embeddedContactInfo)
                 .build();
         return businessLite;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Business business = (Business) o;
+
+        return new EqualsBuilder()
+                .append(id, business.id)
+                .append(name, business.name)
+                .append(embeddedContactInfo, business.embeddedContactInfo)
+                .append(stripeAcctID, business.stripeAcctID)
+                .append(businessTypeE, business.businessTypeE)
+                .append(address, business.address)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(name)
+                .append(embeddedContactInfo)
+                .append(stripeAcctID)
+                .append(businessTypeE)
+                .append(address)
+                .toHashCode();
     }
 
     @Override

@@ -56,7 +56,8 @@ public class WaterSvcBillGenerationService  implements IBillGenerationService<Wa
         Assert.notNull(waterServiceAgreement, "WaterServiceAgreement cannot be null");
 
         if(waterServiceAgreement.getEmbeddedAgreement().getBillScheduleTypeE() == BillScheduleTypeE.QUARTERLY) {
-            DateTime billScheduleDate = iDateTimeUtil.getDateTimeAtEndOfCurrentQuarter();
+            // Current bill will always be due at the start of next quarter based on this quarter's utilization
+            DateTime billScheduleDate = iDateTimeUtil.getDateTimeAStartOfNextQuarter();
             Optional<ImaniBill> imaniBill = getImaniBillForEntity(waterServiceAgreement, billScheduleDate);
 
             if(!imaniBill.isPresent()) {
